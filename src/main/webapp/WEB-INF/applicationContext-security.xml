@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+                                 http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                                 http://www.springframework.org/schema/security
+                                 http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+    <http pattern="/public/**" security="none"/>
+    <http pattern="/test/**" security="none"/>
+
+    <http auto-config="true">
+        <!-- Login pages -->
+        <form-login login-page="/login" default-target-url="/welcome" always-use-default-target="true"
+                    authentication-failure-handler-ref="afh"/>
+        <logout logout-success-url="/login?logout"/>
+        <!-- Security zones -->
+        <intercept-url pattern="/login" access="isAnonymous()"/>
+        <intercept-url pattern="/register" access="isAnonymous()"/>
+        <!--<intercept-url pattern="/login" access="isAnonymous() or hasRole('USER')" />-->
+
+        <intercept-url pattern="/**" access="hasRole('USER')"/>
+
+        <csrf disabled="true"/>
+    </http>
+
+    <beans:bean id="cap" class="com.haystaxs.ui.util.HsAuthProvider">
+        <beans:property name="hideUserNotFoundExceptions" value="false"/>
+    </beans:bean>
+    <beans:bean id="afh" class="com.haystaxs.ui.util.HsAuthFailureHandler"/>
+
+    <authentication-manager alias="authenticationManager">
+        <!-- Authentication using a memory hsUser list -->
+        <!--<authentication-provider>
+            <hsUser-service>
+                <hsUser name="jim" password="123" authorities="ROLE_USER"/>
+            </hsUser-service>
+        </authentication-provider>-->
+        <authentication-provider ref="cap"/>
+    </authentication-manager>
+</beans:beans>

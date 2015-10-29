@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="common_fragments::head(bootgrid=true)"></th:block>
+    <th:block th:include="common_fragments::visualizer_head"></th:block>
+    <style type="text/css">
+        .nodeShape {
+        }
+
+        .link {
+        }
+
+        .nodeText {
+        }
+
+        .nodeIcon {
+        }
+    </style>
+
+    <th:block th:remove="all">
+        <title>Haystaxs - Optimize your clusters</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
+        <!-- jQuery UI CSS -->
+        <!--<link href="../vendor/jquery-ui-1.11.4.custom/jquery-ui.css" rel="stylesheet">-->
+        <!-- Select2 CSS -->
+        <link href="../bower_components/select2/dist/css/select2.min.css" rel="stylesheet"/>
+        <link href="../bower_components/select2-bootstrap-theme/dist/select2-bootstrap.min.css" rel="stylesheet"/>
+
+        <!-- Custom CSS -->
+        <link href="../dist/css/haystackui.css" rel="stylesheet"/>
+
+        <!-- Custom Fonts -->
+        <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+
+        <!-- BootGrid -->
+        <link href="../vendor/jquery.bootgrid.css" rel="stylesheet" type="text/css"/>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </th:block>
+</head>
+<body>
+<th:block th:include="common_fragments::page_header"></th:block>
+<!-- START PAGE CONTENT -->
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6">
+                <!-- VISUALIZATION FILTERS -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-target="#visualizer-filters-panel" title="">
+                        <span>Visualization Filters</span>
+                        <span class="fa fa-minus pull-right"></span>
+                    </div>
+                    <div class="panel-body collapse in" id="visualizer-filters-panel">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <!--<label id="selected-filename"
+                                               style="cursor: pointer; max-width: 165px; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0px"
+                                               data-toggle="tooltip"
+                                               title="">Choose file...</label>
+                                        <input type="file" id="input-file" style="display: none"/>-->
+                                    </div>
+                                    <div class="form-group">
+                                        <select id="schema-select" class="form-control" style="width: 220px">
+                                            <option value="HS_ALL_SCHEMAS">ALL_SCHEMAS</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <input id="tables-to-display" type="number"
+                                               class="form-control input-width-small" data-toggle="tooltip"
+                                               title="No. of tables to display"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <!--<label class="control-label" data-toggle="tooltip" title="and greater than"> &gt; &nbsp; </label>-->
+                                        <input id="display-based-on-filter" type="number"
+                                               class="form-control input-width-medium" value="0" data-toggle="tooltip"
+                                               title="score greater than"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <button id="apply-filters" type="button" class="btn btn-info"
+                                                style="width: 140px">Apply
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- VISUALIZATION OPTIONS -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" data-toggle="collapse" data-target="#visualizer-options-panel" title="">
+                        <span>Visualization Options</span>
+                        <span class="fa fa-minus pull-right"></span>
+                    </div>
+                    <div class="panel-body collapse in" id="visualizer-options-panel">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <label class="control-label" style="padding-top: 9px; padding-bottom: 8px;">Display
+                                            Nodes by: </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="radio-inline">
+                                            <input type="radio" name="display-according-to" value="score"
+                                                   checked="checked" id="r1"/>Score
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="display-according-to" value="size" id="r2"/>Size
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="display-according-to" value="time" id="r3"/>Time
+                                        </label>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-9" id="visualizer-panel-container">
+                <!-- CLUSTER VISUAL -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a href="#" id="toggle-info-pane-size" class="fa fa-arrow-left fa-2x pull-right"
+                           style="text-decoration: none; font-size: 1.5em"></a>
+                        Cluster Visual <span id="showing-table-count"></span>
+                    </div>
+                    <div class="panel-body">
+                        <div id="canvas-holder"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3" id="info-panel-container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <!-- TABLE INFO TABS -->
+                            <div class="panel-heading">
+                                Table Info for: <label id="selected-table-label"></label>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-inline" style="margin-bottom: 10px">
+                                    <div class="form-group">
+                                        <select id="table-select" class="form-control" style="width: 100px"></select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <ul class="nav nav-tabs" role="tablist" id="table-info-tabs">
+                                        <li role="presentation" class="active">
+                                            <a href="#summary-tab" role="tab" data-hs-name="summary"
+                                               data-toggle="tab">Summary</a></li>
+                                        <li role="presentation">
+                                            <a href="#columns-tab" role="tab" data-hs-name="columns"
+                                               data-toggle="tab">Columns</a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#joins-tab" role="tab" data-hs-name="joins"
+                                               data-toggle="tab">Joins</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <!-- SUMMARY GRID -->
+                                        <div role="tabpanel" class="tab-pane active" id="summary-tab">
+                                            <table id="summary-grid"
+                                                   class="table table-condensed table-hover table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th data-column-id="name">Name</th>
+                                                    <th data-column-id="value">Value</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- COLUMNS GRID -->
+                                        <div role="tabpanel" class="tab-pane" id="columns-tab">
+                                            <!--<form class="form-inline">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" id="show-all-columns"
+                                                               onchange="onShowAllColumnsChecked()"> <span>Show all columns</span>
+                                                    </label>
+                                                </div>
+                                                &lt;!&ndash;<label class="control-label" id="num-of-cols-showing"></label>&ndash;&gt;
+                                                <span id="num-of-cols-showing"></span>
+                                            </form>-->
+                                            <table id="columns-grid"
+                                                   class="table table-condensed table-hover table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <!-- One way to customize column width...
+                                                        <th data-column-id="name" data-formatter="name" data-header-css-class="cbg-header-name">Name</th>
+                                                    -->
+                                                    <th data-column-id="name" data-formatter="name" data-width="50%">
+                                                        Name
+                                                    </th>
+                                                    <th data-column-id="usage-freq" data-order="desc">Score</th>
+                                                    <th data-column-id="where-usage" data-formatter="whereInfo">Where
+                                                        Usage
+                                                    </th>
+                                                    <!--<th data-column-id="more-info" data-formatter="additionalInfo"></th>-->
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- JOINS GRID -->
+                                        <div role="tabpanel" class="tab-pane" id="joins-tab">
+                                            <table id="joins-grid"
+                                                   class="table table-condensed table-hover table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th data-column-id="left-table" data-formatter="tableSummary">L.
+                                                        Table
+                                                    </th>
+                                                    <th data-column-id="right-table" data-formatter="tableSummary">R.
+                                                        Table
+                                                    </th>
+                                                    <th data-column-id="join-usage-score" data-order="desc">Score</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <!-- DK GRID -->
+                        <div class="panel panel-default" id="dk-info-panel">
+                            <div class="panel-heading">
+                                Distribution Keys
+                            </div>
+                            <div class="panel-body">
+                                <table id="dk-info-grid"
+                                       class="table table-condensed table-hover table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th data-column-id="name">Name</th>
+                                        <th data-column-id="usage-freq">Usage Freq</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- COLUMN ADDITIONAL INFO GRID -->
+                        <!--<div class="panel panel-default" id="column-additional-info-panel" style="display: none">
+                            <div class="panel-heading">
+                                Column details for: <label id="selected-column-label"></label>
+                            </div>
+                            <div class="panel-body">
+                                <table id="column-additional-info-grid"
+                                       class="table table-condensed table-hover table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th data-column-id="where-clause">Where Clause</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>-->
+                        <!-- JOIN ADDITIONAL GRID -->
+                        <div class="panel panel-default" id="join-additional-info-panel" style="display: none">
+                            <div class="panel-heading">
+                                Additional Info for join
+                            </div>
+                            <div class="panel-body">
+                                <table id="join-additional-info-grid"
+                                       class="table table-condensed table-hover table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th data-column-id="left-column">L. Column</th>
+                                        <th data-column-id="right-column">R. Column</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="common_fragments::footer_scripts(bootgrid=true)"></th:block>
+<th:block th:include="common_fragments::visulaizer_footer_scripts"></th:block>
+<!--<script src="../node_modules/console-log-div/console-log-div.js"></script>-->
+
+<script type="text/javascript" th:inline="javascript">
+    $(function () {
+        dataModel = new Haystaxs.DataModel(JSON.parse([[${backendJSON}]]));
+        dataLoadSuccessful();
+    });
+</script>
+</body>
+</html>

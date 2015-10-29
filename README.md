@@ -1,4 +1,3 @@
 # haystaxs-ui
 
-DOCTOR MAMA
-Haan working
+It's Working.....

@@ -1,0 +1,2 @@
+insert into haystack_ui.users(user_id, password, organization, created_on, email_address, full_name, reg_verified)
+	values ((select nextval('haystack_ui.seq_users')), 'abc123', 'Haystack', localtimestamp, 'mujtaba.qadri@gmail.com', 'Mujtaba Qadri', true);

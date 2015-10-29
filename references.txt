@@ -1,0 +1,24 @@
+slf4j =>
+    http://saltnlight5.blogspot.ae/2013/08/how-to-configure-slf4j-with-different.html
+
+spring.jdbc =>
+    http://javatechig.com/java/spring/java-spring-jdbc-using-jdbctemplate-example
+
+properties with spring =>
+    http://www.javacodegeeks.com/2012/02/properties-with-spring.html
+    http://www.baeldung.com/2012/02/06/properties-with-spring/#xml
+
+String.format =>
+    http://alvinalexander.com/programming/printf-format-cheat-sheet
+
+Custom Authentication => (Gaand maar di is nay BC)
+    https://aykutakin.wordpress.com/2013/07/08/spring-security-spring-custom-authentication-provider/
+
+Spring MVC Request Mapping =>
+    http://www.journaldev.com/3358/spring-mvc-requestmapping-annotation-example-with-controller-methods-headers-params-requestparam-pathvariable
+
+Spring File upload
+    http://www.journaldev.com/2573/spring-mvc-file-upload-example-tutorial-single-and-multiple-files
+
+Spring MVC Custom Parameter Resolution
+    https://sergialmar.wordpress.com/2011/03/29/extending-handler-method-argument-resolution-in-spring-mvc/

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="common_fragments::head(bootgrid=true)">
+    <!-- Bootstrap Core CSS -->
+    <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- Custom Fonts -->
+    <link href="/bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <!-- Custom CSS -->
+    <link href="/css/haystackui.css" rel="stylesheet"/>
+</head>
+<body>
+<th:block th:include="common_fragments::page_header"></th:block>
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
+                <!-- CREATE RUNLOG FORM PANEL -->
+                <div class="panel panel-default">
+                    <div class="panel-heading" title="">
+                        <span>Submit a Query Log</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <!-- CREATE RUNLOG FORM -->
+                                <form action="#" th:action="@{/querylog/create}" method="post" th:object="${queryLog}" enctype="multipart/form-data">
+                                    <!--<div class="form-group">-->
+                                    <!--<label>Name</label>-->
+                                    <!--<input type="text" class="form-control" th:field="*{runlogName}"/>-->
+                                    <!--</div>-->
+                                    <div class="form-group">
+                                        <label>Query Log <b>zip</b> file</label>
+                                        <input type="file" class="form-control" id="querylog-file" name="querylog-file"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" th:hidden="true" th:value="*{gpsdId}" id="gpsdId" name="gpsdId"/>
+                                        <input type="submit" class="btn btn-primary pull-right" value="Submit Workload"/>
+                                    </div>
+                                    <p th:utext="${error}" class="text-danger"></p>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="common_fragments::footer_scripts(true)"></th:block>
+</body>
+</html>
