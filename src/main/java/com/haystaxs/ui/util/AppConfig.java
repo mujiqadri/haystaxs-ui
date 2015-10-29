@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 public class AppConfig {
     @Value("#{appProps['gpsd.saveDirectory']}")
     private String gpsdSaveDirectory;
-    @Value("#{appProps['runlog.saveDirectory']}")
-    private String runlogSaveDirectory;
+    @Value("#{appProps['querylog.saveDirectory']}")
+    private String queryLogSaveDirectory;
     @Value("#{appProps['ftp.host']}")
     private String ftpHost;
     @Value("#{appProps['ftp.user']}")
@@ -20,6 +20,8 @@ public class AppConfig {
     private String ftpPassword;
     @Value("#{appProps['saveToFtp']}")
     private boolean saveToFtp;
+    @Value("#{appProps['repository.haystackSchema']}")
+    private String hsSchemaName;
 
     public String getGpsdSaveDirectory() {
         return gpsdSaveDirectory;
@@ -29,12 +31,12 @@ public class AppConfig {
         this.gpsdSaveDirectory = gpsdSaveDirectory;
     }*/
 
-    public String getRunlogSaveDirectory() {
-        return runlogSaveDirectory;
+    public String getQueryLogSaveDirectory() {
+        return queryLogSaveDirectory;
     }
 
-    /*public void setRunlogSaveDirectory(String runlogSaveDirectory) {
-        this.runlogSaveDirectory = runlogSaveDirectory;
+    /*public void setRunlogSaveDirectory(String queryLogSaveDirectory) {
+        this.queryLogSaveDirectory = queryLogSaveDirectory;
     }*/
 
     public String getFtpHost() {
@@ -51,5 +53,9 @@ public class AppConfig {
 
     public boolean isSaveToFtp() {
         return saveToFtp;
+    }
+
+    public String getHsSchemaName() {
+        return hsSchemaName;
     }
 }

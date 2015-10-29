@@ -1,5 +1,6 @@
 package com.haystaxs.ui.business.entities.repositories;
 
+import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.web.controllers.AuthController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +17,11 @@ public class RepositoryBase {
     protected DataSource dataSource;
     protected JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private AppConfig appConfig;
+
     public RepositoryBase(){
-        logger.debug("RepositoryBase instantiated.");
+        logger.trace(logger.getName() + " instantiated.");
     }
 
     @Autowired
@@ -26,7 +30,7 @@ public class RepositoryBase {
         jdbcTemplate = new JdbcTemplate(this.dataSource);
     }
 
-    protected String hsSchemaName() {
-        return "haystack";
+    protected String getHsSchemaName() {
+        return appConfig.getHsSchemaName();
     }
 }

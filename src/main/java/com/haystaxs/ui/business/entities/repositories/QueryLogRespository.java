@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by Adnan on 10/22/2015.
@@ -17,7 +16,8 @@ public class QueryLogRespository extends RepositoryBase{
     final static Logger logger = LoggerFactory.getLogger(QueryLogRespository.class);
 
     public QueryLogRespository() {
-        logger.debug(logger.getName() + " instantiated.");
+        logger.trace(logger.getName() + " instantiated.");
+
     }
 
     public List<QueryLog> getAllForGpsd(int gpsdId, int userId) {
@@ -37,13 +37,12 @@ public class QueryLogRespository extends RepositoryBase{
         return result;
     }
 
-    public int createNew(QueryLog queryLog, int gpsdId, int userId, StringBuilder sb) {
-        String sql = "select nextval('haystack.seq_query_log')";
+    public int createNew(QueryLog queryLog, int gpsdId, int userId) {
+        String sql = String.format("select nextval('%s.seq_query_log')", getHsSchemaName());
         int newQueryLogId = jdbcTemplate.queryForObject(sql, Integer.class);
 
-        sql = "INSERT INTO haystack.query_log(query_log_id, gpsd_id, user_id, directory_name, submitted_on) VALUES (?, ?, ?, ?, ?, localtimestamp)";
-        sb.append(UUID.randomUUID().toString());
-        jdbcTemplate.update(sql, new Object[] { newQueryLogId, gpsdId, userId, sb.toString()});
+        sql = String.format("INSERT INTO %s.query_log(query_log_id, gpsd_id, user_id, submitted_on) VALUES (?, ?, ?, localtimestamp)", getHsSchemaName());
+        jdbcTemplate.update(sql, new Object[] { newQueryLogId, gpsdId, userId });
 
         return newQueryLogId;
     }

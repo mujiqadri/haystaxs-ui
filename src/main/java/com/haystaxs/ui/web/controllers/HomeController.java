@@ -121,14 +121,17 @@ public class HomeController {
         }
 
         // Create a database entry for the GPSD
-        StringBuilder uploadedGpsdFileName = new StringBuilder();
-        int newGpsdId = gpsdRepository.createNew(gpsd, hsUser.getUserId(), uploadedGpsdFileName);
-        String filePath = appConfig.getGpsdSaveDirectory() + File.separator +
-                miscUtil.getNormalizedUserName(hsUser.getEmailAddress()) + File.separator +
-                "gpsd";
+        //StringBuilder uploadedGpsdFileName = new StringBuilder();
+        String originalFileName = gpsdFile.getOriginalFilename();
+        int newGpsdId = gpsdRepository.createNew(gpsd, hsUser.getUserId(), originalFileName);
+        String normalizedUserName = miscUtil.getNormalizedUserName(hsUser.getEmailAddress());
+        String fileDirectory = appConfig.getGpsdSaveDirectory() + File.separator +
+                normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
+
+        logger.debug("Saving GPSD file to " + fileDirectory + File.separator + originalFileName);
 
         try {
-            fileUtil.SaveFileToPath(gpsdFile, filePath, uploadedGpsdFileName.toString());
+            fileUtil.SaveFileToPath(gpsdFile, fileDirectory, originalFileName);
         }
         catch (Exception e) {
             //return "You failed to upload " + name + " => " + e.getMessage();
@@ -136,14 +139,18 @@ public class HomeController {
             return "forward:/database/new";
         }
 
-        String gpsdFilePath = appConfig.getGpsdSaveDirectory() + File.separator + filePath;
+        String gpsdFilePath = fileDirectory + File.separator + originalFileName;
         // NOTE: The next 2 lines should not be in the webapp code
         ConfigProperties configProperties = new ConfigProperties();
         configProperties.loadProperties();
 
-
         CatalogService cs = new CatalogService(configProperties);
-        cs.executeGPSD(newGpsdId, miscUtil.getNormalizedUserName(hsUser.getEmailAddress()), gpsdFilePath);
+        boolean hadErrors = cs.executeGPSD(newGpsdId, normalizedUserName, gpsdFilePath);
+
+        if(hadErrors) {
+            logger.debug(String.format("CatalogService.processGPSD(%d, %s, %s) ran with some errors !", newGpsdId, normalizedUserName,
+                    gpsdFilePath));
+        }
 
         // NOTE: statusText should come from a constant
         //internalJobsRepository.createNew(hsUser.getUserId(), "GPSD_SUBMITTED", newGpsdId);
@@ -195,7 +202,7 @@ public class HomeController {
     @RequestMapping(value = "/querylog/create", method = RequestMethod.POST)
     public String uploadQueryLog(QueryLog queryLog,
                              @RequestParam Map<String, String> reqParams,
-                             @RequestParam("workload-file") MultipartFile queryLogFile,
+                             @RequestParam("querylog-file") MultipartFile queryLogFile,
                              Model model, BindingResult bindingResult) throws Exception {
 
         HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
@@ -207,17 +214,18 @@ public class HomeController {
         }
 
         // Create a database entry for the GPSD
-        StringBuilder uploadedQueryLogDirName = new StringBuilder();
-        int newQueryLogId = queryLogRespository.createNew(queryLog, queryLog.getGpsdId(), hsUser.getUserId(), uploadedQueryLogDirName);
+        int newQueryLogId = queryLogRespository.createNew(queryLog, queryLog.getGpsdId(), hsUser.getUserId());
+        String normalizedUserName = miscUtil.getNormalizedUserName(hsUser.getEmailAddress());
+        String fileBaseDir = appConfig.getQueryLogSaveDirectory() + File.separator + normalizedUserName +
+                File.separator + "querylogs" + File.separator + newQueryLogId;
 
         try {
-            String zippedFilePath = appConfig.getRunlogSaveDirectory() + File.separator + uploadedQueryLogDirName.toString();
             String zipFileName = queryLogFile.getOriginalFilename();
 
-            fileUtil.SaveFileToPath(queryLogFile, zippedFilePath, zipFileName);
+            fileUtil.SaveFileToPath(queryLogFile, fileBaseDir, zipFileName);
 
             // Unzip the file
-            fileUtil.unZip(zippedFilePath + File.separator + zipFileName, zippedFilePath);
+            fileUtil.unZip(fileBaseDir + File.separator + zipFileName, fileBaseDir);
         }
         catch (Exception e) {
             //return "You failed to upload " + name + " => " + e.getMessage();
@@ -225,14 +233,26 @@ public class HomeController {
             return "forward:/querylog/new";
         }
 
+        // NOTE: The next 2 lines should not be in the webapp code
+        ConfigProperties configProperties = new ConfigProperties();
+        configProperties.loadProperties();
+
+        CatalogService cs = new CatalogService(configProperties);
+        boolean hadErrors = cs.processQueryLog(newQueryLogId, normalizedUserName, fileBaseDir);
+
+        if(hadErrors) {
+            logger.debug(String.format("CatalogService.processQueryLog(%d, %s, %s) ran with some errors !", newQueryLogId, normalizedUserName,
+                    fileBaseDir));
+        }
+
         // NOTE: statusText should come from a constant
-        internalJobsRepository.createNew(hsUser.getUserId(), "QUERYLOG_SUBMITTED", newQueryLogId);
+        //internalJobsRepository.createNew(hsUser.getUserId(), "QUERYLOG_SUBMITTED", newQueryLogId);
 
         // NOTE: I don't really need to send out an email here as the next screen can show this message..
 
         model.addAttribute("pageName", "Query Log upload success");
 
-        return "runLogUploadSuccessful";
+        return "queryLogUploadSuccessful";
     }
 
     @RequestMapping("/visualizer")

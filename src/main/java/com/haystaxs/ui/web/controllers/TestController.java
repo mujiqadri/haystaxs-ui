@@ -1,7 +1,6 @@
 package com.haystaxs.ui.web.controllers;
 
 import com.haystaxs.ui.business.entities.RunLog;
-import com.haystaxs.ui.business.entities.repositories.RunLogRespository;
 import com.haystaxs.ui.business.entities.repositories.UserRepository;
 import com.haystaxs.ui.util.*;
 import org.slf4j.Logger;
@@ -27,11 +26,7 @@ public class TestController {
     private Environment env;
     //@Qualifier("usi")
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private RunLogRespository runLogRespository;
     @Autowired
     private MailUtil mailUtil;
     @Autowired
@@ -84,9 +79,9 @@ public class TestController {
 
     @RequestMapping("/test/pg/{pgName}")
     public String testPage(@PathVariable String pgName, Model model) {
-        RunLog runLog = runLogRespository.getRunLogById(1, 1);
+        //RunLog runLog = runLogRespository.getRunLogById(1, 1);
 
-        model.addAttribute("backendJSON", runLog.getModelJson());
+        //model.addAttribute("backendJSON", runLog.getModelJson());
 
         return pgName;
     }

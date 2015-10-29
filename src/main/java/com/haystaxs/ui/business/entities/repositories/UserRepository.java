@@ -4,13 +4,9 @@ import com.haystaxs.ui.business.entities.HsUser;
 import com.haystaxs.ui.business.entities.repositories.rowmappers.HsUserRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.util.*;
 
 /**
@@ -21,11 +17,11 @@ public class UserRepository extends  RepositoryBase{
     final static Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
     public UserRepository() {
-        logger.debug("UserRepository instantiated");
+        logger.trace(logger.getName() + " instantiated.");
     }
 
     public HsUser findUserByEmail(String email) {
-        String sql = String.format("select * from %s.users where email_address = '%s'", hsSchemaName(), email);
+        String sql = String.format("select * from %s.users where email_address = '%s'", getHsSchemaName(), email);
 
         try {
             return (HsUser) jdbcTemplate.queryForObject(sql, new HsUserRowMapper());

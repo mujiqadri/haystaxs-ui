@@ -16,23 +16,10 @@
     <context:annotation-config />
     <context:component-scan base-package="com.haystaxs.ui"/>
 
-    <!-- **************************************************************** -->
-    <!--  SPRING JDBCTemplate                                             -->
-    <!-- **************************************************************** -->
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-          p:driverClassName="org.postgresql.Driver"
-          p:url="jdbc:postgresql://localhost:5432/haystaxsdb"
-          p:username="gpadmin"
-          p:password="pwd"/>
-    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-          p:driverClassName="org.postgresql.Driver"
-          p:url="jdbc:postgresql://24.150.86.245:5432/haystack"
-          p:username="gpadmin"
-          p:password="pwd"/>-->
-
+    <!-- Database Connectivity -->
+    <import resource="applicationContext-database.xml" />
     <!-- Security (authentication and authorization) configuration -->
     <import resource="applicationContext-security.xml" />
     <!-- Email configuration -->
     <import resource="applicationContext-mail.xml" />
-
 </beans>
