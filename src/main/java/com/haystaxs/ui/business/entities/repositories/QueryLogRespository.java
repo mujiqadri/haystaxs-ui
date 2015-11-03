@@ -21,7 +21,7 @@ public class QueryLogRespository extends RepositoryBase{
     }
 
     public List<QueryLog> getAllForGpsd(int gpsdId, int userId) {
-        String sql = "select * from haystack.query_log where gpsd_id = ? and user_id = ? order by submitted_on";
+        String sql = "select * from haystack.query_logs where gpsd_id = ? and user_id = ? order by submitted_on";
 
         //List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new GpsdRowMapper());
         List<QueryLog> resultSet = jdbcTemplate.query(sql, new Object[] { gpsdId, userId }, new BeanPropertyRowMapper(QueryLog.class));
@@ -30,7 +30,7 @@ public class QueryLogRespository extends RepositoryBase{
     }
 
     public QueryLog getById(int queryLogId, int userId) {
-        String sql = "select * from haystack.query_log where query_log_id = ? and user_id = ?";
+        String sql = "select * from haystack.query_logs where query_log_id = ? and user_id = ?";
 
         QueryLog result = jdbcTemplate.queryForObject(sql, new Object[] { queryLogId, userId }, new BeanPropertyRowMapper<QueryLog>(QueryLog.class));
 
@@ -41,7 +41,7 @@ public class QueryLogRespository extends RepositoryBase{
         String sql = String.format("select nextval('%s.seq_query_log')", getHsSchemaName());
         int newQueryLogId = jdbcTemplate.queryForObject(sql, Integer.class);
 
-        sql = String.format("INSERT INTO %s.query_log(query_log_id, gpsd_id, user_id, submitted_on) VALUES (?, ?, ?, localtimestamp)", getHsSchemaName());
+        sql = String.format("INSERT INTO %s.query_logs(query_log_id, gpsd_id, user_id, submitted_on) VALUES (?, ?, ?, localtimestamp)", getHsSchemaName());
         jdbcTemplate.update(sql, new Object[] { newQueryLogId, gpsdId, userId });
 
         return newQueryLogId;

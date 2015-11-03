@@ -19,8 +19,8 @@ public class GpsdRepository extends RepositoryBase {
         logger.trace(logger.getName() + " instantiated.");
     }
 
-    public List<Gpsd> getAllForUser(int userId) {
-        String sql = "select * from haystack.gpsd where user_id = ?";
+    public List<Gpsd> getAll(int userId) {
+        String sql = String.format("select * from %s.gpsd where user_id = ?", getHsSchemaName());
 
         //List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new GpsdRowMapper());
         List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new BeanPropertyRowMapper<Gpsd>(Gpsd.class));

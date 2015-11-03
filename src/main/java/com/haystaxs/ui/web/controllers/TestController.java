@@ -1,15 +1,20 @@
 package com.haystaxs.ui.web.controllers;
 
-import com.haystaxs.ui.business.entities.RunLog;
 import com.haystaxs.ui.business.entities.repositories.UserRepository;
-import com.haystaxs.ui.util.*;
+import com.haystaxs.ui.util.FileUtil;
+import com.haystaxs.ui.util.MailUtil;
+import com.haystaxs.ui.util.MiscUtil;
+import com.haystaxs.ui.util.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 
@@ -18,7 +23,7 @@ import java.io.IOException;
  */
 @Controller
 public class TestController {
-    final static Logger logger = LoggerFactory.getLogger(AuthController.class);
+    final static Logger logger = LoggerFactory.getLogger(TestController.class);
 
 //    @Value("#{appProps.sfp}")
 //    private String sfp;
@@ -112,5 +117,12 @@ public class TestController {
         fileUtil.uploadFileToFtp(null, "chikna@chiknee.chicken/gpsd", null);
 
         return "FTP Success";
+    }
+
+    @RequestMapping("/test/log4j")
+    @ResponseBody
+    public String testLog4j() {
+        logger.debug("The quick brown fox jumps over the lazy dog and the lazy dog just sits there doing fucking nothing !!!");
+        return "Done logging";
     }
 }

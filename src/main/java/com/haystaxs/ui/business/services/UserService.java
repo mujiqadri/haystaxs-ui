@@ -14,4 +14,8 @@ public class UserService {
     private UserRepository userRepository;
 
     public UserService() {}
+
+    public void registerUser(HsUser hsUser) {
+        userRepository.createNew(hsUser);
+    }
 }

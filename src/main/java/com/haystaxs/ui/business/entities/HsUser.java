@@ -21,6 +21,7 @@ public class HsUser {
     private String regVerificationCode = null;
     private boolean regVerified = false;
     private String password;
+    private String userName;
 
     public HsUser() {
     }
@@ -111,5 +112,13 @@ public class HsUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

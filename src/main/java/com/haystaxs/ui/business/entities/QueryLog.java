@@ -10,7 +10,6 @@ public class QueryLog {
     private int gpsdId;
     private int userId;
     private Timestamp submittedOn;
-    private String directoryName;
 
     public int getQueryLogId() {
         return queryLogId;
@@ -44,11 +43,4 @@ public class QueryLog {
         this.submittedOn = submittedOn;
     }
 
-    public String getDirectoryName() {
-        return directoryName;
-    }
-
-    public void setDirectoryName(String directoryName) {
-        this.directoryName = directoryName;
-    }
 }

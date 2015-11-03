@@ -5,12 +5,14 @@ import com.haystack.util.ConfigProperties;
 import com.haystaxs.ui.business.entities.Gpsd;
 import com.haystaxs.ui.business.entities.HsUser;
 import com.haystaxs.ui.business.entities.QueryLog;
+import com.haystaxs.ui.business.entities.Workload;
 import com.haystaxs.ui.business.entities.repositories.GpsdRepository;
 import com.haystaxs.ui.business.entities.repositories.InternalJobsRepository;
 import com.haystaxs.ui.business.entities.repositories.QueryLogRespository;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MiscUtil;
+import com.sun.xml.internal.ws.api.pipe.FiberContextSwitchInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +91,7 @@ public class HomeController {
         }
 
         model.addAttribute("pageName", "Dashboard");
-        model.addAttribute("userDbs", gpsdRepository.getAllForUser(hsUser.getUserId()));
+        model.addAttribute("userDbs", gpsdRepository.getAll(hsUser.getUserId()));
 
         return ("dashboard");
     }
@@ -128,12 +130,13 @@ public class HomeController {
         String fileDirectory = appConfig.getGpsdSaveDirectory() + File.separator +
                 normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
 
-        logger.debug("Saving GPSD file to " + fileDirectory + File.separator + originalFileName);
+        logger.trace("Saving GPSD file to " + fileDirectory + File.separator + originalFileName);
 
         try {
             fileUtil.SaveFileToPath(gpsdFile, fileDirectory, originalFileName);
         }
         catch (Exception e) {
+            logger.error(e.getMessage());
             //return "You failed to upload " + name + " => " + e.getMessage();
             model.addAttribute("error", "File upload failed");
             return "forward:/database/new";
@@ -228,6 +231,7 @@ public class HomeController {
             fileUtil.unZip(fileBaseDir + File.separator + zipFileName, fileBaseDir);
         }
         catch (Exception e) {
+            logger.error(e.getMessage());
             //return "You failed to upload " + name + " => " + e.getMessage();
             model.addAttribute("error", "File upload failed");
             return "forward:/querylog/new";
@@ -237,8 +241,9 @@ public class HomeController {
         ConfigProperties configProperties = new ConfigProperties();
         configProperties.loadProperties();
 
+        String fileBaseDirForGPFDist = File.separator + normalizedUserName + File.separator + "querylogs" + File.separator + newQueryLogId;
         CatalogService cs = new CatalogService(configProperties);
-        boolean hadErrors = cs.processQueryLog(newQueryLogId, normalizedUserName, fileBaseDir);
+        boolean hadErrors = cs.processQueryLog(newQueryLogId, fileBaseDirForGPFDist);
 
         if(hadErrors) {
             logger.debug(String.format("CatalogService.processQueryLog(%d, %s, %s) ran with some errors !", newQueryLogId, normalizedUserName,
@@ -253,6 +258,26 @@ public class HomeController {
         model.addAttribute("pageName", "Query Log upload success");
 
         return "queryLogUploadSuccessful";
+    }
+
+    @RequestMapping(value = "/workload/new", method = RequestMethod.GET)
+    public String newWorkload(Workload workload,
+                              Model model) {
+        HsUser hsUser = getPrincipal();
+
+        List<Gpsd> gpsds = gpsdRepository.getAll(hsUser.getUserId());
+
+        model.addAttribute("gpsds", gpsds);
+        model.addAttribute("pageName", "Create Workload");
+
+        return "createWorkload";
+    }
+
+    @RequestMapping(value = "/workload/create", method = RequestMethod.POST)
+    @ResponseBody
+    public String createWorkload(Workload workload,
+                                 Model model) {
+        return "done";
     }
 
     @RequestMapping("/visualizer")

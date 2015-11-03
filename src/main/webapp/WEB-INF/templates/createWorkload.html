@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<th:block th:include="common_fragments::head(false)">
+    <title>Haystaxs - Optimize your clusters</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../../public/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- Custom Fonts -->
+    <link href="../../public/bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <!-- Custom CSS -->
+    <link href="../../public/css/haystackui.css" rel="stylesheet"/>
+</th:block>
+<body>
+<th:block th:include="common_fragments::page_header"></th:block>
+<!-- START PAGE CONTENT -->
+<div id="page-wrapper">
+    <div class="container-fluid" style="margin-top: 100px">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading" title="">
+                        <span>Create a Workload</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form action="#" th:action="@{/workload/create}" method="post" th:object="${workload}">
+                                    <div class="form-group">
+                                        <label>Select GPSD: </label>
+                                        <select th:field="*{gpsdId}" class="form-control">
+                                            <option th:each="gpsd : ${gpsds}" th:value="${gpsd.gpsdId}" th:text="${gpsd.dbname}"/>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>From Date</label>
+                                        <input type="date" th:field="*{startDate}" class="form-control"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>To Date</label>
+                                        <input type="date" th:field="*{endDate}" class="form-control"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="submit" class="btn btn-primary pull-right" value="Create >>"/>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="common_fragments::footer_scripts(false)"></th:block>
+<script type="text/javascript">
+    $(function () {
+        //$("#username").focus();
+    })
+</script>
+</body>
+</html>
