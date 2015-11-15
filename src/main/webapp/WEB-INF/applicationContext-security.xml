@@ -8,11 +8,12 @@
                                  http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
     <http pattern="/public/**" security="none"/>
+    <http pattern="/assets/**" security="none"/>
     <http pattern="/test/**" security="none"/>
 
     <http auto-config="true">
         <!-- Login pages -->
-        <form-login login-page="/login" default-target-url="/welcome" always-use-default-target="true"
+        <form-login login-page="/login" default-target-url="/dashboard" always-use-default-target="true"
                     authentication-failure-handler-ref="afh"/>
         <logout logout-success-url="/login?logout"/>
         <!-- Security zones -->

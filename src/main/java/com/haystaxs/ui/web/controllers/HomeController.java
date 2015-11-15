@@ -56,8 +56,8 @@ public class HomeController {
     private HsUser getPrincipal() {
         return (HsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
-    @ModelAttribute("userFullName")
-    private String getUserFullName() {
+    @ModelAttribute("userFirstName")
+    private String getUserFirstName() {
         return getPrincipal().getFirstName();
     }
 

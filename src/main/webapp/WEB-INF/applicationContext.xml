@@ -14,7 +14,7 @@
     <util:properties id="appProps" location="classpath:application.properties"/>
 
     <context:annotation-config />
-    <context:component-scan base-package="com.haystaxs.ui"/>
+    <context:component-scan base-package="com.haystaxs.ui" />
 
     <!-- Database Connectivity -->
     <import resource="applicationContext-database.xml" />

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.thymeleaf.spring.support.Layout;
 
 /**
  * Created by Adnan on 10/17/2015.
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class AuthController {
     final static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
+    @Layout(value = "", enabled = false)
     @RequestMapping(value = "login", method = RequestMethod.GET)
     public String login() {
         return ("login");

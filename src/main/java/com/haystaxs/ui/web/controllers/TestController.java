@@ -125,4 +125,10 @@ public class TestController {
         logger.debug("The quick brown fox jumps over the lazy dog and the lazy dog just sits there doing fucking nothing !!!");
         return "Done logging";
     }
+
+    @RequestMapping("/test/newlayout")
+    public String testNewLayout(Model model) {
+        model.addAttribute("title", "Dashboard 101");
+        return "blank_template_page";
+    }
 }
