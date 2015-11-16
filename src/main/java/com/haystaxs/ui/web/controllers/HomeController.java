@@ -12,7 +12,6 @@ import com.haystaxs.ui.business.entities.repositories.QueryLogRespository;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MiscUtil;
-import com.sun.xml.internal.ws.api.pipe.FiberContextSwitchInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -60,6 +60,9 @@ public class HomeController {
     private String getUserFirstName() {
         return getPrincipal().getFirstName();
     }
+    @ModelAttribute("showBreadCrumbs")
+    private boolean showBreadCrumbs() { return false; }
+
 
     @RequestMapping({"welcome", "/"})
     public String welcome(Model model){
@@ -91,12 +94,22 @@ public class HomeController {
         }
 
         model.addAttribute("pageName", "Dashboard");
-        model.addAttribute("userDbs", gpsdRepository.getAll(hsUser.getUserId()));
+        //model.addAttribute("userDbs", gpsdRepository.getAll(hsUser.getUserId()));
 
         return ("dashboard");
     }
 
-    @RequestMapping(value = "/database/new", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping("/gpsdees")
+    public String userGpsds(Model model) {
+        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
+
+        List<Gpsd> gpsdees = gpsdRepository.getAll(hsUser.getUserId());
+        model.addAttribute("gpsdees", gpsdees);
+
+        return "gpsd_list";
+    }
+
+    @RequestMapping(value = "/gpsd/new", method = {RequestMethod.GET, RequestMethod.POST})
     public String newGpsd(Gpsd gpsd,
                           @RequestParam Map<String, String> reqParams,
                           Model model, BindingResult bindingResult) {
@@ -105,10 +118,10 @@ public class HomeController {
 
         model.addAttribute("pageName", "Submit GPSD");
 
-        return "createNewGpsd";
+        return "gpsd_create_new";
     }
 
-    @RequestMapping(value = "/database/create", method = RequestMethod.POST)
+    @RequestMapping(value = "/gpsd/create", method = RequestMethod.POST)
     public String createGpsd(Gpsd gpsd,
                              @RequestParam Map<String, String> reqParams,
                              @RequestParam("gpsd-file") MultipartFile gpsdFile,
@@ -119,7 +132,7 @@ public class HomeController {
         // TODO: Should be a client-side check also
         if (gpsdFile.isEmpty()) {
             model.addAttribute("error", "GPSD Sql file is required.");
-            return "forward:/database/new";
+            return "forward:/gpsd/new";
         }
 
         // Create a database entry for the GPSD
@@ -139,7 +152,7 @@ public class HomeController {
             logger.error(e.getMessage());
             //return "You failed to upload " + name + " => " + e.getMessage();
             model.addAttribute("error", "File upload failed");
-            return "forward:/database/new";
+            return "forward:/gpsd/new";
         }
 
         String gpsdFilePath = fileDirectory + File.separator + originalFileName;
@@ -176,7 +189,7 @@ public class HomeController {
 
         model.addAttribute("pageName", "GPSD upload success");
 
-        return "gpsdUploadSuccessful";
+        return "gpsd_upload_successful";
     }
 
     @RequestMapping("/database/delete")
@@ -290,5 +303,19 @@ public class HomeController {
         model.addAttribute("backendJSON", runLog.getModelJson());*/
 
         return "visualizer";
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public String handleException(Throwable t) {
+        return "redirect:/errorPages/500.jsp";
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ModelAndView handleException1(Throwable t) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("errorMsg", t.toString());
+        modelAndView.setViewName("error");
+
+        return modelAndView;
     }
 }

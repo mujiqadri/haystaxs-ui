@@ -11,6 +11,7 @@ public class Gpsd {
     private String dbname;
     private String filename;
     private Timestamp fileSubmittedOn;
+    private int noOfLines;
     private String status;
 
     public Gpsd(){}
@@ -61,5 +62,13 @@ public class Gpsd {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public int getNoOfLines() {
+        return noOfLines;
+    }
+
+    public void setNoOfLines(int noOfLines) {
+        this.noOfLines = noOfLines;
     }
 }

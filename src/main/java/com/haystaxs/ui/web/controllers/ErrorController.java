@@ -1,6 +1,8 @@
 package com.haystaxs.ui.web.controllers;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -11,8 +13,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ErrorController {
     @RequestMapping("/404")
     @ResponseBody
-    public String handle404() {
-        return "No such URL exists for this application shin shin shin shin shin shin.";
+    public String handle404(ModelMap model) {
+        return "No such URL exists. Error was " + model.get("error").toString();
+    }
+
+    @RequestMapping("/error")
+    public String error(Model model) {
+        return "error";
     }
 
     // NOTE: This is conflicting with the mvc:resources tag, its taking precedence over it !!

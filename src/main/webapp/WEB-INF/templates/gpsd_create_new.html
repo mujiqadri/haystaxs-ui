@@ -42,7 +42,7 @@
             <div class="container">
                 <!-- BEGIN PAGE TITLE -->
                 <div class="page-title" th:fragment="page-title">
-                    <h1>Blank Template Page </h1>
+                    <h1>Create New GPSD</h1>
                 </div>
                 <!-- END PAGE TITLE -->
             </div>
@@ -64,8 +64,40 @@
                 <!-- END PAGE BREADCRUMBS -->
                 <!-- BEGIN PAGE CONTENT INNER -->
                 <div class="page-content-inner" th:fragment="main-content">
-                    <div class="note note-info">
-                        <p> A black page template with a minimal dependency assets to use as a base for any custom page you create </p>
+                    <div class="row">
+                        <div class="col-lg-6 col-lg-offset-3">
+                            <!-- BEGIN SAMPLE FORM PORTLET-->
+                            <div class="portlet light ">
+                                <!--<div class="portlet-title">
+                                    <div class="caption font-red-sunglo">
+                                        <i class="icon-settings font-red-sunglo"></i>
+                                        &lt;!&ndash;<span class="caption-subject bold uppercase"> Default Form</span>&ndash;&gt;
+                                    </div>
+                                </div>-->
+                                <div class="portlet-body form">
+                                    <form role="form" th:action="@{/gpsd/create}" method="post" th:object="${gpsd}" enctype="multipart/form-data">
+                                        <div class="form-body">
+                                            <div class="form-group">
+                                                <label>GPSD Name</label>
+                                                <input type="text" class="form-control" th:field="*{dbname}" placeholder="Specify a name for the GPSD" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label>GPSD Sql file</label>
+                                                <input type="file" class="form-control" id="gpsd-file" name="gpsd-file"/>
+                                                <p class="help-block"> Attach the GPSD file. </p>
+                                            </div>
+                                        </div>
+                                        <div class="form-actions right">
+                                            <button type="button" class="btn default">Cancel</button>
+                                            <button type="submit" class="btn blue">Submit</button>
+                                        </div>
+                                    </form>
+                                    <div class="alert alert-danger" th:if="${param.error}" th:text="${param.error[0]}">Something went wrong Mofo !</div>
+                                </div>
+                            </div>
+                            <!-- END SAMPLE FORM PORTLET-->
+
+                        </div>
                     </div>
                 </div>
                 <!-- END PAGE CONTENT INNER -->

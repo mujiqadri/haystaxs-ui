@@ -458,7 +458,7 @@
                                         <div class="col-md-12">
                                             <ul class="mega-menu-submenu">
                                                 <li>
-                                                    <a href="ui_colors.html">GPSDs</a>
+                                                    <a th:href="@{/gpsdees}">GPSDs</a>
                                                 </li>
                                                 <li>
                                                     <a href="ui_general.html">Query Logs</a>
@@ -1184,7 +1184,7 @@
         <div class="page-content">
             <div class="container-fluid">
                 <!-- BEGIN PAGE BREADCRUMBS -->
-                <ul class="page-breadcrumb breadcrumb" th:include="${view}::breadcrumbs">
+                <ul class="page-breadcrumb breadcrumb" th:include="${view}::breadcrumbs" th:if="${showBreadBrumbs}">
                     <li>
                         <a href="index.html">Home</a>
                         <i class="fa fa-circle"></i>
@@ -1840,7 +1840,7 @@
 <!-- END THEME GLOBAL SCRIPTS -->
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
 <script th:src="@{/assets/layouts/layout3/scripts/layout.js}" type="text/javascript"></script>
-<script th:src="@{/assets/layouts/layout3/scripts/demo.min.js}" type="text/javascript"></script>
+<script th:src="@{/assets/layouts/layout3/scripts/demo.js}" type="text/javascript"></script>
 <script th:src="@{/assets/layouts/global/scripts/quick-sidebar.min.js}" type="text/javascript"></script>
 <!-- END THEME LAYOUT SCRIPTS -->
 <th:block th:include="${view}::page-level-scripts"></th:block>

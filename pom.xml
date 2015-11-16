@@ -171,6 +171,10 @@
             <artifactId>spring-context-support</artifactId>
             <version>4.2.1.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations-java5</artifactId>
+        </dependency>
 
         <!-- DIRECTORY LISTING SUPPORT - BASICALLY USING A DEFAULT SERVLET -->
         <!--<dependency>

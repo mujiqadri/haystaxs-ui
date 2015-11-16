@@ -42,7 +42,7 @@
             <div class="container">
                 <!-- BEGIN PAGE TITLE -->
                 <div class="page-title" th:fragment="page-title">
-                    <h1>Blank Template Page </h1>
+                    <h1>GPSDs</h1>
                 </div>
                 <!-- END PAGE TITLE -->
             </div>
@@ -64,8 +64,66 @@
                 <!-- END PAGE BREADCRUMBS -->
                 <!-- BEGIN PAGE CONTENT INNER -->
                 <div class="page-content-inner" th:fragment="main-content">
-                    <div class="note note-info">
-                        <p> A black page template with a minimal dependency assets to use as a base for any custom page you create </p>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <!-- BEGIN MY GPSD LIST PORTLET-->
+                            <div class="portlet light portlet-fit ">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fa fa-database"></i>
+                                        <span class="caption-subject font-dark bold uppercase">My GPSDs</span>
+                                    </div>
+                                    <div class="actions">
+                                        <div class="btn-group">
+                                            <a class="btn dark btn-outline btn-circle btn-sm" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true"> Actions
+                                                <i class="fa fa-angle-down"></i>
+                                            </a>
+                                            <ul class="dropdown-menu pull-right">
+                                                <li>
+                                                    <a th:href="@{/gpsd/new}">Create New GPSD</a>
+                                                </li>
+                                                <!--<li class="divider"> </li>
+                                                <li>
+                                                    <a href="javascript:;">Option 2</a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:;">Option 3</a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:;">Option 4</a>
+                                                </li>-->
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="table-scrollable">
+                                        <table class="table table-bordered table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th> # </th>
+                                                <th> DB Name </th>
+                                                <th> Submitted On </th>
+                                                <th> Status </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="gpsd,iterStatus : ${gpsdees}">
+                                                <td th:text="${iterStatus.count}"></td>
+                                                <td th:text="${gpsd.dbname}">  </td>
+                                                <td th:text="${gpsd.fileSubmittedOn}"></td>
+                                                <td th:text="${gpsd.status}"></td>
+                                                <td>
+                                                    <span class="label label-sm label-success"> Approved </span>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END MY GPSD LIST PORTLET-->
+                        </div>
                     </div>
                 </div>
                 <!-- END PAGE CONTENT INNER -->

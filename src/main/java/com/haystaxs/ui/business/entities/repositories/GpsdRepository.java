@@ -20,7 +20,7 @@ public class GpsdRepository extends RepositoryBase {
     }
 
     public List<Gpsd> getAll(int userId) {
-        String sql = String.format("select * from %s.gpsd where user_id = ?", getHsSchemaName());
+        String sql = String.format("select dbname, file_submitted_on, status from %s.gpsd where user_id = ? order by gpsd_id desc", getHsSchemaName());
 
         //List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new GpsdRowMapper());
         List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new BeanPropertyRowMapper<Gpsd>(Gpsd.class));
