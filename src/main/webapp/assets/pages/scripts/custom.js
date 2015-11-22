@@ -9,6 +9,37 @@ var Custom = function () {
         alert(text);
     }
 
+    var doAjaxCallInternal = function(e) {
+        var el = $(e.currentTarget);
+
+        $.ajax({
+            type: "GET",
+            cache: false,
+            url: url,
+            dataType: "html",
+            success: function(res) {
+                App.unblockUI(el);
+                el.html(res);
+                App.initAjax() // reinitialize elements & plugins for newly loaded content
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                App.unblockUI(el);
+                var msg = 'Error on reloading the content. Please check your connection and try again.';
+                if (error == "toastr" && toastr) {
+                    toastr.error(msg);
+                } else if (error == "notific8" && $.notific8) {
+                    $.notific8('zindex', 11500);
+                    $.notific8(msg, {
+                        theme: 'ruby',
+                        life: 3000
+                    });
+                } else {
+                    alert(msg);
+                }
+            }
+        });
+    }
+
     // public functions
     return {
 
@@ -18,10 +49,9 @@ var Custom = function () {
         },
 
         //some helper function
-        doSomeStuff: function () {
-            myFunc();
+        doAjaxCall: function (e) {
+            doAjaxCallInternal(e);
         }
-
     };
 
 }();

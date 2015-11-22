@@ -63,13 +63,13 @@
                     <label class="control-label visible-ie8 visible-ie9">Email</label>
                     <div class="input-icon">
                         <i class="fa fa-user"></i>
-                        <input class="form-control placeholder-no-fix" type="email" autocomplete="off" placeholder="Email" name="username" value="mujtaba.qadri@gmail.com" /> </div>
+                        <input class="form-control placeholder-no-fix" type="email" autocomplete="off" placeholder="Email" id="username" name="username" value="mujtaba.qadri@gmail.com" /> </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label visible-ie8 visible-ie9">Password</label>
                     <div class="input-icon">
                         <i class="fa fa-lock"></i>
-                        <input class="form-control placeholder-no-fix" type="password" autocomplete="off" placeholder="Password" name="password" value="abc123" /> </div>
+                        <input class="form-control placeholder-no-fix" type="password" autocomplete="off" placeholder="Password" id="password" name="password" value="abc123" /> </div>
                 </div>
                 <div class="form-actions">
                     <label class="checkbox">
@@ -449,10 +449,9 @@
         <script th:src="@{/assets/global/scripts/app.min.js}" type="text/javascript"></script>
         <!-- END THEME GLOBAL SCRIPTS -->
         <!-- BEGIN PAGE LEVEL SCRIPTS -->
-        <script th:src="@{/assets/pages/scripts/login.min.js}" type="text/javascript"></script>
+        <script th:src="@{/assets/pages/scripts/login.js}" type="text/javascript"></script>
         <!-- END PAGE LEVEL SCRIPTS -->
         <!-- BEGIN THEME LAYOUT SCRIPTS -->
         <!-- END THEME LAYOUT SCRIPTS -->
     </body>
-
 </html>

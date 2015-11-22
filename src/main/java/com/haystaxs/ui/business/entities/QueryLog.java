@@ -1,15 +1,18 @@
 package com.haystaxs.ui.business.entities;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * Created by Adnan on 10/26/2015.
  */
 public class QueryLog {
     private int queryLogId;
-    private int gpsdId;
     private int userId;
     private Timestamp submittedOn;
+    private String status;
+    private List<QueryLogDate> logDates;
+
 
     public int getQueryLogId() {
         return queryLogId;
@@ -17,14 +20,6 @@ public class QueryLog {
 
     public void setQueryLogId(int queryLogId) {
         this.queryLogId = queryLogId;
-    }
-
-    public int getGpsdId() {
-        return gpsdId;
-    }
-
-    public void setGpsdId(int gpsdId) {
-        this.gpsdId = gpsdId;
     }
 
     public int getUserId() {
@@ -43,4 +38,19 @@ public class QueryLog {
         this.submittedOn = submittedOn;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<QueryLogDate> getLogDates() {
+        return logDates;
+    }
+
+    public void setLogDates(List<QueryLogDate> logDates) {
+        this.logDates = logDates;
+    }
 }

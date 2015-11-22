@@ -13,7 +13,7 @@
 
     <http auto-config="true">
         <!-- Login pages -->
-        <form-login login-page="/login" default-target-url="/dashboard" always-use-default-target="true"
+        <form-login login-page="/login" default-target-url="/dashboard" always-use-default-target="false"
                     authentication-failure-handler-ref="afh"/>
         <logout logout-success-url="/login?logout"/>
         <!-- Security zones -->

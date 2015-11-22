@@ -1,6 +1,7 @@
 package com.haystaxs.ui.business.entities.repositories;
 
 import com.haystaxs.ui.business.entities.QueryLog;
+import com.haystaxs.ui.business.entities.QueryLogDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -20,11 +21,18 @@ public class QueryLogRespository extends RepositoryBase{
 
     }
 
-    public List<QueryLog> getAllForGpsd(int gpsdId, int userId) {
-        String sql = "select * from haystack.query_logs where gpsd_id = ? and user_id = ? order by submitted_on";
+    public List<QueryLog> getAll(int userId) {
+        String sql = String.format("select * from %s.query_logs where user_id = ? order by submitted_on", getHsSchemaName());
 
-        //List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new GpsdRowMapper());
-        List<QueryLog> resultSet = jdbcTemplate.query(sql, new Object[] { gpsdId, userId }, new BeanPropertyRowMapper(QueryLog.class));
+        List<QueryLog> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new BeanPropertyRowMapper(QueryLog.class));
+
+        for(QueryLog ql: resultSet) {
+            sql = String.format("select * from %s.query_log_dates where query_log_id = ?", getHsSchemaName());
+
+            List<QueryLogDate> qlds = jdbcTemplate.query(sql, new Object[] { ql.getQueryLogId() }, new BeanPropertyRowMapper(QueryLogDate.class));
+
+            ql.setLogDates(qlds);
+        }
 
         return resultSet;
     }
@@ -37,12 +45,12 @@ public class QueryLogRespository extends RepositoryBase{
         return result;
     }
 
-    public int createNew(QueryLog queryLog, int gpsdId, int userId) {
+    public int createNew(QueryLog queryLog, int userId) {
         String sql = String.format("select nextval('%s.seq_query_log')", getHsSchemaName());
         int newQueryLogId = jdbcTemplate.queryForObject(sql, Integer.class);
 
-        sql = String.format("INSERT INTO %s.query_logs(query_log_id, gpsd_id, user_id, submitted_on) VALUES (?, ?, ?, localtimestamp)", getHsSchemaName());
-        jdbcTemplate.update(sql, new Object[] { newQueryLogId, gpsdId, userId });
+        sql = String.format("INSERT INTO %s.query_logs(query_log_id, user_id, submitted_on, status) VALUES (?, ?, localtimestamp, 'UPLOADED')", getHsSchemaName());
+        jdbcTemplate.update(sql, new Object[] { newQueryLogId, userId });
 
         return newQueryLogId;
     }

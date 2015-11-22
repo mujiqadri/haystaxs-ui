@@ -1,0 +1,22 @@
+<div class="table-scrollable" xmlns:th="http://www.w3.org/1999/xhtml">
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th> #</th>
+            <th> Submitted On</th>
+            <th> Status</th>
+            <th> Dates Spanned</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="ql,iterStatus : ${querylogs}">
+            <td th:text="${iterStatus.count}"></td>
+            <td th:text="${#dates.format(ql.submittedOn, 'dd-MMM-yyyy hh:mm a')}"></td>
+            <td th:text="${ql.status}"></td>
+            <td>
+                <span class="label label-primary" th:each="qld : ${ql.logDates}" th:text="${#dates.format(qld.logDate, 'dd-MMM-yyyy')}"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

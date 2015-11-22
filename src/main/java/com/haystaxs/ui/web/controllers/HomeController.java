@@ -1,5 +1,6 @@
 package com.haystaxs.ui.web.controllers;
 
+import com.haystack.domain.Query;
 import com.haystack.service.CatalogService;
 import com.haystack.util.ConfigProperties;
 import com.haystaxs.ui.business.entities.Gpsd;
@@ -9,6 +10,9 @@ import com.haystaxs.ui.business.entities.Workload;
 import com.haystaxs.ui.business.entities.repositories.GpsdRepository;
 import com.haystaxs.ui.business.entities.repositories.InternalJobsRepository;
 import com.haystaxs.ui.business.entities.repositories.QueryLogRespository;
+import com.haystaxs.ui.business.services.QueryLogService;
+import com.haystaxs.ui.support.JsonResponse;
+import com.haystaxs.ui.support.UploadedFileInfo;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MiscUtil;
@@ -23,11 +27,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.spring.support.Layout;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Adnan on 10/16/2015.
@@ -35,6 +39,8 @@ import java.util.Map;
 @Controller
 public class HomeController {
     final static Logger logger = LoggerFactory.getLogger(HomeController.class);
+
+    //region ### Autowired Components ###
     @Autowired
     private MessageSource messages;
     @Autowired
@@ -51,7 +57,11 @@ public class HomeController {
     private MiscUtil miscUtil;
     @Autowired
     private AppConfig appConfig;
+    @Autowired
+    private QueryLogService queryLogService;
+    //endregion
 
+    //region ### Controller Level Model Attributes ###
     @ModelAttribute("principal")
     private HsUser getPrincipal() {
         return (HsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -62,16 +72,13 @@ public class HomeController {
     }
     @ModelAttribute("showBreadCrumbs")
     private boolean showBreadCrumbs() { return false; }
+    //endregion
 
-
-    @RequestMapping({"welcome", "/"})
-    public String welcome(Model model){
-        model.addAttribute("pageName", "Welcome");
-
-        return "welcome";
+    private int getUserId() {
+        return getPrincipal().getUserId();
     }
 
-    @RequestMapping({"/dashboard"})
+    @RequestMapping({"/dashboard", "/"})
     public String dashBoard(//@RequestParam(value = "db", required = false) Integer db,
                             //RunLog runLog,
                             @RequestParam Map<String, String> reqParams,
@@ -88,7 +95,7 @@ public class HomeController {
             Gpsd gpsd = gpsdRepository.getSingle(gpsdId, hsUser.getUserId());
             if (gpsd != null) {
                 model.addAttribute("selectedDb", gpsd);
-                List<QueryLog> queryLogs = queryLogRespository.getAllForGpsd(gpsdId, hsUser.getUserId());
+                List<QueryLog> queryLogs = queryLogRespository.getAll(hsUser.getUserId());
                 model.addAttribute("runLogs", queryLogs);
             }
         }
@@ -99,6 +106,7 @@ public class HomeController {
         return ("dashboard");
     }
 
+    //region ### GPSD Actions ###
     @RequestMapping("/gpsdees")
     public String userGpsds(Model model) {
         HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
@@ -191,6 +199,7 @@ public class HomeController {
 
         return "gpsd_upload_successful";
     }
+    //endregion
 
     @RequestMapping("/database/delete")
     public String deleteGpsd(@RequestParam("db") int gpsdId,
@@ -199,6 +208,28 @@ public class HomeController {
         // Remove the physical file
         // Tell BG Process to delete the backend Database created based on this GPSD
         return "redirect:/dashboard";
+    }
+
+    //region ### QueryLog Actions ###
+    @RequestMapping("/querylog/main")
+    public String userQueryLogs(Model model) {
+        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
+
+        List<QueryLog> querylogs = queryLogRespository.getAll(hsUser.getUserId());
+        model.addAttribute("querylogs", querylogs);
+
+        return "querylog_main";
+    }
+
+    @Layout(enabled = false, value = "")
+    @RequestMapping("/querylog/list")
+    public String userQueryLogsList(Model model) {
+        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
+
+        List<QueryLog> querylogs = queryLogRespository.getAll(hsUser.getUserId());
+        model.addAttribute("querylogs", querylogs);
+
+        return "fragments/querylog_list";
     }
 
     @RequestMapping(value = "/querylog/new", method = {RequestMethod.GET, RequestMethod.POST})
@@ -212,44 +243,65 @@ public class HomeController {
 
         model.addAttribute("pageName", "Submit Query Log");
 
-        return "submitQueryLog";
+        return "querylog_upload";
     }
 
-    @RequestMapping(value = "/querylog/create", method = RequestMethod.POST)
-    public String uploadQueryLog(QueryLog queryLog,
-                             @RequestParam Map<String, String> reqParams,
-                             @RequestParam("querylog-file") MultipartFile queryLogFile,
-                             Model model, BindingResult bindingResult) throws Exception {
+    @RequestMapping(value = "/querylog/upload", method = RequestMethod.POST, produces = "application/json")
+    @ResponseBody
+    public Map uploadQueryLog(QueryLog queryLog,
+                                 @RequestParam Map<String, String> reqParams,
+                                 @RequestParam(value = "querylog-files") MultipartFile[] queryLogFiles,
+                                 Model model, BindingResult bindingResult,
+                                 HttpServletRequest request) throws Exception {
 
         HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
 
-        // TODO: Should be a client-side check also
-        if (queryLogFile.isEmpty() || !queryLogFile.getContentType().equals("application/x-zip-compressed")) {
+        // TODO: This would now ONLY be a client side check
+        /*if (queryLogFiles.length == 0 || !queryLogFile.getContentType().equals("application/x-zip-compressed")) {
             model.addAttribute("error", "Query Log <b>zip</b> file is required.");
             return "forward:/querylog/new";
-        }
+        }*/
 
-        // Create a database entry for the GPSD
-        int newQueryLogId = queryLogRespository.createNew(queryLog, queryLog.getGpsdId(), hsUser.getUserId());
+        int newQueryLogId = 0;
         String normalizedUserName = miscUtil.getNormalizedUserName(hsUser.getEmailAddress());
-        String fileBaseDir = appConfig.getQueryLogSaveDirectory() + File.separator + normalizedUserName +
-                File.separator + "querylogs" + File.separator + newQueryLogId;
+        String userBasedQueryLogsBaseDir = appConfig.getQueryLogSaveDirectory() + File.separator + normalizedUserName +
+                File.separator + "querylogs" + File.separator;
+        List<UploadedFileInfo> uploadedFileInfos = new ArrayList<UploadedFileInfo>();
 
-        try {
-            String zipFileName = queryLogFile.getOriginalFilename();
+        // Create a database entry and Upload each QueryLog uploaded
+        for(int index=0; index < queryLogFiles.length; index++) {
+            MultipartFile queryLogFile = queryLogFiles[index];
+            UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
+            newQueryLogId = queryLogRespository.createNew(queryLog, hsUser.getUserId());
+            String fileBaseDir = userBasedQueryLogsBaseDir + newQueryLogId;
 
-            fileUtil.SaveFileToPath(queryLogFile, fileBaseDir, zipFileName);
+            uploadedFileInfo.setName(queryLogFile.getOriginalFilename());
+            uploadedFileInfo.setSize(queryLogFile.getSize());
 
-            // Unzip the file
-            fileUtil.unZip(fileBaseDir + File.separator + zipFileName, fileBaseDir);
+            try {
+                String zipFileName = queryLogFile.getOriginalFilename();
+
+                fileUtil.SaveFileToPath(queryLogFile, fileBaseDir, zipFileName);
+
+                // Unzip the file
+                fileUtil.unZip(fileBaseDir + File.separator + zipFileName, fileBaseDir);
+            }
+            catch (Exception e) {
+                // TODO: Here we will need to populate the files Map to return the BlueImp client
+                logger.error(e.getMessage());
+                //return "You failed to upload " + name + " => " + e.getMessage();
+                //model.addAttribute("error", "File upload failed");
+                //return "forward:/querylog/new";
+            }
+
+            uploadedFileInfos.add(uploadedFileInfo);
         }
-        catch (Exception e) {
-            logger.error(e.getMessage());
-            //return "You failed to upload " + name + " => " + e.getMessage();
-            model.addAttribute("error", "File upload failed");
-            return "forward:/querylog/new";
-        }
 
+        Map<String, Object> files = new HashMap<String, Object>();
+        files.put("files", uploadedFileInfos);
+        return files;
+
+        /*
         // NOTE: The next 2 lines should not be in the webapp code
         ConfigProperties configProperties = new ConfigProperties();
         configProperties.loadProperties();
@@ -269,9 +321,47 @@ public class HomeController {
         // NOTE: I don't really need to send out an email here as the next screen can show this message..
 
         model.addAttribute("pageName", "Query Log upload success");
+        */
 
-        return "queryLogUploadSuccessful";
+        //return "queryLogUploadSuccessful";
     }
+
+    @RequestMapping(value = "/querylog/processall", produces = "application/json")
+    @ResponseBody
+    public JsonResponse processAllQueryLogs(Model model) {
+        List<QueryLog> unprocessedQueryLogs = queryLogService.getAllUnprocessed(getUserId());
+
+        if(unprocessedQueryLogs.size() == 0) {
+            return new JsonResponse("Success", "No UNPROCESSED Query Logs found.");
+        }
+
+        // TODO: Change status of all to PROCESSING so that some other thread doesn't start the same op
+
+        ConfigProperties configProperties = new ConfigProperties();
+        try {
+            configProperties.loadProperties();
+        }
+        catch (Exception ex) {
+            logger.error("Cannot load hs-lib config properties. " + ex.getMessage());
+        }
+        CatalogService cs = new CatalogService(configProperties);
+
+        String fileBaseDirForGPFDist;
+        String normalizedUserName = miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
+
+        for(QueryLog ql: unprocessedQueryLogs) {
+            fileBaseDirForGPFDist = File.separator + normalizedUserName + File.separator + "querylogs" + File.separator + ql.getQueryLogId();
+            boolean hadErrors = cs.processQueryLog(ql.getQueryLogId(), fileBaseDirForGPFDist);
+
+            if(hadErrors) {
+                logger.debug(String.format("CatalogService.processQueryLog(%d, %s, %s) ran with some errors !", ql.getQueryLogId(), normalizedUserName,
+                        fileBaseDirForGPFDist));
+            }
+        }
+
+        return new JsonResponse("Success");
+    }
+    //endregion
 
     @RequestMapping(value = "/workload/new", method = RequestMethod.GET)
     public String newWorkload(Workload workload,

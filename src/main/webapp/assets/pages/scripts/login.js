@@ -261,4 +261,5 @@ var Login = function() {
 
 jQuery(document).ready(function() {
     Login.init();
+    $('#username').focus();
 });
