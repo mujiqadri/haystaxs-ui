@@ -9,6 +9,8 @@ var FormFileUpload = function () {
                 autoUpload: false,
                 disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
                 singleFileUploads: false,
+                //getNumberOfFiles: function() { return 2; },
+                maxNumberOfFiles: maxNumberOfFiles,
                 acceptFileTypes: /(\.|\/)(zip|gz)$/i
                 /*,
                 done: function(e, data) {

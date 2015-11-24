@@ -6,6 +6,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Created by Adnan on 10/26/2015.
  */
@@ -13,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ErrorController {
     @RequestMapping("/404")
     @ResponseBody
-    public String handle404(ModelMap model) {
-        return "No such URL exists. Error was " + model.get("error").toString();
+    public String handle404(ModelMap model, HttpServletRequest request) {
+        return "No such URL exists. ";
     }
 
     @RequestMapping("/error")

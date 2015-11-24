@@ -1,0 +1,28 @@
+<div class="table-scrollable" xmlns:th="http://www.w3.org/1999/xhtml">
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th width="5%">#</th>
+            <th width="10%">DB Name</th>
+            <th width="25%">DB Version</th>
+            <th width="10%"># Of Lines</th>
+            <th width="10%">Submitted On</th>
+            <th width="10%">Status</th>
+            <th width="10%">Details</th>
+            <th width="10%">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="gpsd,iterStatus : ${gpsdees}">
+            <td th:text="${iterStatus.count}"></td>
+            <td th:text="${gpsd.dbName}"></td>
+            <td th:text="${gpsd.gpsdVersion}"></td>
+            <td th:text="${gpsd.noOfLines}"></td>
+            <td th:text="${#dates.format(gpsd.fileSubmittedOn, 'dd-MMM-yyyy hh:mm a')}"></td>
+            <td th:text="${gpsd.status}"></td>
+            <td><a href="javascript:;" th:id="|view-${gpsd.gpsdId}|">View File</a></td>
+            <td><button class="btn btn-danger" th:id="|delete-${gpsd.gpsdId}|">Delete</button></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

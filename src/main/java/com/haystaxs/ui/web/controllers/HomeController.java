@@ -10,6 +10,7 @@ import com.haystaxs.ui.business.entities.Workload;
 import com.haystaxs.ui.business.entities.repositories.GpsdRepository;
 import com.haystaxs.ui.business.entities.repositories.InternalJobsRepository;
 import com.haystaxs.ui.business.entities.repositories.QueryLogRespository;
+import com.haystaxs.ui.business.services.HaystaxsLibService;
 import com.haystaxs.ui.business.services.QueryLogService;
 import com.haystaxs.ui.support.JsonResponse;
 import com.haystaxs.ui.support.UploadedFileInfo;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.spring.support.Layout;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.*;
@@ -41,6 +43,8 @@ public class HomeController {
     final static Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     //region ### Autowired Components ###
+    @Autowired
+    ServletContext servletContext;
     @Autowired
     private MessageSource messages;
     @Autowired
@@ -59,6 +63,8 @@ public class HomeController {
     private AppConfig appConfig;
     @Autowired
     private QueryLogService queryLogService;
+    @Autowired
+    private HaystaxsLibService haystaxsLibService;
     //endregion
 
     //region ### Controller Level Model Attributes ###
@@ -76,6 +82,9 @@ public class HomeController {
 
     private int getUserId() {
         return getPrincipal().getUserId();
+    }
+    private String getNormalizedUserName() {
+        return miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
     }
 
     @RequestMapping({"/dashboard", "/"})
@@ -107,14 +116,69 @@ public class HomeController {
     }
 
     //region ### GPSD Actions ###
-    @RequestMapping("/gpsdees")
-    public String userGpsds(Model model) {
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
+    @RequestMapping("gpsd/main")
+    public String gpsdMain(Model model) {
+        // Used by the Custom Thymeleaf Attribute "hs:asis"
+        model.addAttribute("appRealPath", servletContext.getRealPath("/"));
 
-        List<Gpsd> gpsdees = gpsdRepository.getAll(hsUser.getUserId());
+        return "gpsd_main";
+    }
+
+    @RequestMapping(value = "/gpsd/upload", method = RequestMethod.POST, produces = "application/json")
+    @ResponseBody
+    public Map gpsdUpload(@RequestParam(value = "gpsd-file") MultipartFile gpsdFile) {
+        List<UploadedFileInfo> uploadedFileInfos = new ArrayList<UploadedFileInfo>();
+        Map<String, Object> result = new HashMap<String, Object>();
+
+        if (gpsdFile.isEmpty()) {
+            logger.error("Submitted GPSD file is empty.");
+            // TODO: Log as internal error
+            return result;
+        }
+
+        logger.trace("Creating GPSD DB Entry.");
+
+        /*
+        String originalFileName = gpsdFile.getOriginalFilename();
+        int newGpsdId = gpsdRepository.createNew(getUserId(), originalFileName);
+        String normalizedUserName = getNormalizedUserName();
+        String fileDirectory = appConfig.getGpsdSaveDirectory() + File.separator +
+                normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
+        String gpsdFilePath = fileDirectory + File.separator + originalFileName;
+
+        logger.trace("Saving GPSD file to " + gpsdFilePath);
+
+        try {
+            fileUtil.SaveFileToPath(gpsdFile, fileDirectory, originalFileName);
+        }
+        catch (Exception e) {
+            logger.error("Error whle saving GPSD file on server. Exception: ", e.getMessage());
+            // TODO: Log internal error. Should we also rollback the DB Entry ??
+            return result;
+        }
+        */
+
+        logger.debug("About to invoke Async method createGPSD.");
+        //haystaxsLibService.createGPSD(newGpsdId, normalizedUserName, gpsdFilePath);
+        haystaxsLibService.createGPSD(0, "lala_thakur_at_chaddi_dot_org", "some fucking file path");
+        logger.debug("createGPSD invoked as a separate thread.");
+
+        UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
+        uploadedFileInfo.setName("Lala rukh");
+        uploadedFileInfo.setError("Loray lag gaey !");
+        uploadedFileInfos.add(uploadedFileInfo);
+
+        result.put("files", uploadedFileInfos);
+        return result;
+    }
+
+    @Layout(enabled = false, value = "")
+    @RequestMapping("/gpsd/list")
+    public String userGpsds(Model model) {
+        List<Gpsd> gpsdees = gpsdRepository.getAll(getUserId());
         model.addAttribute("gpsdees", gpsdees);
 
-        return "gpsd_list";
+        return "fragments/gpsd_list";
     }
 
     @RequestMapping(value = "/gpsd/new", method = {RequestMethod.GET, RequestMethod.POST})
@@ -146,7 +210,7 @@ public class HomeController {
         // Create a database entry for the GPSD
         //StringBuilder uploadedGpsdFileName = new StringBuilder();
         String originalFileName = gpsdFile.getOriginalFilename();
-        int newGpsdId = gpsdRepository.createNew(gpsd, hsUser.getUserId(), originalFileName);
+        int newGpsdId = 0;//gpsdRepository.createNew(gpsd, hsUser.getUserId(), originalFileName);
         String normalizedUserName = miscUtil.getNormalizedUserName(hsUser.getEmailAddress());
         String fileDirectory = appConfig.getGpsdSaveDirectory() + File.separator +
                 normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;

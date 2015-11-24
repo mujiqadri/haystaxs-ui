@@ -1,5 +1,6 @@
 package com.haystaxs.ui.business.entities;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 
 /**
@@ -8,7 +9,9 @@ import java.sql.Timestamp;
 public class Gpsd {
     private int gpsdId;
     private int userId;
-    private String dbname;
+    private String dbName;
+    private String gpsdVersion;
+    private Timestamp gpsdDate;
     private String filename;
     private Timestamp fileSubmittedOn;
     private int noOfLines;
@@ -32,12 +35,12 @@ public class Gpsd {
         this.userId = userId;
     }
 
-    public String getDbname() {
-        return dbname;
+    public String getDbName() {
+        return dbName;
     }
 
-    public void setDbname(String dbname) {
-        this.dbname = dbname;
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
     }
 
     public String getFilename() {
@@ -70,5 +73,21 @@ public class Gpsd {
 
     public void setNoOfLines(int noOfLines) {
         this.noOfLines = noOfLines;
+    }
+
+    public String getGpsdVersion() {
+        return gpsdVersion;
+    }
+
+    public void setGpsdVersion(String gpsdVersion) {
+        this.gpsdVersion = gpsdVersion;
+    }
+
+    public Timestamp getGpsdDate() {
+        return gpsdDate;
+    }
+
+    public void setGpsdDate(Timestamp gpsdDate) {
+        this.gpsdDate = gpsdDate;
     }
 }

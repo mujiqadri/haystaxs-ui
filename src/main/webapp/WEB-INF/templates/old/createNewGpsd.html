@@ -26,7 +26,7 @@
                                 <form id="upload-gpsd-form" action="#" th:action="@{/database/create}" method="post" th:object="${gpsd}" enctype="multipart/form-data">
                                     <div class="form-group">
                                         <label>Name</label>
-                                        <input type="text" class="form-control" th:field="*{dbname}" placeholder="Specify a name for the GPSD" />
+                                        <input type="text" class="form-control" th:field="*{dbName}" placeholder="Specify a name for the GPSD" />
                                     </div>
                                     <div class="form-group">
                                         <label>GPSD Sql file</label>

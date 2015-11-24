@@ -8,6 +8,7 @@ public class UploadedFileInfo {
     private String name;
     private String thumbnailUrl;
     private String url;
+    private String error;
     private long size;
 
     public String getThumbnailUrl() {
@@ -40,5 +41,13 @@ public class UploadedFileInfo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 }

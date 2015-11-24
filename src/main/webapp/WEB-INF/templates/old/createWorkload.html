@@ -28,7 +28,7 @@
                                     <div class="form-group">
                                         <label>Select GPSD: </label>
                                         <select th:field="*{gpsdId}" class="form-control">
-                                            <option th:each="gpsd : ${gpsds}" th:value="${gpsd.gpsdId}" th:text="${gpsd.dbname}"/>
+                                            <option th:each="gpsd : ${gpsds}" th:value="${gpsd.gpsdId}" th:text="${gpsd.dbName}"/>
                                         </select>
                                     </div>
                                     <div class="form-group">

@@ -13,8 +13,14 @@ public class GpsdRowMapper implements RowMapper {
     @Override
     public Object mapRow(ResultSet rs, int i) throws SQLException {
         Gpsd gpsd = new Gpsd();
+
         gpsd.setGpsdId(rs.getInt("gpsd_id"));
-        gpsd.setDbname(rs.getString("dbname"));
+        gpsd.setDbName(rs.getString("dbname"));
+        gpsd.setGpsdVersion(rs.getString("gpsd_version"));
+        gpsd.setNoOfLines(rs.getInt("nooflines"));
+        gpsd.setFileSubmittedOn(rs.getTimestamp("file_submitted_on"));
+        gpsd.setStatus(rs.getString("status"));
+        gpsd.setGpsdDate(rs.getTimestamp("gpsd_date"));
 
         return (gpsd);
     }

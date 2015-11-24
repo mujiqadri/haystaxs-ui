@@ -41,7 +41,7 @@
                                     </thead>
                                     <tbody>
                                     <tr th:each="udb : ${userDbs}">
-                                        <td><a th:href="@{/dashboard(db=${udb.gpsdId})}" th:text="${udb.dbname}">Customer
+                                        <td><a th:href="@{/dashboard(db=${udb.gpsdId})}" th:text="${udb.dbName}">Customer
                                             Service Center</a></td>
                                         <td th:text="${udb.fileSubmittedOn}">1st Oct 2015</td>
                                         <td><a href="#">Uploaded Query Logs</a></td>
@@ -58,7 +58,7 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <h5><span class="label label-success">Selected Database:&nbsp;</span>
-                                        <span th:text="${selectedDb.dbname}">Customer Service Center</span></h5>
+                                        <span th:text="${selectedDb.dbName}">Customer Service Center</span></h5>
                                 </div>
                             </div>
                             <div class="row">

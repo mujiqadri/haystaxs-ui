@@ -1,12 +1,14 @@
 package com.haystaxs.ui.util;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
 /**
  * Created by Adnan on 10/23/2015.
  */
 @Component
+@EnableAsync
 public class AppConfig {
     @Value("#{appProps['gpsd.saveDirectory']}")
     private String gpsdSaveDirectory;
