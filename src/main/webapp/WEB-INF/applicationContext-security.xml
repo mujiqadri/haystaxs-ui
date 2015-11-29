@@ -17,6 +17,7 @@
                     authentication-failure-handler-ref="afh"/>
         <logout logout-success-url="/login?logout"/>
         <!-- Security zones -->
+        <intercept-url pattern="/favicon.ico" access="isAnonymous()" />
         <intercept-url pattern="/login" access="isAnonymous()"/>
         <intercept-url pattern="/register" access="isAnonymous()"/>
         <!--<intercept-url pattern="/login" access="isAnonymous() or hasRole('USER')" />-->

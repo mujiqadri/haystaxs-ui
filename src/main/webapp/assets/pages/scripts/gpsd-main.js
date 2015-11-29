@@ -13,7 +13,7 @@ var FormFileUpload = function () {
                 singleFileUploads: false,
                 //getNumberOfFiles: function() { return 2; },
                 maxNumberOfFiles: maxNumberOfFiles,
-                acceptFileTypes: /(\.|\/)(zip|gz)$/i
+                acceptFileTypes: /(\.|\/)(sql)$/i
                 /*,
                  done: function(e, data) {
                  debugger;
@@ -81,14 +81,18 @@ var FormFileUpload = function () {
 jQuery(document).ready(function() {
     FormFileUpload.init();
 
-    $('#gpsd-list-container').on('click', 'button', function(e) {
-        //alert($(this).attr("id"));
-        console.log($(this).attr("id"));
+    $('body').on('click', 'a.vf', function(e) {
+        e.preventDefault();
+        showFullScreenPortlet('context-content-portlet', '/haystaxsui/gpsd/file/' + $(this).attr("data-id"), 'GPSD File Content');
     });
 
-    $('#gpsd-list-container').on('click', 'a', function(e) {
-        //alert($(this).attr("id"));
-        //console.log($(this).attr("id"));
-        $('#viewFileModal').modal();
+    $('body').on('click', 'button.delete-gpsd', function(e) {
+        e.preventDefault();
+        alert('(This is a Mock. Gonna delete this GPSD, You Sure ?')
+    });
+
+    $('body').on('click', '.portlet > .portlet-title > .tools > a.close-portlet', function(e) {
+        e.preventDefault();
+        hideFullScreenPortlet('context-content-portlet');
     });
 });

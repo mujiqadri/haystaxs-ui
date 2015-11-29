@@ -25,10 +25,11 @@ public class ErrorController {
     }
 
     // NOTE: This is conflicting with the mvc:resources tag, its taking precedence over it !!
-    /*@RequestMapping("*//**")
+    /*
+    @RequestMapping("*//**")
     @ResponseBody
-    *//* NOTE: This will always be hit for a 404 before the web.xml can process the request *//*
-    public String matchAnyRequest() {
+    // NOTE: This will always be hit for a 404 before the web.xml can process the request
+    public String matchAnyRequest(HttpServletRequest request) {
         return "Page not found da da da da da da da.";
     }*/
 }

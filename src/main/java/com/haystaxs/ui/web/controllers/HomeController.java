@@ -1,18 +1,9 @@
 package com.haystaxs.ui.web.controllers;
 
-import com.haystack.domain.Query;
-import com.haystack.service.CatalogService;
-import com.haystack.util.ConfigProperties;
-import com.haystaxs.ui.business.entities.Gpsd;
-import com.haystaxs.ui.business.entities.HsUser;
-import com.haystaxs.ui.business.entities.QueryLog;
-import com.haystaxs.ui.business.entities.Workload;
-import com.haystaxs.ui.business.entities.repositories.GpsdRepository;
-import com.haystaxs.ui.business.entities.repositories.InternalJobsRepository;
-import com.haystaxs.ui.business.entities.repositories.QueryLogRespository;
+import com.haystaxs.ui.business.entities.*;
+import com.haystaxs.ui.business.entities.repositories.*;
 import com.haystaxs.ui.business.services.HaystaxsLibService;
 import com.haystaxs.ui.business.services.QueryLogService;
-import com.haystaxs.ui.support.JsonResponse;
 import com.haystaxs.ui.support.UploadedFileInfo;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
@@ -24,15 +15,19 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.spring.support.Layout;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -54,8 +49,12 @@ public class HomeController {
     @Autowired
     private InternalJobsRepository internalJobsRepository;
     @Autowired
+    private WorkloadRepository workloadRepository;
+    @Autowired
+    private UserDatabaseRepository userDatabaseRepository;
+    @Autowired
     private FileUtil fileUtil;
-//    @Autowired
+    //    @Autowired
 //    private MailUtil mailUtil;
     @Autowired
     private MiscUtil miscUtil;
@@ -72,21 +71,29 @@ public class HomeController {
     private HsUser getPrincipal() {
         return (HsUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
+
     @ModelAttribute("userFirstName")
     private String getUserFirstName() {
         return getPrincipal().getFirstName();
     }
+
     @ModelAttribute("showBreadCrumbs")
-    private boolean showBreadCrumbs() { return false; }
+    private boolean showBreadCrumbs() {
+        return false;
+    }
     //endregion
 
+    //region ### Controller Level Helper Methods ###
     private int getUserId() {
         return getPrincipal().getUserId();
     }
+
     private String getNormalizedUserName() {
         return miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
     }
+    //endregion
 
+    //region ### Dashboard Action ###
     @RequestMapping({"/dashboard", "/"})
     public String dashBoard(//@RequestParam(value = "db", required = false) Integer db,
                             //RunLog runLog,
@@ -114,6 +121,7 @@ public class HomeController {
 
         return ("dashboard");
     }
+    //endregion
 
     //region ### GPSD Actions ###
     @RequestMapping("gpsd/main")
@@ -138,37 +146,52 @@ public class HomeController {
 
         logger.trace("Creating GPSD DB Entry.");
 
-        /*
         String originalFileName = gpsdFile.getOriginalFilename();
         int newGpsdId = gpsdRepository.createNew(getUserId(), originalFileName);
         String normalizedUserName = getNormalizedUserName();
-        String fileDirectory = appConfig.getGpsdSaveDirectory() + File.separator +
-                normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
-        String gpsdFilePath = fileDirectory + File.separator + originalFileName;
+        String gpsdFileDirectory = appConfig.getGpsdSaveDirectory() + File.separator + normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
+        String gpsdFilePath = gpsdFileDirectory + File.separator + originalFileName;
+        UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
 
         logger.trace("Saving GPSD file to " + gpsdFilePath);
 
         try {
-            fileUtil.SaveFileToPath(gpsdFile, fileDirectory, originalFileName);
-        }
-        catch (Exception e) {
+            fileUtil.saveMultipartFileToPath(gpsdFile, gpsdFileDirectory, originalFileName);
+
+            logger.trace("About to invoke Async method createGPSD.");
+            haystaxsLibService.createGPSD(newGpsdId, normalizedUserName, gpsdFilePath);
+            // TODO: Assuming GPSD has been created successfully, do an entry in user inbox (should be done by Muji ?)
+            logger.trace("createGPSD invoked as a separate thread.");
+        } catch (Exception e) {
             logger.error("Error whle saving GPSD file on server. Exception: ", e.getMessage());
             // TODO: Log internal error. Should we also rollback the DB Entry ??
-            return result;
+            uploadedFileInfo.setError(e.getMessage());
         }
-        */
 
-        logger.debug("About to invoke Async method createGPSD.");
-        //haystaxsLibService.createGPSD(newGpsdId, normalizedUserName, gpsdFilePath);
-        haystaxsLibService.createGPSD(0, "lala_thakur_at_chaddi_dot_org", "some fucking file path");
-        logger.debug("createGPSD invoked as a separate thread.");
-
-        UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
-        uploadedFileInfo.setName("Lala rukh");
-        uploadedFileInfo.setError("Loray lag gaey !");
+        uploadedFileInfo.setName(originalFileName);
+        uploadedFileInfo.setSize(gpsdFile.getSize());
         uploadedFileInfos.add(uploadedFileInfo);
 
         result.put("files", uploadedFileInfos);
+        return result;
+    }
+
+    @RequestMapping(value = "/gpsd/file/{gpsdId}")
+    @ResponseBody
+    public String gpsdFile(@PathVariable("gpsdId") int gpsdId) {
+        Gpsd gpsd = gpsdRepository.getSingle(gpsdId, getUserId());
+
+        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator +
+                "gpsd" + File.separator + gpsdId + File.separator + gpsd.getFilename();
+
+        String result = "";
+
+        try {
+            result = new String(Files.readAllBytes(Paths.get(fullPath)));
+        } catch (java.io.IOException e) {
+            result = "GPSD File Not Found !";
+        }
+
         return result;
     }
 
@@ -181,106 +204,20 @@ public class HomeController {
         return "fragments/gpsd_list";
     }
 
-    @RequestMapping(value = "/gpsd/new", method = {RequestMethod.GET, RequestMethod.POST})
-    public String newGpsd(Gpsd gpsd,
-                          @RequestParam Map<String, String> reqParams,
-                          Model model, BindingResult bindingResult) {
-
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
-
-        model.addAttribute("pageName", "Submit GPSD");
-
-        return "gpsd_create_new";
-    }
-
-    @RequestMapping(value = "/gpsd/create", method = RequestMethod.POST)
-    public String createGpsd(Gpsd gpsd,
-                             @RequestParam Map<String, String> reqParams,
-                             @RequestParam("gpsd-file") MultipartFile gpsdFile,
-                             Model model, BindingResult bindingResult) throws Exception {
-
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
-
-        // TODO: Should be a client-side check also
-        if (gpsdFile.isEmpty()) {
-            model.addAttribute("error", "GPSD Sql file is required.");
-            return "forward:/gpsd/new";
-        }
-
-        // Create a database entry for the GPSD
-        //StringBuilder uploadedGpsdFileName = new StringBuilder();
-        String originalFileName = gpsdFile.getOriginalFilename();
-        int newGpsdId = 0;//gpsdRepository.createNew(gpsd, hsUser.getUserId(), originalFileName);
-        String normalizedUserName = miscUtil.getNormalizedUserName(hsUser.getEmailAddress());
-        String fileDirectory = appConfig.getGpsdSaveDirectory() + File.separator +
-                normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
-
-        logger.trace("Saving GPSD file to " + fileDirectory + File.separator + originalFileName);
-
-        try {
-            fileUtil.SaveFileToPath(gpsdFile, fileDirectory, originalFileName);
-        }
-        catch (Exception e) {
-            logger.error(e.getMessage());
-            //return "You failed to upload " + name + " => " + e.getMessage();
-            model.addAttribute("error", "File upload failed");
-            return "forward:/gpsd/new";
-        }
-
-        String gpsdFilePath = fileDirectory + File.separator + originalFileName;
-        // NOTE: The next 2 lines should not be in the webapp code
-        ConfigProperties configProperties = new ConfigProperties();
-        configProperties.loadProperties();
-
-        CatalogService cs = new CatalogService(configProperties);
-        boolean hadErrors = cs.executeGPSD(newGpsdId, normalizedUserName, gpsdFilePath);
-
-        if(hadErrors) {
-            logger.debug(String.format("CatalogService.processGPSD(%d, %s, %s) ran with some errors !", newGpsdId, normalizedUserName,
-                    gpsdFilePath));
-        }
-
-        // NOTE: statusText should come from a constant
-        //internalJobsRepository.createNew(hsUser.getUserId(), "GPSD_SUBMITTED", newGpsdId);
-
-
-        /*
-        // TODO: Check this out for sending HTML emails
-        // http://www.thymeleaf.org/doc/articles/springmail.html
-        try {
-            mailUtil.sendEmail("GPSD submitted successfully",
-                    "Hi, Thanks for submitting the efffing GPSD file, go have some coffee and take a shit, we will get back to you once it's processed.",
-                    new String[] {hsUser.getEmailAddress()});
-        } catch (Exception ex) {
-            throw ex;
-            // log the e
-            // What to do over here !!
-        }*/
-
-        // NOTE: I don't really need to send out an email here as the next screen can show this message..
-
-        model.addAttribute("pageName", "GPSD upload success");
-
-        return "gpsd_upload_successful";
-    }
-    //endregion
-
-    @RequestMapping("/database/delete")
-    public String deleteGpsd(@RequestParam("db") int gpsdId,
-                             Model model) {
+    @RequestMapping("/gpsd/delete/{id}")
+    public String deleteGpsd(@PathVariable("id") int gpsdId, Model model) {
         // Delete the gpsd entry
         // Remove the physical file
         // Tell BG Process to delete the backend Database created based on this GPSD
-        return "redirect:/dashboard";
+        throw new NotImplementedException();
     }
+    //endregion
 
     //region ### QueryLog Actions ###
     @RequestMapping("/querylog/main")
     public String userQueryLogs(Model model) {
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
-
-        List<QueryLog> querylogs = queryLogRespository.getAll(hsUser.getUserId());
-        model.addAttribute("querylogs", querylogs);
+        // Used by the Custom Thymeleaf Attribute "hs:asis"
+        model.addAttribute("appRealPath", servletContext.getRealPath("/"));
 
         return "querylog_main";
     }
@@ -288,164 +225,142 @@ public class HomeController {
     @Layout(enabled = false, value = "")
     @RequestMapping("/querylog/list")
     public String userQueryLogsList(Model model) {
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
-
-        List<QueryLog> querylogs = queryLogRespository.getAll(hsUser.getUserId());
-        model.addAttribute("querylogs", querylogs);
+        List<QueryLogDate> queryLogDates = queryLogRespository.getAllQueryLogDates(getUserId());
+        model.addAttribute("queryLogDates", queryLogDates);
 
         return "fragments/querylog_list";
     }
 
-    @RequestMapping(value = "/querylog/new", method = {RequestMethod.GET, RequestMethod.POST})
-    public String newQueryLog(QueryLog queryLog,
-                               @RequestParam Map<String, String> reqParams,
-                               Model model, BindingResult bindingResult) {
-
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
-
-        // TODO: Check if submitted GPSD ID belongs to the user
-
-        model.addAttribute("pageName", "Submit Query Log");
-
-        return "querylog_upload";
-    }
-
     @RequestMapping(value = "/querylog/upload", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
-    public Map uploadQueryLog(QueryLog queryLog,
-                                 @RequestParam Map<String, String> reqParams,
-                                 @RequestParam(value = "querylog-files") MultipartFile[] queryLogFiles,
-                                 Model model, BindingResult bindingResult,
-                                 HttpServletRequest request) throws Exception {
-
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
-
-        // TODO: This would now ONLY be a client side check
-        /*if (queryLogFiles.length == 0 || !queryLogFile.getContentType().equals("application/x-zip-compressed")) {
-            model.addAttribute("error", "Query Log <b>zip</b> file is required.");
-            return "forward:/querylog/new";
-        }*/
+    public Map uploadQueryLog(@RequestParam("querylog-files[]") MultipartFile[] queryLogFiles) throws Exception {
+        logger.trace("No. of files uploaded = " + queryLogFiles.length);
 
         int newQueryLogId = 0;
-        String normalizedUserName = miscUtil.getNormalizedUserName(hsUser.getEmailAddress());
-        String userBasedQueryLogsBaseDir = appConfig.getQueryLogSaveDirectory() + File.separator + normalizedUserName +
-                File.separator + "querylogs" + File.separator;
+        String normalizedUserName = getNormalizedUserName();
+        String queryLogsBaseDir = appConfig.getQueryLogSaveDirectory() + File.separator + normalizedUserName + File.separator + "querylogs" + File.separator;
         List<UploadedFileInfo> uploadedFileInfos = new ArrayList<UploadedFileInfo>();
+        Map<Integer, String> extractedQueryLogFiles = new HashMap<Integer, String>();
+        Map<String, Object> files = new HashMap<String, Object>();
 
         // Create a database entry and Upload each QueryLog uploaded
-        for(int index=0; index < queryLogFiles.length; index++) {
+        for (int index = 0; index < queryLogFiles.length; index++) {
             MultipartFile queryLogFile = queryLogFiles[index];
-            UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
-            newQueryLogId = queryLogRespository.createNew(queryLog, hsUser.getUserId());
-            String fileBaseDir = userBasedQueryLogsBaseDir + newQueryLogId;
+            String originalFileName = queryLogFile.getOriginalFilename();
 
-            uploadedFileInfo.setName(queryLogFile.getOriginalFilename());
+            UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
+            uploadedFileInfo.setName(originalFileName);
             uploadedFileInfo.setSize(queryLogFile.getSize());
 
-            try {
-                String zipFileName = queryLogFile.getOriginalFilename();
+            String checksum = org.apache.commons.codec.digest.DigestUtils.md5Hex(queryLogFile.getInputStream());
+            logger.trace(String.format("Filename: %s, Checksum: %s", originalFileName, checksum));
 
-                fileUtil.SaveFileToPath(queryLogFile, fileBaseDir, zipFileName);
+            String uploadedBeforeResult = queryLogService.hasBeenUploadedBefore(getUserId(), checksum, originalFileName);
 
-                // Unzip the file
-                fileUtil.unZip(fileBaseDir + File.separator + zipFileName, fileBaseDir);
-            }
-            catch (Exception e) {
-                // TODO: Here we will need to populate the files Map to return the BlueImp client
-                logger.error(e.getMessage());
-                //return "You failed to upload " + name + " => " + e.getMessage();
-                //model.addAttribute("error", "File upload failed");
-                //return "forward:/querylog/new";
+            if (!uploadedBeforeResult.equals("")) {
+                uploadedFileInfo.setError(uploadedBeforeResult);
+            } else {
+                newQueryLogId = queryLogRespository.createNew(getUserId(), originalFileName, checksum);
+                String fileBaseDir = queryLogsBaseDir + newQueryLogId;
+
+                try {
+                    fileUtil.saveMultipartFileToPath(queryLogFile, fileBaseDir, originalFileName);
+
+                    // TODO: Need to fix this for tar.gz
+                    fileUtil.unZip(fileBaseDir + File.separator + originalFileName, fileBaseDir);
+
+                    extractedQueryLogFiles.put(newQueryLogId, File.separator + normalizedUserName + File.separator + "querylogs" + File.separator + newQueryLogId);
+                } catch (Exception e) {
+                    // TODO: Here we will need to populate the files Map to return the BlueImp client
+                    logger.error(e.getMessage());
+                    //return "You failed to upload " + name + " => " + e.getMessage();
+                    //model.addAttribute("error", "File upload failed");
+                    //return "forward:/querylog/new";
+                }
             }
 
             uploadedFileInfos.add(uploadedFileInfo);
         }
 
-        Map<String, Object> files = new HashMap<String, Object>();
+        // TODO: Once analyzed put entries in user inbox (Muji or me ?)
+        haystaxsLibService.analyzeQueryLogs(extractedQueryLogFiles);
+
         files.put("files", uploadedFileInfos);
         return files;
-
-        /*
-        // NOTE: The next 2 lines should not be in the webapp code
-        ConfigProperties configProperties = new ConfigProperties();
-        configProperties.loadProperties();
-
-        String fileBaseDirForGPFDist = File.separator + normalizedUserName + File.separator + "querylogs" + File.separator + newQueryLogId;
-        CatalogService cs = new CatalogService(configProperties);
-        boolean hadErrors = cs.processQueryLog(newQueryLogId, fileBaseDirForGPFDist);
-
-        if(hadErrors) {
-            logger.debug(String.format("CatalogService.processQueryLog(%d, %s, %s) ran with some errors !", newQueryLogId, normalizedUserName,
-                    fileBaseDir));
-        }
-
-        // NOTE: statusText should come from a constant
-        //internalJobsRepository.createNew(hsUser.getUserId(), "QUERYLOG_SUBMITTED", newQueryLogId);
-
-        // NOTE: I don't really need to send out an email here as the next screen can show this message..
-
-        model.addAttribute("pageName", "Query Log upload success");
-        */
-
-        //return "queryLogUploadSuccessful";
     }
 
-    @RequestMapping(value = "/querylog/processall", produces = "application/json")
-    @ResponseBody
-    public JsonResponse processAllQueryLogs(Model model) {
-        List<QueryLog> unprocessedQueryLogs = queryLogService.getAllUnprocessed(getUserId());
+    @Layout(value = "", enabled = false)
+    @RequestMapping("/querylog/topqueries/{date}")
+    public String topQueries(@PathVariable("date") String forDate, Model model) {
+        model.addAttribute("userQueries", userDatabaseRepository.getTopQueries(getNormalizedUserName(), forDate));
 
-        if(unprocessedQueryLogs.size() == 0) {
-            return new JsonResponse("Success", "No UNPROCESSED Query Logs found.");
-        }
+        return "fragments/top_user_queries_list";
+    }
 
-        // TODO: Change status of all to PROCESSING so that some other thread doesn't start the same op
+    @Layout(value = "", enabled = false)
+    @RequestMapping("/querylog/querycategories/{date}")
+    public String queryCountByCategories(@PathVariable("date") String forDate, Model model) {
+        model.addAttribute("userQueries", userDatabaseRepository.getQueryCountByCategory(getNormalizedUserName(), forDate));
 
-        ConfigProperties configProperties = new ConfigProperties();
-        try {
-            configProperties.loadProperties();
-        }
-        catch (Exception ex) {
-            logger.error("Cannot load hs-lib config properties. " + ex.getMessage());
-        }
-        CatalogService cs = new CatalogService(configProperties);
-
-        String fileBaseDirForGPFDist;
-        String normalizedUserName = miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
-
-        for(QueryLog ql: unprocessedQueryLogs) {
-            fileBaseDirForGPFDist = File.separator + normalizedUserName + File.separator + "querylogs" + File.separator + ql.getQueryLogId();
-            boolean hadErrors = cs.processQueryLog(ql.getQueryLogId(), fileBaseDirForGPFDist);
-
-            if(hadErrors) {
-                logger.debug(String.format("CatalogService.processQueryLog(%d, %s, %s) ran with some errors !", ql.getQueryLogId(), normalizedUserName,
-                        fileBaseDirForGPFDist));
-            }
-        }
-
-        return new JsonResponse("Success");
+        return "fragments/user_queries_by_cat_list";
     }
     //endregion
 
-    @RequestMapping(value = "/workload/new", method = RequestMethod.GET)
-    public String newWorkload(Workload workload,
-                              Model model) {
-        HsUser hsUser = getPrincipal();
+    //region ### Workload Actions ###
+    @RequestMapping(value = "/workload/create", method = RequestMethod.GET)
+    public String newWorkload(Workload workload, Model model) {
+        List<String> distinctGpsds = gpsdRepository.getAllDistinct(getUserId());
 
-        List<Gpsd> gpsds = gpsdRepository.getAll(hsUser.getUserId());
+        model.addAttribute("distinctGpsds", distinctGpsds);
 
-        model.addAttribute("gpsds", gpsds);
-        model.addAttribute("pageName", "Create Workload");
-
-        return "createWorkload";
+        return "workload_create";
     }
 
     @RequestMapping(value = "/workload/create", method = RequestMethod.POST)
     @ResponseBody
-    public String createWorkload(Workload workload,
+    public String createWorkload(@RequestParam("dbName") String dbName,
+                                 @RequestParam("fromDate") String fromDate,
+                                 @RequestParam("toDate") String toDate,
                                  Model model) {
-        return "done";
+        int maxGpsdId = 0;
+
+        try {
+            maxGpsdId = gpsdRepository.getMaxGpsdIdByName(getUserId(), dbName);
+        } catch (Exception ex) {
+            return "NO GPSD Found with dbName = " + dbName;
+        }
+
+        SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("dd-MMM-yyyy");
+
+        Workload workload = new Workload();
+        workload.setGpsdId(maxGpsdId);
+        try {
+            workload.setStartDate(simpleDateFormatter.parse(fromDate));
+            workload.setEndDate(simpleDateFormatter.parse(toDate));
+        } catch (ParseException e) {
+            // TODO
+            e.printStackTrace();
+
+            return "Invalid date submitted";
+        }
+
+        int newWorkloadId = workloadRepository.createNew(getUserId(), workload);
+
+        String modelJson = haystaxsLibService.processWorkload(newWorkloadId);
+
+        String jsonFileBaseDir = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator
+                + "workloads" + File.separator;
+
+        try {
+            fileUtil.saveToFile(modelJson.getBytes(), jsonFileBaseDir, Integer.toString(newWorkloadId) + ".json");
+        } catch (IOException e) {
+            // TODO: log the error
+            e.printStackTrace();
+        }
+
+        return modelJson;
     }
+    //endregion
 
     @RequestMapping("/visualizer")
     public String showInVisualizer(@RequestParam("rl") int runLogId,

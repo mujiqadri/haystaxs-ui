@@ -53,6 +53,12 @@ public class TestController {
         return("chal gia bhan ka lora");
     }
 
+    @RequestMapping("/test/randomcontent")
+    @ResponseBody
+    public String randomContent() {
+        return("Lorum ipsum bahin ka dipsum");
+    }
+
     @RequestMapping("/test/sendmail")
     @ResponseBody
     public String testMail() throws Exception {

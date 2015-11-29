@@ -17,19 +17,10 @@ public class FileUtil {
     @Autowired
     private AppConfig appConfig;
 
-    public void SaveFileToPath(MultipartFile file, String baseDir, String fileName) throws IOException {
+    public void saveMultipartFileToPath(MultipartFile file, String baseDir, String fileName) throws IOException {
         byte[] bytes = file.getBytes();
 
-        // Creating the directory to store file
-        File dir = new File(baseDir);
-        if (!dir.exists())
-            dir.mkdirs();
-
-        // Create the file on server
-        File serverFile = new File(dir.getAbsolutePath() + File.separator + fileName);
-        BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
-        stream.write(bytes);
-        stream.close();
+        saveToFile(bytes, baseDir, fileName);
     }
 
     public void unZip(String zipFile, String outputFolder){
@@ -76,6 +67,19 @@ public class FileUtil {
         }catch(IOException ex){
             ex.printStackTrace();
         }
+    }
+
+    public void saveToFile(byte[] bytes, String baseDir, String fileName) throws IOException {
+        // Creating the directory to store file
+        File dir = new File(baseDir);
+        if (!dir.exists())
+            dir.mkdirs();
+
+        // Create the file on server
+        File serverFile = new File(dir.getAbsolutePath() + File.separator + fileName);
+        BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+        stream.write(bytes);
+        stream.close();
     }
 
     public void uploadFileToFtp(MultipartFile file, String baseDir, String fileName) throws IOException {

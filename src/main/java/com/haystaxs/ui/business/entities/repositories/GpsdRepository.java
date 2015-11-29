@@ -29,6 +29,14 @@ public class GpsdRepository extends RepositoryBase {
         return resultSet;
     }
 
+    public List<String> getAllDistinct(int userId) {
+        String sql = String.format("select DISTINCT dbname from %s.gpsd where user_id = ? order by dbname", getHsSchemaName());
+
+        List<String> resultSet = jdbcTemplate.queryForList(sql, String.class, new Object[] { userId });
+
+        return resultSet;
+    }
+
     public Gpsd getSingle(int gpsdId, int userId) {
         String sql = String.format("select * from %s.gpsd where gpsd_id = ? and user_id = ?", getHsSchemaName());
 
@@ -37,11 +45,19 @@ public class GpsdRepository extends RepositoryBase {
         return result;
     }
 
+    public int getMaxGpsdIdByName(int userId, String dbName) {
+        String sql = String.format("select max(gpsd_id) from %s.gpsd where dbname = ? and user_id = ?", getHsSchemaName());
+
+        int result = jdbcTemplate.queryForObject(sql, new Object[] {dbName, userId}, Integer.class);
+
+        return result;
+    }
+
     public int createNew(int userId, String originalFileName) {
         String sql = String.format("select nextval('%s.seq_gpsd')", getHsSchemaName());
         int newGpsdId = jdbcTemplate.queryForObject(sql, Integer.class);
 
-        sql = String.format("INSERT INTO %s.gpsd(gpsd_id, user_id, filename, file_submitted_on, status) VALUES (?, ?, ?, ?, localtimestamp, ?)", getHsSchemaName());
+        sql = String.format("INSERT INTO %s.gpsd(gpsd_id, user_id, filename, file_submitted_on, status) VALUES (?, ?, ?, localtimestamp, ?)", getHsSchemaName());
         //sb.append(UUID.randomUUID().toString() + ".sql");
         jdbcTemplate.update(sql, new Object[] {newGpsdId, userId, originalFileName, "SUBMITTED"});
 

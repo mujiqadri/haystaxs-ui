@@ -19,9 +19,9 @@
                 </button>
             {% } %}
             {% if (!i) { %}
-                <button class="btn btn-warning cancel hidden">
+                <button class="btn btn-warning cancel">
                     <i class="glyphicon glyphicon-ban-circle"></i>
-                    <span>Cancel</span>
+                    <span>Remove</span>
                 </button>
             {% } %}
         </td>

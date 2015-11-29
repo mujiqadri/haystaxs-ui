@@ -11,6 +11,8 @@ public class QueryLog {
     private int userId;
     private Timestamp submittedOn;
     private String status;
+    private String fileChecksum;
+    private String originalFileName;
     private List<QueryLogDate> logDates;
 
 
@@ -52,5 +54,21 @@ public class QueryLog {
 
     public void setLogDates(List<QueryLogDate> logDates) {
         this.logDates = logDates;
+    }
+
+    public String getFileChecksum() {
+        return fileChecksum;
+    }
+
+    public void setFileChecksum(String fileChecksum) {
+        this.fileChecksum = fileChecksum;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
     }
 }

@@ -45,13 +45,22 @@ public class QueryLogRespository extends RepositoryBase{
         return result;
     }
 
-    public int createNew(QueryLog queryLog, int userId) {
+    public int createNew(int userId, String originalFileName, String checksum) {
         String sql = String.format("select nextval('%s.seq_query_log')", getHsSchemaName());
         int newQueryLogId = jdbcTemplate.queryForObject(sql, Integer.class);
 
-        sql = String.format("INSERT INTO %s.query_logs(query_log_id, user_id, submitted_on, status) VALUES (?, ?, localtimestamp, 'UPLOADED')", getHsSchemaName());
-        jdbcTemplate.update(sql, new Object[] { newQueryLogId, userId });
+        sql = String.format("INSERT INTO %s.query_logs(query_log_id, user_id, submitted_on, status, original_file_name, file_checksum) VALUES (?, ?, localtimestamp, 'UPLOADED', ?, ?)", getHsSchemaName());
+        jdbcTemplate.update(sql, new Object[] { newQueryLogId, userId, originalFileName, checksum });
 
         return newQueryLogId;
+    }
+
+    public List<QueryLogDate> getAllQueryLogDates(int userId) {
+        String sql = String.format("select qld.* from %s.query_log_dates qld INNER JOIN %s.query_logs ql " +
+                "ON ql.query_log_id = qld.query_log_id where ql.user_id = ? ORDER BY qld.log_date DESC", getHsSchemaName(), getHsSchemaName());
+
+        List<QueryLogDate> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new BeanPropertyRowMapper(QueryLogDate.class));
+
+        return resultSet;
     }
 }

@@ -6,3 +6,12 @@
 .label {
     padding-top: 4px;
 }
+
+.portlet > .portlet-title > .tools > a.close-portlet {
+    background-image: url(../../../global/img/portlet-remove-icon.png);
+    background-repeat: no-repeat;
+    width: 11px; }
+
+.portlet.box > .portlet-title > .tools > a.close-portlet {
+    background-image:url(../../../global/img/portlet-remove-icon-white.png)
+}
