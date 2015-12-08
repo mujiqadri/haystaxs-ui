@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.spring.support.Layout;
 
 import java.io.IOException;
 
@@ -136,5 +137,16 @@ public class TestController {
     public String testNewLayout(Model model) {
         model.addAttribute("title", "Dashboard 101");
         return "blank_template_page";
+    }
+
+    @RequestMapping("/visualizer/{wlId}")
+    public String showInVisualizer(@PathVariable("wlId") int workloadId, Model model) {
+        //HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
+
+        /*RunLog runLog = runLogRespository.getRunLogById(runLogId, hsUser.getUserId());
+
+        model.addAttribute("backendJSON", runLog.getModelJson());*/
+
+        return "visualizer";
     }
 }

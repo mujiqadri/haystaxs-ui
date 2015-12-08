@@ -118,6 +118,17 @@ function applyFilters() {
 $(function () {
     UIElements.initialize();
 
+    var clusterVisualPortlet = $('#cluster-visual-portlet-body');
+
+    Visualizer.width = clusterVisualPortlet.width() - 10;
+
+    $('body').on('click', '.portlet > .portlet-title .fullscreen', function(e) {
+        if(dataModel) {
+            Visualizer.width = clusterVisualPortlet.width() - 10;
+            Visualizer.height = clusterVisualPortlet.height() - 10;
+            Visualizer.updateLayout(dataModel);
+        }
+    });
     //dataModel = new Haystaxs.DataModel(backendJSON);
     //dataLoadSuccessful();
 });

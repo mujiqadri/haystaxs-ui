@@ -10,6 +10,7 @@
     <http pattern="/public/**" security="none"/>
     <http pattern="/assets/**" security="none"/>
     <http pattern="/test/**" security="none"/>
+    <http pattern="/visualizer/**" security="none"/>
 
     <http auto-config="true">
         <!-- Login pages -->
@@ -20,6 +21,7 @@
         <intercept-url pattern="/favicon.ico" access="isAnonymous()" />
         <intercept-url pattern="/login" access="isAnonymous()"/>
         <intercept-url pattern="/register" access="isAnonymous()"/>
+        <!--<intercept-url pattern="/visualizer/**" />-->
         <!--<intercept-url pattern="/login" access="isAnonymous() or hasRole('USER')" />-->
 
         <intercept-url pattern="/**" access="hasRole('USER')"/>

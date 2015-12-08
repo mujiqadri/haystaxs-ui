@@ -11,7 +11,9 @@ var App = function() {
 
     var resizeHandlers = [];
 
-    var assetsPath = '/haystaxs/assets/';
+    var webAppPath = '/haystaxsui';
+
+    var assetsPath = webAppPath + '/assets/';
 
     var globalImgPath = 'global/img/';
 
@@ -1035,7 +1037,9 @@ var App = function() {
             };
 
             return sizes[size] ? sizes[size] : 0; 
-        }
+        },
+
+        webAppPath: webAppPath
     };
 
 }();

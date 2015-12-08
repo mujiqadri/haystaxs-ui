@@ -348,31 +348,41 @@ public class HomeController {
 
         String modelJson = haystaxsLibService.processWorkload(newWorkloadId);
 
-        String jsonFileBaseDir = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator
-                + "workloads" + File.separator;
+        if(modelJson != null) {
+            workloadRepository.setCompletedOn(newWorkloadId);
 
-        try {
-            fileUtil.saveToFile(modelJson.getBytes(), jsonFileBaseDir, Integer.toString(newWorkloadId) + ".json");
-        } catch (IOException e) {
-            // TODO: log the error
-            e.printStackTrace();
+            String jsonFileBaseDir = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator
+                    + "workloads" + File.separator;
+
+            try {
+                fileUtil.saveToFile(modelJson.getBytes(), jsonFileBaseDir, Integer.toString(newWorkloadId) + ".json");
+            } catch (IOException e) {
+                // TODO: log the error
+                e.printStackTrace();
+            }
+
+            return "Success";
         }
 
-        return modelJson;
+        return "Failed to generate Model JSON, Check Logs";
     }
     //endregion
 
-    @RequestMapping("/visualizer")
-    public String showInVisualizer(@RequestParam("rl") int runLogId,
-                                   Model model) {
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
+/*
+    @Layout(value = "", enabled = false)
+    @RequestMapping("/visualizer/{wlId}")
+    public String showInVisualizer(@PathVariable("wlId") int workloadId, Model model) {
+        //HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
 
-        /*RunLog runLog = runLogRespository.getRunLogById(runLogId, hsUser.getUserId());
+        */
+/*RunLog runLog = runLogRespository.getRunLogById(runLogId, hsUser.getUserId());
 
-        model.addAttribute("backendJSON", runLog.getModelJson());*/
+        model.addAttribute("backendJSON", runLog.getModelJson());*//*
 
-        return "visualizer";
+
+        return "visualizer_orig";
     }
+*/
 
     @ExceptionHandler(Throwable.class)
     public String handleException(Throwable t) {

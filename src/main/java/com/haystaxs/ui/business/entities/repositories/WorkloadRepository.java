@@ -30,4 +30,9 @@ public class WorkloadRepository extends RepositoryBase {
 
         return newWorkloadId;
     }
+
+    public void setCompletedOn(int workloadId) {
+        String sql = String.format("UPDATE %s.workloads SET completed_on  = localtimestamp where workload_id = ?", getHsSchemaName());
+        jdbcTemplate.update(sql, new Object[] {workloadId});
+    }
 }

@@ -36,43 +36,6 @@ var FormFileUpload = function () {
             $('#fileupload').bind('fileuploadalways', function(e, data) {
                 console.log("Always");
             });
-
-            // Enable iframe cross-domain access via redirect option:
-            /*$('#fileupload').fileupload(
-             'option',
-             'redirect',
-             window.location.href.replace(
-             /\/[^\/]*$/,
-             '/cors/result.html?%s'
-             )
-             );*/
-
-            // Upload server status check for browsers with CORS support:
-            /*if ($.support.cors) {
-             $.ajax({
-             type: 'HEAD'
-             }).fail(function () {
-             $('<div class="alert alert-danger"/>')
-             .text('Upload server currently unavailable - ' +
-             new Date())
-             .appendTo('#fileupload');
-             });
-             }*/
-
-            // Load & display existing files:
-            //$('#fileupload').addClass('fileupload-processing');
-            /*$.ajax({
-             // Uncomment the following to send cross-domain cookies:
-             //xhrFields: {withCredentials: true},
-             url: $('#fileupload').attr("action"),
-             dataType: 'json',
-             context: $('#fileupload')[0]
-             }).always(function () {
-             $(this).removeClass('fileupload-processing');
-             }).done(function (result) {
-             $(this).fileupload('option', 'done')
-             .call(this, $.Event('done'), {result: result});
-             });*/
         }
 
     };
@@ -84,12 +47,12 @@ jQuery(document).ready(function() {
 
     $('body').on('click', 'a.vtq', function(e) {
         e.preventDefault();
-        showFullScreenPortlet('context-content-portlet', '/haystaxs/querylog/topqueries/' + $(this).attr("data-id"), 'Top Queries for ' + $(this).attr("data-id"));
+        showFullScreenPortlet('context-content-portlet', App.webAppPath + '/querylog/topqueries/' + $(this).attr("data-id"), 'Top Queries for ' + $(this).attr("data-id"));
     });
 
     $('body').on('click', 'a.vqc', function(e) {
         e.preventDefault();
-        showFullScreenPortlet('context-content-portlet', '/haystaxs/querylog/querycategories/' + $(this).attr("data-id"), 'Count of Query Types for ' + $(this).attr("data-id"));
+        showFullScreenPortlet('context-content-portlet', App.webAppPath + '/querylog/querycategories/' + $(this).attr("data-id"), 'Count of Query Types for ' + $(this).attr("data-id"));
     });
 
     $('body').on('click', '.portlet > .portlet-title > .tools > a.close-portlet', function(e) {
