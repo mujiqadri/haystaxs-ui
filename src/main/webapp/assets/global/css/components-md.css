@@ -8147,14 +8147,15 @@ Accordions
 /***
 Customized Bootstrap Popover
 ***/
-/*rtl:ignore*/
+/*
+!*rtl:ignore*!
 .popover {
   padding: 0; }
 
 .popover .popover-title {
   margin: 0 !important; }
 
-/*rtl:ignore*/
+!*rtl:ignore*!
 .popover {
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
@@ -8175,6 +8176,17 @@ Customized Bootstrap Popover
 .popover .arrow,
 .popover .arrow:after {
   display: none !important; }
+*/
+
+.popover {
+  max-width: 500px;
+}
+
+.popover > .popover-title {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+}
 
 /***
 Portlets

@@ -5,10 +5,13 @@
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet" type="text/css"/>
     <link th:href="@{/assets/global/plugins/font-awesome/css/font-awesome.min.css}" href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet"
           type="text/css"/>
-    <link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}" href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet"
+    <link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}" href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
+          rel="stylesheet"
           type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}" href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}" href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}" href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}" href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet"
+          type="text/css"/>
     <link th:href="@{/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css}" href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
           rel="stylesheet" type="text/css"/>
     <!-- END GLOBAL MANDATORY STYLES -->
@@ -27,7 +30,8 @@
               href="/assets/global/plugins/jquery-file-upload/blueimp-gallery/blueimp-gallery.min.css" rel="stylesheet" type="text/css"/>
         <link th:href="@{/assets/global/plugins/jquery-file-upload/css/jquery.fileupload.css}" href="/assets/global/plugins/jquery-file-upload/css/jquery.fileupload.css"
               rel="stylesheet" type="text/css"/>
-        <link th:href="@{/assets/global/plugins/jquery-file-upload/css/jquery.fileupload-ui.css}" href="/assets/global/plugins/jquery-file-upload/css/jquery.fileupload-ui.css"
+        <link th:href="@{/assets/global/plugins/jquery-file-upload/css/jquery.fileupload-ui.css}"
+              href="/assets/global/plugins/jquery-file-upload/css/jquery.fileupload-ui.css"
               rel="stylesheet" type="text/css"/>
     </th:block>
 </head>
@@ -69,7 +73,16 @@
                             <div class="portlet box yellow-lemon">
                                 <div class="portlet-title">
                                     <div class="caption">
-                                        <i class="fa fa-upload"></i>Upload GPSD
+                                        <i class="fa fa-upload"></i><span>Upload GPSD</span>
+                                    </div>
+                                    <div class="caption-2">
+                                        <i class="fa fa-question-circle popovers" style="font-size: 1.4em"
+                                           data-container="body" data-trigger="hover"
+                                           data-content="You can only upload a .sql or a compressed (.zip) GPSD file. Only 1 file can be uploaded. Once uploaded
+                                           the processing might take sometime. You will be notified in your inbox once the processing is completed and the GPSD will become available
+                                           in the list"
+                                           title="Help">
+                                        </i>
                                     </div>
                                     <div class="tools">
                                         <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
@@ -118,16 +131,6 @@
                                             <tbody class="files"></tbody>
                                         </table>
                                     </form>
-                                    <!-- The blueimp Gallery widget -->
-                                    <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
-                                        <div class="slides"></div>
-                                        <h3 class="title"></h3>
-                                        <a class="prev">‹</a>
-                                        <a class="next">›</a>
-                                        <a class="close">×</a>
-                                        <a class="play-pause"></a>
-                                        <ol class="indicator"></ol>
-                                    </div>
                                     <!-- The template to display files available for upload -->
                                     <script id="template-upload" type="text/x-tmpl" hs:asis="/assets/pages/xtmpl/uploadTemplate2.txt">
                                     </script>

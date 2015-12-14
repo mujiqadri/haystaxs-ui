@@ -20,7 +20,8 @@
             <td th:text="${gpsd.noOfLines}"></td>
             <td th:text="${#dates.format(gpsd.fileSubmittedOn, 'dd-MMM-yyyy hh:mm a')}"></td>
             <td th:text="${gpsd.status}"></td>
-            <td><a href="javascript:;" class="vf" th:attr="data-id=${gpsd.gpsdId}">View File</a></td>
+            <!--<td><a href="javascript:;" class="vf" th:attr="data-id=${gpsd.gpsdId}">View File</a></td>-->
+            <td><a th:href="@{/gpsd/file/} + ${gpsd.gpsdId}">Download File</a></td>
             <td><button class="btn btn-danger delete-gpsd" th:attr="data-id=${gpsd.gpsdId}">Delete</button></td>
         </tr>
         </tbody>

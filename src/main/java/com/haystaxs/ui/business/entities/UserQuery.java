@@ -13,6 +13,8 @@ public class UserQuery {
     private Timestamp queryEndTime;
     private float durationSeconds;
     private String sql;
+    private String qryType;
+    private int totalRows;
 
     public String getLogDatabase() {
         return logDatabase;
@@ -60,5 +62,21 @@ public class UserQuery {
 
     public void setSql(String sql) {
         this.sql = sql;
+    }
+
+    public String getQryType() {
+        return qryType;
+    }
+
+    public void setQryType(String qryType) {
+        this.qryType = qryType;
+    }
+
+    public int getTotalRows() {
+        return totalRows;
+    }
+
+    public void setTotalRows(int totalRows) {
+        this.totalRows = totalRows;
     }
 }

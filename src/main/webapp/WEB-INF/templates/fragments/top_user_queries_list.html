@@ -2,6 +2,7 @@
     <table class="table table-bordered table-hover">
         <thead>
         <tr>
+            <th>Query #</th>
             <th>Database</th>
             <th>User</th>
             <th>Start Time</th>
@@ -12,12 +13,13 @@
         </thead>
         <tbody>
         <tr th:each="uq,iterStatus : ${userQueries}">
+            <td th:text="${iterStatus.count}"></td>
             <td th:text="${uq.logDatabase}"></td>
             <td th:text="${uq.logUser}"></td>
             <td th:text="${#dates.format(uq.queryStartTime, 'hh:mm:ss')}"></td>
             <td th:text="${#dates.format(uq.queryEndTime, 'hh:mm:ss')}"></td>
             <td th:text="${uq.durationSeconds}"></td>
-            <td th:text="${uq.sql}"></td>
+            <td th:text="${uq.sql}" style="word-break: break-all"></td>
         </tr>
         </tbody>
     </table>

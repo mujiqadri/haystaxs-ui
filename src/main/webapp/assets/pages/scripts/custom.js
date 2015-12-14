@@ -8,6 +8,7 @@ function showFullScreenPortlet(portletId, url, title) {
         portlet.children('.portlet-title').outerHeight() -
         parseInt(portlet.children('.portlet-body').css('padding-top')) -
         parseInt(portlet.children('.portlet-body').css('padding-bottom'));
+    height = height * 83 /100;
 
     //$(this).addClass('on');
     portlet.removeClass('hidden');
@@ -25,18 +26,23 @@ function showFullScreenPortlet(portletId, url, title) {
     var portletBody = portlet.find('.portlet-body').first();
     portletBody.empty();
 
+    App.blockUI({
+        target: portletBody,
+        boxed: true
+    });
+
     $.ajax({
         type: "GET",
         cache: false,
         url: url,
         dataType: "html",
         success: function(res) {
-            //App.unblockUI(el);
+            App.unblockUI(portletBody);
             portletBody.html(res);
             //App.initAjax() // reinitialize elements & plugins for newly loaded content
         },
         error: function(xhr, ajaxOptions, thrownError) {
-            //App.unblockUI(el);
+            App.unblockUI(portletBody);
             var msg = 'Error on reloading the content. Please check your connection and try again.';
             /*if (error == "toastr" && toastr) {
                 toastr.error(msg);
@@ -62,6 +68,42 @@ function hideFullScreenPortlet(portletId) {
     portlet.removeClass('portlet-fullscreen');
     $('body').removeClass('page-portlet-fullscreen');
     portlet.children('.portlet-body').css('height', 'auto');
+}
+
+function loadViaAjax(url, data, targetEl) {
+    App.blockUI({
+        target: targetEl,
+        boxed: true
+    });
+
+    $.ajax({
+        type: "GET",
+        cache: false,
+        url: App.webAppPath + url,
+        data: data,
+        dataType: "html",
+        success: function(res) {
+            App.unblockUI(targetEl);
+            targetEl.html(res);
+            //App.initAjax() // reinitialize elements & plugins for newly loaded content
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            App.unblockUI(targetEl);
+            var msg = 'Error on reloading the content. Please check your connection and try again.';
+            /*if (error == "toastr" && toastr) {
+             toastr.error(msg);
+             } else if (error == "notific8" && $.notific8) {
+             $.notific8('zindex', 11500);
+             $.notific8(msg, {
+             theme: 'ruby',
+             life: 3000
+             });
+             } else {
+             alert(msg);
+             }*/
+            targetEl.html(msg);
+        }
+    });
 }
 
 var Custom = function () {

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,11 +56,15 @@ public class QueryLogRespository extends RepositoryBase{
         return newQueryLogId;
     }
 
-    public List<QueryLogDate> getAllQueryLogDates(int userId) {
-        String sql = String.format("select qld.* from %s.query_log_dates qld INNER JOIN %s.query_logs ql " +
-                "ON ql.query_log_id = qld.query_log_id where ql.user_id = ? ORDER BY qld.log_date DESC", getHsSchemaName(), getHsSchemaName());
+    public List<QueryLogDate> getQueryLogDates(int userId, Date fromDate, Date toDate, int pageNo, int pageSize) {
+        String sql = String.format("select qld.*, ql.submitted_on, ql.original_file_name, count(0) OVER () as totalRows " +
+                " from %s.query_log_dates qld INNER JOIN %s.query_logs ql " +
+                " ON ql.query_log_id = qld.query_log_id where ql.user_id = ? " +
+                " AND qld.log_date BETWEEN ? AND ? " +
+                " ORDER BY qld.log_date DESC " +
+                " LIMIT %d OFFSET %d ", getHsSchemaName(), getHsSchemaName(), pageSize, (pageNo-1) * pageSize);
 
-        List<QueryLogDate> resultSet = jdbcTemplate.query(sql, new Object[] { userId }, new BeanPropertyRowMapper(QueryLogDate.class));
+        List<QueryLogDate> resultSet = jdbcTemplate.query(sql, new Object[] { userId, fromDate, toDate }, new BeanPropertyRowMapper(QueryLogDate.class));
 
         return resultSet;
     }

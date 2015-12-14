@@ -4,6 +4,7 @@ import com.haystaxs.ui.business.entities.*;
 import com.haystaxs.ui.business.entities.repositories.*;
 import com.haystaxs.ui.business.services.HaystaxsLibService;
 import com.haystaxs.ui.business.services.QueryLogService;
+import com.haystaxs.ui.support.PaginationInfo;
 import com.haystaxs.ui.support.UploadedFileInfo;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
@@ -12,6 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,8 +27,8 @@ import org.thymeleaf.spring.support.Layout;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.servlet.ServletContext;
-import java.io.File;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -146,12 +151,13 @@ public class HomeController {
 
         logger.trace("Creating GPSD DB Entry.");
 
+        UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
         String originalFileName = gpsdFile.getOriginalFilename();
+/*
         int newGpsdId = gpsdRepository.createNew(getUserId(), originalFileName);
         String normalizedUserName = getNormalizedUserName();
         String gpsdFileDirectory = appConfig.getGpsdSaveDirectory() + File.separator + normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
         String gpsdFilePath = gpsdFileDirectory + File.separator + originalFileName;
-        UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
 
         logger.trace("Saving GPSD file to " + gpsdFilePath);
 
@@ -167,16 +173,19 @@ public class HomeController {
             // TODO: Log internal error. Should we also rollback the DB Entry ??
             uploadedFileInfo.setError(e.getMessage());
         }
-
+*/
         uploadedFileInfo.setName(originalFileName);
         uploadedFileInfo.setSize(gpsdFile.getSize());
         uploadedFileInfos.add(uploadedFileInfo);
+
+        //throw new Exception("Wtf");
 
         result.put("files", uploadedFileInfos);
         return result;
     }
 
-    @RequestMapping(value = "/gpsd/file/{gpsdId}")
+    //@RequestMapping(value = "/gpsd/file/{gpsdId}")
+    // WAS GIVING OUT OF MEMORY EXCEPTION
     @ResponseBody
     public String gpsdFile(@PathVariable("gpsdId") int gpsdId) {
         Gpsd gpsd = gpsdRepository.getSingle(gpsdId, getUserId());
@@ -184,7 +193,7 @@ public class HomeController {
         String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator +
                 "gpsd" + File.separator + gpsdId + File.separator + gpsd.getFilename();
 
-        String result = "";
+        String result;
 
         try {
             result = new String(Files.readAllBytes(Paths.get(fullPath)));
@@ -193,6 +202,69 @@ public class HomeController {
         }
 
         return result;
+    }
+
+    @RequestMapping(value = "/gpsd/file/{gpsdId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> downloadGpsdFile(@PathVariable("gpsdId") int gpsdId, HttpServletResponse resp){
+        Gpsd gpsd = gpsdRepository.getSingle(gpsdId, getUserId());
+        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator +
+                "gpsd" + File.separator + gpsdId + File.separator + gpsd.getFilename();
+        final HttpHeaders headers = new HttpHeaders();
+
+        File toServeUp = new File(fullPath);
+
+        InputStream inputStream = null;
+
+        try {
+            inputStream = new FileInputStream(toServeUp);
+        } catch (FileNotFoundException e) {
+            //Also useful, this is a good was to serve down an error message
+            String msg = "ERROR: GPSD File not found.";
+            headers.setContentType(MediaType.TEXT_PLAIN);
+            return new ResponseEntity<byte[]>(msg.getBytes(), headers, HttpStatus.NOT_FOUND);
+        }
+
+        resp.setContentType("text/plain");
+        resp.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", gpsd.getFilename()));
+
+        Long fileSize = toServeUp.length();
+        resp.setContentLength(fileSize.intValue());
+
+        OutputStream outputStream = null;
+
+        try {
+            outputStream = resp.getOutputStream();
+        } catch (IOException e) {
+            String msg = "ERROR: Could not generate output stream.";
+            headers.setContentType(MediaType.TEXT_PLAIN);
+            return new ResponseEntity<byte[]>(msg.getBytes(), headers, HttpStatus.NOT_FOUND);
+        }
+
+        byte[] buffer = new byte[1024];
+
+        int read = 0;
+        try {
+
+            while ((read = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+            }
+
+            //close the streams to prevent memory leaks
+            outputStream.flush();
+            outputStream.close();
+            inputStream.close();
+
+        }
+        catch (Exception e) {
+            String msg = "ERROR: Could not read file.";
+            headers.setContentType(MediaType.TEXT_PLAIN);
+            return new ResponseEntity<byte[]>(msg.getBytes(), headers, HttpStatus.NOT_FOUND);
+        }
+
+        String msg = "SUCCESS: Done.";
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        return new ResponseEntity<byte[]>(msg.getBytes(), headers, HttpStatus.OK);
     }
 
     @Layout(enabled = false, value = "")
@@ -216,6 +288,7 @@ public class HomeController {
     //region ### QueryLog Actions ###
     @RequestMapping("/querylog/main")
     public String userQueryLogs(Model model) {
+        model.addAttribute("title", "Query Logs");
         // Used by the Custom Thymeleaf Attribute "hs:asis"
         model.addAttribute("appRealPath", servletContext.getRealPath("/"));
 
@@ -224,9 +297,39 @@ public class HomeController {
 
     @Layout(enabled = false, value = "")
     @RequestMapping("/querylog/list")
-    public String userQueryLogsList(Model model) {
-        List<QueryLogDate> queryLogDates = queryLogRespository.getAllQueryLogDates(getUserId());
+    public String userQueryLogsList(Model model,
+                                    @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
+                                    @RequestParam(value = "pgSize", defaultValue = "10") int pageSize,
+                                    @RequestParam(value = "fromDate", required = false) String fromDate,
+                                    @RequestParam(value = "toDate", required = false) String toDate) throws Exception {
+        // Should be a class level static variable
+        SimpleDateFormat hsDateFormatter = new SimpleDateFormat("dd-MMM-yyyy");
+
+        Date fromDt, toDt;
+
+        if(fromDate == null || fromDate.isEmpty())
+            fromDate = "01-JAN-1960";
+        if(toDate == null || toDate.isEmpty())
+            toDate = hsDateFormatter.format(new Date());
+
+        try {
+            fromDt = hsDateFormatter.parse(fromDate);
+            toDt = hsDateFormatter.parse(toDate);
+        }
+        catch(Exception ex) {
+            throw ex;
+        }
+
+        List<QueryLogDate> queryLogDates = queryLogRespository.getQueryLogDates(getUserId(), fromDt, toDt, pageNo, pageSize);
+        //http://www.javacodegeeks.com/2013/03/implement-bootstrap-pagination-with-spring-data-and-thymeleaf.html
         model.addAttribute("queryLogDates", queryLogDates);
+
+        PaginationInfo paginationInfo = new PaginationInfo();
+        paginationInfo.setPageSize(pageSize);
+        paginationInfo.setCurrentPageNo(pageNo);
+        paginationInfo.setTotalNoOfPages(((Double)Math.floor(queryLogDates.get(0).getTotalRows() / pageSize)).intValue());
+
+        model.addAttribute("pi", paginationInfo);
 
         return "fragments/querylog_list";
     }
@@ -303,6 +406,50 @@ public class HomeController {
         model.addAttribute("userQueries", userDatabaseRepository.getQueryCountByCategory(getNormalizedUserName(), forDate));
 
         return "fragments/user_queries_by_cat_list";
+    }
+
+    @RequestMapping("/querylog/analyze/{date}")
+    public String queryLogAnalysis(@PathVariable("date") String forDate,
+                                   Model model) {
+
+        model.addAttribute("forDate", forDate);
+        model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
+
+        return "querylog_analysis";
+    }
+
+    @Layout(value = "", enabled = false)
+    @RequestMapping("/querylog/analyze/search")
+    public String queryLogAnalyzeSearch(@RequestParam("forDate") String forDate,
+                                        @RequestParam("dbNameLike") String dbNameLike,
+                                        @RequestParam("userNameLike") String userNameLike,
+                                        /*@RequestParam("startTime") String startTime,
+                                        @RequestParam("endTime") String endTime,*/
+                                        @RequestParam("sqlLike") String sqlLike,
+                                        @RequestParam("duration") String duration,
+                                        @RequestParam("queryType") String queryType,
+                                        @RequestParam(value = "pgSize", defaultValue = "10") int pageSize,
+                                        @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
+                                        Model model) {
+        List<UserQuery> userQueries = userDatabaseRepository.getQueries(getNormalizedUserName(), forDate,
+                dbNameLike, userNameLike, duration, /*startTime, endTime,*/ sqlLike, queryType, pageSize, pageNo);
+        // TODO: Check if list is empty
+
+        model.addAttribute("forDate", forDate);
+        model.addAttribute("userQueries", userQueries);
+
+        int totalRows = userQueries.get(0).getTotalRows();
+//        int computedPageSize = totalRows / 25;
+//        pageSize = computedPageSize > pageSize? computedPageSize : pageSize;
+        PaginationInfo paginationInfo = new PaginationInfo();
+        paginationInfo.setTotalNoOfItems(totalRows);
+        paginationInfo.setPageSize(pageSize);
+        paginationInfo.setCurrentPageNo(pageNo);
+        paginationInfo.setTotalNoOfPages(((Double)Math.floor(userQueries.get(0).getTotalRows() / pageSize)).intValue());
+
+        model.addAttribute("pi", paginationInfo);
+
+        return "fragments/query_analysis_list";
     }
     //endregion
 
