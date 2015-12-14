@@ -36,7 +36,7 @@
             <div class="container">
                 <!-- BEGIN PAGE TITLE -->
                 <div class="page-title" th:fragment="page-title">
-                    <h1 style="display: inline-block">Query Analysis for </h1>&nbsp;<h1 class="bold" th:text="${forDate}"  style="display: inline-block"></h1>
+                    <h1 style="display: inline-block">Analyze queries for </h1>&nbsp;&nbsp;<h1 class="bold" th:text="${forDate}"  style="display: inline-block"></h1>
                 </div>
                 <!-- END PAGE TITLE -->
             </div>
@@ -79,11 +79,11 @@
                                     <option value="500">500</option>
                                     <option value="1000">1000</option>
                                 </select>
-                                <button type="submit" class="btn btn-default" id="search-queries">Search</button>
+                                <button type="submit" class="btn btn-default blue" id="search-queries">Search</button>
                             </form>
                         </div>
                     </div>
-                    <div id="queries-list"></div>
+                    <div id="queries-list" th:include="fragments/query_analysis_list"></div>
                 </div>
                 <!-- END PAGE CONTENT INNER -->
             </div>

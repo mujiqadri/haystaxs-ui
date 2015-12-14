@@ -162,7 +162,25 @@ var Custom = function () {
 }();
 
 jQuery(document).ready(function() {    
-   Custom.init(); 
+    Custom.init();
+
+    /*$('.portlet.box>.tools>.expand').on('click', function (e) {
+        e.preventBubble();
+    });*/
+
+    $('.portlet.box').has('.tools>.expand,.tools>.collapse').css('cursor', 'pointer').on('click', function (e) {
+        var expandCollapseLink = $(this).find('.tools>.expand,.tools>.collapse');
+
+        var el = $(this).closest(".portlet").children(".portlet-body");
+
+        if (expandCollapseLink.hasClass("collapse")) {
+            expandCollapseLink.removeClass("collapse").addClass("expand");
+            el.slideUp(200);
+        } else {
+            expandCollapseLink.removeClass("expand").addClass("collapse");
+            el.slideDown(200);
+        }
+    });
 });
 
 /***

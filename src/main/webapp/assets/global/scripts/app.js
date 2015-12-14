@@ -140,7 +140,8 @@ var App = function() {
             if (url) {
                 App.blockUI({
                     target: el,
-                    animate: true,
+                    //animate: true,
+                    boxed: true,
                     overlayColor: 'none'
                 });
                 $.ajax({
@@ -186,6 +187,7 @@ var App = function() {
         $('.portlet .portlet-title a.reload[data-load="true"]').click();
 
         $('body').on('click', '.portlet > .portlet-title > .tools > .collapse, .portlet .portlet-title > .tools > .expand', function(e) {
+            /* Commented by Adnan
             e.preventDefault();
             var el = $(this).closest(".portlet").children(".portlet-body");
             if ($(this).hasClass("collapse")) {
@@ -195,6 +197,7 @@ var App = function() {
                 $(this).removeClass("expand").addClass("collapse");
                 el.slideDown(200);
             }
+            */
         });
     };
 

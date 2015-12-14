@@ -82,10 +82,10 @@
                                         <i class="fa fa-upload"></i>Upload Query Logs
                                     </div>
                                     <div class="tools">
-                                        <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                                        <a href="javascript:;" class="expand" data-original-title="" title=""> </a>
                                     </div>
                                 </div>
-                                <div class="portlet-body">
+                                <div class="portlet-body display-hide">
                                     <form id="fileupload" th:action="@{/querylog/upload}" method="POST" enctype="multipart/form-data">
                                         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
                                         <div class="row fileupload-buttonbar">
@@ -165,7 +165,7 @@
                                             <input class="form-control date-picker" type="text" id="fromDate" data-date-format="dd-M-yyyy"/>
                                             <span> to </span>
                                             <input class="form-control date-picker" type="text" id="toDate" data-date-format="dd-M-yyyy"/>
-                                            <button class="form-control btn-primary" id="btnFilterQueryLogs">Go</button>
+                                            <button class="form-control btn btn-default blue" id="btnFilterQueryLogs">Go</button>
                                         </form>
                                     </div>
                                 </div>

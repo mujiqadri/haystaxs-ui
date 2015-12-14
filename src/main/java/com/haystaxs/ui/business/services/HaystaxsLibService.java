@@ -2,13 +2,17 @@ package com.haystaxs.ui.business.services;
 
 import com.haystack.service.CatalogService;
 import com.haystack.util.ConfigProperties;
+import com.haystaxs.ui.util.AppConfig;
+import com.haystaxs.ui.util.FileUtil;
 import com.sun.javafx.collections.MappingChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -18,6 +22,11 @@ import java.util.Map;
 public class HaystaxsLibService {
     final static Logger logger = LoggerFactory.getLogger(HaystaxsLibService.class);
 
+    @Autowired
+    private FileUtil fileUtil;
+    @Autowired
+    private AppConfig appConfig;
+
     @Async
     public void createGPSD(int gpsdId, String normalizedUserName, String gpsdFilePath) {
         logger.trace(String.format("createGPSD Started. %d %s %s", gpsdId, normalizedUserName, gpsdFilePath));
@@ -26,12 +35,11 @@ public class HaystaxsLibService {
             configProperties.loadProperties();
 
             CatalogService cs = new CatalogService(configProperties);
-            boolean hadErrors = cs.executeGPSD(gpsdId, normalizedUserName, gpsdFilePath);
+            String gpsdJson = cs.executeGPSD(gpsdId, normalizedUserName, gpsdFilePath);
 
-            if (hadErrors) {
-                logger.debug(String.format("CatalogService.processGPSD(%d, %s, %s) ran with some errors !", gpsdId, normalizedUserName,
-                        gpsdFilePath));
-            }
+            String baseDir = appConfig.getGpsdSaveDirectory() + File.separator + gpsdId;
+
+            fileUtil.saveToFile(gpsdJson.getBytes(), baseDir, gpsdId + ".json");
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }

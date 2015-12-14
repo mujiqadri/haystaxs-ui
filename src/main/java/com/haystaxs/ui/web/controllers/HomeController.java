@@ -153,7 +153,6 @@ public class HomeController {
 
         UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
         String originalFileName = gpsdFile.getOriginalFilename();
-/*
         int newGpsdId = gpsdRepository.createNew(getUserId(), originalFileName);
         String normalizedUserName = getNormalizedUserName();
         String gpsdFileDirectory = appConfig.getGpsdSaveDirectory() + File.separator + normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
@@ -173,12 +172,9 @@ public class HomeController {
             // TODO: Log internal error. Should we also rollback the DB Entry ??
             uploadedFileInfo.setError(e.getMessage());
         }
-*/
         uploadedFileInfo.setName(originalFileName);
         uploadedFileInfo.setSize(gpsdFile.getSize());
         uploadedFileInfos.add(uploadedFileInfo);
-
-        //throw new Exception("Wtf");
 
         result.put("files", uploadedFileInfos);
         return result;
@@ -411,6 +407,7 @@ public class HomeController {
     @RequestMapping("/querylog/analyze/{date}")
     public String queryLogAnalysis(@PathVariable("date") String forDate,
                                    Model model) {
+        model.addAttribute("title", "Analyze Queries");
 
         model.addAttribute("forDate", forDate);
         model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));

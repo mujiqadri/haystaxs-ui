@@ -12,7 +12,7 @@
         </thead>
         <tbody>
         <tr th:each="qld,iterStatus : ${queryLogDates}">
-            <td> <a th:href="@{/querylog/analyze/} + ${#dates.format(qld.logDate, 'dd-MMM-yyyy')}" th:text="${#dates.format(qld.logDate, 'dd-MMM-yyyy')}"></a></td>
+            <td th:text="${#dates.format(qld.logDate, 'dd-MMM-yyyy')}"></td>
             <td th:text="${#numbers.formatInteger(qld.queryCount,3,'COMMA')}"></td>
             <td th:text="${#numbers.formatInteger(qld.sumDuration,3,'COMMA')}"></td>
             <td th:Text="${#dates.format(qld.submittedOn, 'dd-MMM-yyyy HH:mm')}"></td>
@@ -20,8 +20,11 @@
             <!--<td>
                 <span class="label label-primary" th:each="qld : ${ql.logDates}" th:text="${#dates.format(qld.logDate, 'dd-MMM-yyyy')}"></span>
             </td>-->
-            <td><a href="javascript:;" class="vtq" th:attr="data-id=${#dates.format(qld.logDate, 'dd-MMM-yyyy')}">View Top 10 Queries</a> |
-                <a href="javascript:;" class="vqc" th:attr="data-id=${#dates.format(qld.logDate, 'dd-MMM-yyyy')}">View Query Categories</a></td>
+            <td>
+                <a href="javascript:;" class="vtq" th:attr="data-id=${#dates.format(qld.logDate, 'dd-MMM-yyyy')}">View Top 10 Queries</a> |
+                <a href="javascript:;" class="vqc" th:attr="data-id=${#dates.format(qld.logDate, 'dd-MMM-yyyy')}">View Query Categories</a> |
+                <a th:href="@{/querylog/analyze/} + ${#dates.format(qld.logDate, 'dd-MMM-yyyy')}">Analyze This</a>
+            </td>
         </tr>
         </tbody>
     </table>
