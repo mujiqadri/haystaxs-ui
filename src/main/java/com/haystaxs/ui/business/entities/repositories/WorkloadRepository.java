@@ -1,6 +1,7 @@
 package com.haystaxs.ui.business.entities.repositories;
 
 import com.haystaxs.ui.business.entities.Gpsd;
+import com.haystaxs.ui.business.entities.UserQuery;
 import com.haystaxs.ui.business.entities.Workload;
 import com.haystaxs.ui.business.entities.repositories.rowmappers.GpsdRowMapper;
 import org.slf4j.Logger;
@@ -35,4 +36,16 @@ public class WorkloadRepository extends RepositoryBase {
         String sql = String.format("UPDATE %s.workloads SET completed_on  = localtimestamp where workload_id = ?", getHsSchemaName());
         jdbcTemplate.update(sql, new Object[] {workloadId});
     }
+
+    public List<Workload> getLastnWorkloads(int userId, int lastn) {
+        String sql = String.format("select wl.*, gp.dbname databasename from %1$s.workloads wl\n" +
+                "join %1$s.gpsd gp on wl.gpsd_id = gp.gpsd_id\n" +
+                "order BY workload_id DESC\n" +
+                "limit %2$d;", getHsSchemaName(), lastn);
+
+        List<Workload> resultSet = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Workload>(Workload.class));
+
+        return resultSet;
+    }
+
 }

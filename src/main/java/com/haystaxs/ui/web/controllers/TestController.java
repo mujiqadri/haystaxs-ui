@@ -139,14 +139,14 @@ public class TestController {
         return "blank_template_page";
     }
 
-    @RequestMapping("/visualizer/{wlId}")
+    /*@RequestMapping("/visualizer/{wlId}")
     public String showInVisualizer(@PathVariable("wlId") int workloadId, Model model) {
         //HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
 
-        /*RunLog runLog = runLogRespository.getRunLogById(runLogId, hsUser.getUserId());
+        *//*RunLog runLog = runLogRespository.getRunLogById(runLogId, hsUser.getUserId());
 
-        model.addAttribute("backendJSON", runLog.getModelJson());*/
+        model.addAttribute("backendJSON", runLog.getModelJson());*//*
 
         return "visualizer";
-    }
+    }*/
 }

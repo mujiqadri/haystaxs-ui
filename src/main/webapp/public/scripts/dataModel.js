@@ -15,8 +15,9 @@ Haystaxs.DataModel = (function () {
         this.allTables = [];
         this.allColumns = [];
         this.allDKs = [];
-        this.allPartitionedColumns = [];
+        this.allPartitionColumns = [];
         this.allJoins = [];
+        this.allPartitions = [];
 
         this.nodes = [];
         this.links = [];
@@ -46,7 +47,9 @@ Haystaxs.DataModel = (function () {
             stats: {},
             columns: [],
             DKs: [],
-            joins: []
+            joins: [],
+            partitionColumns: [],
+            partitions: []
         });
     }
 
@@ -56,16 +59,17 @@ Haystaxs.DataModel = (function () {
             "Is Columnar": baseTable.stats.isColumnar,
             "Is Compressed": baseTable.stats.isCompressed,
             "Storage Mode": baseTable.stats.storageMode,
-            "Compression Type": baseTable.stats.compressType,
+            //"Compression Type": baseTable.stats.compressType,
             "Compression Level": baseTable.stats.compressLevel,
             "No Of Rows": baseTable.stats.noOfRows,
             "SizeOnDisk": {value: baseTable.stats.sizeOnDisk, displayOnUI: false},
             "SizeUncompressed": {value: baseTable.stats.sizeUnCompressed, displayOnUI: false},
-            "Size On Disk (Compressed)": baseTable.stats.sizeForDisplayCompressed,
-            "Size Uncompressed": baseTable.stats.sizeForDisplayUnCompressed,
             "Compression Ratio": baseTable.stats.compressionRatio,
             "No Of Columns": baseTable.stats.noOfColumns,
             "Is Partitioned": baseTable.stats.isPartitioned,
+            "Rel Pages": baseTable.stats.relPages,
+            "Size On Disk (Compressed)": baseTable.stats.sizeForDisplayCompressed,
+            "Size Uncompressed": baseTable.stats.sizeForDisplayUnCompressed,
             "Model Score": {value: baseTable.stats.modelScore, displayOnUI: true},
             "Usage Frequency": {value: baseTable.stats.usageFrequency, displayOnUI: true},
             "Execution Time": {value: baseTable.stats.executionTime, displayOnUI: true},
@@ -88,6 +92,7 @@ Haystaxs.DataModel = (function () {
             "Where Conditions and Frequencies": (function() {
                 if(_.keys(baseColumn.whereConditionValue).length !== _.keys(baseColumn.whereConditionFreq).length) {
                     console.error("Where column values do not match frequencies. [" + parentTable["Table Name"] + ":" + baseColumn.column_name + "]");
+                    throw true;
                 }
 
                 var wccaf = [];
@@ -108,9 +113,11 @@ Haystaxs.DataModel = (function () {
 
                 return(wccaf);
             })(),
-            //"Where Condition Frequency": baseColumn.whereConditionFreq,
-            "Resolved Table Name": baseColumn.resolvedTableName,
-            "Resolved Schema Name": baseColumn.resolvedSchemaName,
+            //"Resolved Table Name": baseColumn.resolvedTableName,
+            //"Resolved Schema Name": baseColumn.resolvedSchemaName,
+            "Is Partitioned": baseColumn.isPartitioned,
+            "Partition Level": baseColumn.partitionLevel,
+            "Position In Partition Key": baseColumn.positionInPartitionKey,
             // Note: This circular reference makes it NON-Stringifyable by JSON.stringify()
             parentTable: parentTable
         });
@@ -143,10 +150,45 @@ Haystaxs.DataModel = (function () {
         };
     }
 
+    function normalizePartition(basePartition, parent, isChild) {
+        return {
+            "Table Name": basePartition.tableName,
+            "Partition Name": basePartition.partitionName,
+            "Level": basePartition.level,
+            "Type": basePartition.type,
+            "Rank": basePartition.rank,
+            "Position":  basePartition.position,
+            "List Values": basePartition.listValues,
+            "Range Start": basePartition.rangeStart,
+            "Range Start Inclusive": basePartition.rangeStartInclusive,
+            "Range End": basePartition.rangeEnd,
+            "Range End Inclusive": basePartition.rangeEndInclusive,
+            "Every Clause": basePartition.everyClause,
+            "Is Default": basePartition.isDefault,
+            "Boundary": basePartition.boundary,
+            // TODO:...
+            "Child Partitions": (function() {
+                var cp = [];
+
+                for(var cpk in basePartition.childPartitions) {
+                    cp.push(normalizePartition(basePartition.childPartitions[cpk], basePartition, true));
+                }
+
+                return(cp);
+            })(),
+            "Rel Tuples": basePartition.relTuples,
+            "Rel Pages": basePartition.relPages,
+            "Is Child": isChild,
+            // Note: This circular reference makes it NON-Stringifyable by JSON.stringify()
+            parent: parent
+        };
+    }
+
     function normalizeSchema() {
         var uniqueTableID = 1;
         var uniqueColumnID = 1;
         var uniqueJoinID = 1;
+        var uniquePartitionID = 1;
 
         for (var tKey in this.baseJSON) {
             var baseTable = this.baseJSON[tKey];
@@ -168,7 +210,6 @@ Haystaxs.DataModel = (function () {
                         case "columns":
                             for (var cKey in baseTable.columns) {
                                 var baseColumn = baseTable.columns[cKey];
-                                //if(baseColumn.resolvedTableName || baseColumn.resolvedSchemaName) console.log("Resolved Schema & Table Names not found for ", baseTable.tableName  , ":", baseColumn.column_name);
                                 var normalizedColumn = normalizeColumn(baseColumn, normalizedTable);
                                 normalizedColumn.uniqueID = uniqueColumnID++;
                                 this.allColumns.push(normalizedColumn);
@@ -190,8 +231,18 @@ Haystaxs.DataModel = (function () {
                             }
                             break;
                         case "partitionColumn":
-                            if (baseTable.partitionedColumn)
-                                throw new Error("Partitioned columns found !");
+                            for (var cKey in baseTable.partitionColumn) {
+                                var baseColumn = baseTable.partitionColumn[cKey];
+
+                                var normalizedPartitionedColumn = normalizedTable.columns.filter(function (column) {
+                                    if (column["Column Name"] === baseColumn.column_name)
+                                        return (true);
+                                    return (false);
+                                })[0];
+
+                                this.allPartitionColumns.push(normalizedPartitionedColumn);
+                                normalizedTable.partitionColumns.push(normalizedPartitionedColumn);
+                            }
                             break;
                         case "joins":
                             for (var jKey in baseTable.joins) {
@@ -201,6 +252,16 @@ Haystaxs.DataModel = (function () {
                                 normalizedJoin.uniqueID = uniqueJoinID++;
                                 this.allJoins.push(normalizedJoin);
                                 normalizedTable.joins.push(normalizedJoin);
+                            }
+                            break;
+                        case "partitions":
+                            for(var pKey in baseTable.partitions) {
+                                var basePartition = baseTable.partitions[pKey];
+
+                                var normalizedPartition = normalizePartition(basePartition, normalizedTable, false);
+                                normalizedPartition.uniqueID = uniquePartitionID++;
+                                this.allPartitions.push(normalizedPartition);
+                                normalizedTable.partitions.push(normalizedPartition);
                             }
                             break;
                         default:

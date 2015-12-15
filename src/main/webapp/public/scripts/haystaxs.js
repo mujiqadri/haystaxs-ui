@@ -121,6 +121,7 @@ $(function () {
     var clusterVisualPortlet = $('#cluster-visual-portlet-body');
 
     Visualizer.width = clusterVisualPortlet.width() - 10;
+    visualizerOriginalHeight = clusterVisualPortlet.height();
 
     $('body').on('click', '.portlet > .portlet-title .fullscreen', function(e) {
         if(dataModel) {
@@ -129,9 +130,12 @@ $(function () {
             Visualizer.updateLayout(dataModel);
         }
     });
-    //dataModel = new Haystaxs.DataModel(backendJSON);
-    //dataLoadSuccessful();
+
+    dataModel = new Haystaxs.DataModel(loadViaAjax([['/workload/json/' + $('#workload-id').val()]], null, "json", null, false));
+    dataLoadSuccessful();
 });
 
 /// GLOBAL VARIABLES ///
 var dataModel = undefined;
+
+var visualizerOriginalHeight = 0;

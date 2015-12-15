@@ -19,6 +19,9 @@ public class Workload {
     private Timestamp createdOn;
     private Timestamp completedOn;
     private String modelJson;
+    //region ### Computed Columns ###
+    private String databaseName;
+    //endregion
 
     public int getWorkloadId() {
         return workloadId;
@@ -82,5 +85,13 @@ public class Workload {
 
     public void setModelJson(String modelJson) {
         this.modelJson = modelJson;
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
     }
 }

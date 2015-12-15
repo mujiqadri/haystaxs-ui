@@ -12,7 +12,7 @@ function showFullScreenPortlet(portletId, url, title) {
 
     //$(this).addClass('on');
     portlet.removeClass('hidden');
-    portlet.addClass('portlet-fullscreen');
+    portlet.addClass('portlet-fullscreen-small');
     $('body').addClass('page-portlet-fullscreen');
     portlet.children('.portlet-body').css('height', height);
 
@@ -65,45 +65,62 @@ function hideFullScreenPortlet(portletId) {
 
     portlet.addClass('hidden');
 
-    portlet.removeClass('portlet-fullscreen');
+    portlet.removeClass('portlet-fullscreen-small');
     $('body').removeClass('page-portlet-fullscreen');
     portlet.children('.portlet-body').css('height', 'auto');
 }
 
-function loadViaAjax(url, data, targetEl) {
-    App.blockUI({
-        target: targetEl,
-        boxed: true
-    });
+function loadViaAjax(url, data, dataType, targetEl, async) {
+    var result = {};
+
+    if(targetEl) {
+        App.blockUI({
+            target: targetEl,
+            boxed: true
+        });
+    }
 
     $.ajax({
         type: "GET",
         cache: false,
         url: App.webAppPath + url,
         data: data,
-        dataType: "html",
+        dataType: dataType ? dataType : "html",
+        async: async === false ? false : true,
         success: function(res) {
-            App.unblockUI(targetEl);
-            targetEl.html(res);
-            //App.initAjax() // reinitialize elements & plugins for newly loaded content
+            if(targetEl) {
+                App.unblockUI(targetEl);
+                targetEl.html(res);
+            }
+
+            if(dataType === "json") {
+                result = res;
+            }
         },
         error: function(xhr, ajaxOptions, thrownError) {
-            App.unblockUI(targetEl);
             var msg = 'Error on reloading the content. Please check your connection and try again.';
-            /*if (error == "toastr" && toastr) {
-             toastr.error(msg);
-             } else if (error == "notific8" && $.notific8) {
-             $.notific8('zindex', 11500);
-             $.notific8(msg, {
-             theme: 'ruby',
-             life: 3000
-             });
-             } else {
-             alert(msg);
-             }*/
-            targetEl.html(msg);
+
+            if(targetEl) {
+                App.unblockUI(targetEl);
+                /*if (error == "toastr" && toastr) {
+                 toastr.error(msg);
+                 } else if (error == "notific8" && $.notific8) {
+                 $.notific8('zindex', 11500);
+                 $.notific8(msg, {
+                 theme: 'ruby',
+                 life: 3000
+                 });
+                 } else {
+                 alert(msg);
+                 }*/
+                targetEl.html(msg);
+            }
+
+            console.log(xhr.responseText);
         }
     });
+
+    return result;
 }
 
 var Custom = function () {

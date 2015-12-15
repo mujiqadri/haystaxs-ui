@@ -10,7 +10,7 @@
     <http pattern="/public/**" security="none"/>
     <http pattern="/assets/**" security="none"/>
     <http pattern="/test/**" security="none"/>
-    <http pattern="/visualizer/**" security="none"/>
+    <!--<http pattern="/visualizer/**" security="none"/>-->
 
     <http auto-config="true">
         <!-- Login pages -->

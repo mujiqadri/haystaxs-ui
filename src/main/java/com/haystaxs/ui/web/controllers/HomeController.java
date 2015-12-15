@@ -100,29 +100,12 @@ public class HomeController {
 
     //region ### Dashboard Action ###
     @RequestMapping({"/dashboard", "/"})
-    public String dashBoard(//@RequestParam(value = "db", required = false) Integer db,
-                            //RunLog runLog,
-                            @RequestParam Map<String, String> reqParams,
-                            //Principal principal,
-                            Model model) {
-//        model.addAttribute("msg", messages.getMessage("dashboard.msg1", null, new Locale("en", "US")));
-//        model.addAttribute("msg2", "This is the house that jack built");
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
+    public String dashBoard(Model model) {
+        model.addAttribute("title", "Dashboard");
 
-        // Check is the param db is present and if the db belongs to this user.
-        if (reqParams.containsKey("db")) {
-            int gpsdId = Integer.parseInt(reqParams.get("db"));
-            Gpsd gpsd = gpsdRepository.getSingle(gpsdId, hsUser.getUserId());
-            if (gpsd != null) {
-                model.addAttribute("selectedDb", gpsd);
-                List<QueryLog> queryLogs = queryLogRespository.getAll(hsUser.getUserId());
-                model.addAttribute("runLogs", queryLogs);
-            }
-        }
+        List<Workload> workloads = workloadRepository.getLastnWorkloads(getUserId(), 10);
 
-        model.addAttribute("pageName", "Dashboard");
-        //model.addAttribute("userDbs", gpsdRepository.getAll(hsUser.getUserId()));
+        model.addAttribute("workloads", workloads);
 
         return ("dashboard");
     }
@@ -510,23 +493,31 @@ public class HomeController {
 
         return "Failed to generate Model JSON, Check Logs";
     }
+
+    @RequestMapping(value = "/workload/json/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public String workloadJson(@PathVariable("id") int workloadId) {
+        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator +
+                "workloads" + File.separator + workloadId + ".json";
+
+        String result;
+
+        try {
+            result = new String(Files.readAllBytes(Paths.get(fullPath)));
+        } catch (java.io.IOException e) {
+            result = "Workload File Not Found !";
+        }
+
+        return result;
+    }
     //endregion
 
-/*
-    @Layout(value = "", enabled = false)
     @RequestMapping("/visualizer/{wlId}")
     public String showInVisualizer(@PathVariable("wlId") int workloadId, Model model) {
-        //HsUser hsUser = (HsUser) ((LinkedHashMap) model).get("principal");
+        model.addAttribute("workloadId", workloadId);
 
-        */
-/*RunLog runLog = runLogRespository.getRunLogById(runLogId, hsUser.getUserId());
-
-        model.addAttribute("backendJSON", runLog.getModelJson());*//*
-
-
-        return "visualizer_orig";
+        return "visualizer";
     }
-*/
 
     @ExceptionHandler(Throwable.class)
     public String handleException(Throwable t) {

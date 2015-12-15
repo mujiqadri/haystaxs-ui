@@ -23,7 +23,7 @@
     padding: 14px 0px 0px 10px;
 }
 
-.portlet.portlet-fullscreen {
+.portlet.portlet-fullscreen-small {
     z-index: 10060;
     margin: 80px 0 0 60px;
     position: fixed;
@@ -33,4 +33,5 @@
     right: 0;
     width: 93%;
     height: 85%;
-    background: #fff; }
+    background: #fff;
+}
