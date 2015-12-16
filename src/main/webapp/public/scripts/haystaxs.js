@@ -24,22 +24,6 @@ function onShowAllColumnsChecked() {
     UIElements.populateColumnsGrid(Visualizer.lastClickedNodeData);
 }
 
-function onTableInfoTabChanged(e) {
-    UIElements.dkInfoPanel.hide();
-    //UIElements.columnAdditionalInfoPanel.hide();
-    UIElements.joinAdditionalInfoPanel.hide();
-
-    if ($(e.target).attr("data-hs-name") === "summary") {
-        UIElements.dkInfoPanel.show();
-    }
-    else if ($(e.target).attr("data-hs-name") === "columns") {
-        //UIElements.columnAdditionalInfoPanel.show();
-    }
-    else {
-        UIElements.joinAdditionalInfoPanel.show();
-    }
-}
-
 function onToggleInfoPanel() {
     var toggleButton = $("#toggle-info-pane-size");
 
@@ -121,12 +105,15 @@ $(function () {
     var clusterVisualPortlet = $('#cluster-visual-portlet-body');
 
     Visualizer.width = clusterVisualPortlet.width() - 10;
-    visualizerOriginalHeight = clusterVisualPortlet.height();
 
     $('body').on('click', '.portlet > .portlet-title .fullscreen', function(e) {
         if(dataModel) {
             Visualizer.width = clusterVisualPortlet.width() - 10;
-            Visualizer.height = clusterVisualPortlet.height() - 10;
+            if($(this).hasClass('on')) {
+                Visualizer.height = clusterVisualPortlet.height() - 10;
+            } else {
+                Visualizer.height = visualizerOriginalHeight;
+            }
             Visualizer.updateLayout(dataModel);
         }
     });
@@ -138,4 +125,4 @@ $(function () {
 /// GLOBAL VARIABLES ///
 var dataModel = undefined;
 
-var visualizerOriginalHeight = 0;
+var visualizerOriginalHeight = 500;

@@ -3,6 +3,7 @@ package com.haystaxs.ui.business.entities.repositories;
 import com.haystaxs.ui.business.entities.Gpsd;
 import com.haystaxs.ui.business.entities.UserQuery;
 import com.haystaxs.ui.business.entities.repositories.rowmappers.GpsdRowMapper;
+import com.haystaxs.ui.business.entities.selection.QueryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -36,14 +37,14 @@ public class UserDatabaseRepository extends RepositoryBase {
         return resultSet;
     }
 
-    public List<Map<String, Object>> getQueryCountByCategory(String normalizedUserName, String forDate) {
-        String sql = String.format("SELECT  qrytype, count(*) as count\n" +
+    public List<QueryType> getQueryCountByCategory(String normalizedUserName, String forDate) {
+        String sql = String.format("SELECT  qrytype as queryType, count(*) as count, sum(extract(epoch from logduration)) as totalDuration\n" +
                 "FROM %s.queries\n" +
                 "where to_char(logsessiontime, 'DD-MON-YYYY') = ?\n" +
                 "group by  qrytype\n" +
-                "order by 2 desc, 1", normalizedUserName);
+                "order by 2 desc", normalizedUserName);
 
-        List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(sql, new Object[]{forDate.toUpperCase()});
+        List<QueryType> resultSet = jdbcTemplate.query(sql, new Object[]{forDate.toUpperCase()}, new BeanPropertyRowMapper<QueryType>(QueryType.class));
 
         return resultSet;
     }
@@ -83,7 +84,7 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "FROM %s.queries ", normalizedUserName) +
                 "where to_char(logsessiontime, 'DD-MON-YYYY') = ? " +
                 whereClause +
-                "ORDER BY logtimemin ASC " +
+                //"ORDER BY logtimemin ASC " +
                 String.format("limit %d OFFSET %d", pageSize, (pageNo-1) * pageSize);
 
         List<UserQuery> resultSet = jdbcTemplate.query(sql, params.toArray(), new BeanPropertyRowMapper<UserQuery>(UserQuery.class));

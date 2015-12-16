@@ -393,6 +393,7 @@ public class HomeController {
         model.addAttribute("title", "Analyze Queries");
 
         model.addAttribute("forDate", forDate);
+        // For QueryTypes Filter Dropdown..
         model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
 
         return "querylog_analysis";
@@ -514,6 +515,8 @@ public class HomeController {
 
     @RequestMapping("/visualizer/{wlId}")
     public String showInVisualizer(@PathVariable("wlId") int workloadId, Model model) {
+        model.addAttribute("title", "Visualizer");
+
         model.addAttribute("workloadId", workloadId);
 
         return "visualizer";

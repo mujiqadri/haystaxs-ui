@@ -4,12 +4,14 @@
         <tr>
             <th width="20%">Query Type</th>
             <th>Count</th>
+            <th>Total Duration (Secs)</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="uq,iterStatus : ${userQueries}">
-            <td th:text="${uq.qrytype}"></td>
+            <td th:text="${uq.queryType}"></td>
             <td th:text="${#numbers.formatInteger(uq.count,3,'COMMA')}"></td>
+            <td th:text="${#numbers.formatInteger(uq.totalDuration,3,'COMMA')}"></td>
         </tr>
         </tbody>
     </table>

@@ -25,7 +25,7 @@ jQuery(document).ready(function () {
 
         var data = QueryLogAnalysis.dataForAjax(1);
 
-        loadViaAjax('/querylog/analyze/search', data, $('#queries-list'));
+        loadViaAjax('/querylog/analyze/search', data, "html", $('#queries-list'));
     });
 
     $('body').on('click', 'a[data-pgno]', function(e) {
@@ -33,7 +33,7 @@ jQuery(document).ready(function () {
 
         var data = QueryLogAnalysis.dataForAjax($(this).attr("data-pgno"));
 
-        loadViaAjax('/querylog/analyze/search', data, $('#queries-list'));
+        loadViaAjax('/querylog/analyze/search', data, "html", $('#queries-list'));
     });
 });
 

@@ -12,6 +12,7 @@ var UIElements = {
     dkInfoPanel: null,
     columnAdditionalInfoPanel: null,
     joinAdditionalInfoPanel: null,
+    partitionAdditionalInfoPanel: null,
 
     selectedTableLabel: null,
     selectedColumnLabel: null,
@@ -24,6 +25,8 @@ var UIElements = {
     columnAdditonalInfoGrid: null,
     joinsGrid: null,
     joinAdditionalInfoGrid: null,
+    partitionsGrid: null,
+    partitionAddtionalInfoGrid: null,
 
     showAllColumns: true,
 
@@ -40,6 +43,7 @@ var UIElements = {
         //UIElements.selectedColumnLabel.text("");
         //UIElements.columnAdditonalInfoGrid.bootgrid("clear");
         UIElements.joinAdditionalInfoGrid.bootgrid("clear");
+        UIElements.partitionAddtionalInfoGrid.bootgrid("clear");
     },
 
     populateTableSummaryGrid: function (d) {
@@ -132,6 +136,21 @@ var UIElements = {
 
         UIElements.joinsGrid.bootgrid("append", joins);
     },
+    populatePartitionsGrid: function (d) {
+        var partitions = [];
+
+        d.baseTable.partitions.forEach(function (partition) {
+            partitions.push({
+                "partition-name": partition["Partition Name"],
+                "range-start": partition["Range Start"],
+                "range-end": partition["Range End"],
+                "list-values": partition["List Values"],
+                "originalObject": partition
+            });
+        });
+
+        UIElements.partitionsGrid.bootgrid("append", partitions);
+    },
 
     /// UI Hooks ///
     joinsGridRowClicked: function (e, columns, poco) {
@@ -147,6 +166,22 @@ var UIElements = {
         });
 
         UIElements.joinAdditionalInfoGrid.bootgrid("append", rows);
+    },
+    partitionsGridRowClicked: function (e, columns, poco) {
+        UIElements.partitionAddtionalInfoGrid.bootgrid("clear");
+
+        var rows = [];
+
+        d3.entries(poco.originalObject).forEach(function (entry) {
+            if(!_.isObject(entry.value)) {
+                rows.push({
+                    "key-column": entry.key,
+                    "value-column": entry.value
+                });
+            }
+        });
+
+        UIElements.partitionAddtionalInfoGrid.bootgrid("append", rows);
     },
     // NOTE: Not needed anymore due to popover on column
     columnsGridRowClicked: function (e, columns, poco) {
@@ -166,6 +201,7 @@ var UIElements = {
          UIElements.columnAdditonalInfoGrid.bootgrid("append", rows);*/
     },
     gridDataLoaded: function (e) {
+        //console.log("DataGrid Loaded ", $(e.target).attr("id"));
         if ($(e.target).attr("id") === "columns-grid") {
             $("i[data-column-id]")
                 .on("mouseover", UIElements.onMouseOverColumnIcon)
@@ -210,6 +246,18 @@ var UIElements = {
                     }
                 }
             });
+        } else if ($(e.target).attr("id") === "partitions-grid" || $(e.target).attr("id") === "partition-additional-info-grid") {
+            $(e.target).tooltip("destroy");
+            $(e.target).tooltip({
+                selector: "td",
+                container: "body",
+                html: true,
+                title: function () {
+                    var jqElem = $(this);
+
+                    return (jqElem.text());
+                }
+            });
         }
     },
     /// UI Hooks ///
@@ -243,6 +291,24 @@ var UIElements = {
         }
     },
 
+    onTableInfoTabChanged: function (e) {
+        UIElements.dkInfoPanel.hide();
+        //UIElements.columnAdditionalInfoPanel.hide();
+        UIElements.joinAdditionalInfoPanel.hide();
+        UIElements.partitionAdditionalInfoPanel.hide();
+
+        if ($(e.target).attr("data-hs-name") === "summary") {
+            UIElements.dkInfoPanel.show();
+        }
+        else if ($(e.target).attr("data-hs-name") === "columns") {
+            //UIElements.columnAdditionalInfoPanel.show();
+        }
+        else if ($(e.target).attr("data-hs-name") === "joins"){
+            UIElements.joinAdditionalInfoPanel.show();
+        } else {
+            UIElements.partitionAdditionalInfoPanel.show();
+        }
+    },
     onSelectedTableChanged: function (e) {
         //console.log("Selected table changed to", UIElements.tableSelectDropdown.val());
         var nodeData = dataModel.nodes.first(function (node) {
@@ -266,7 +332,7 @@ var UIElements = {
     onNodeClicked: function (d) {
         UIElements.clearAllGrids();
 
-        UIElements.selectedTableLabel.text("[" + d.baseTable["Table Name"] + "]");
+        UIElements.selectedTableLabel.text("[" + d.baseTable["Schema Name"] + ":" + d.baseTable["Table Name"] + "]");
 
         UIElements.populateTableSummaryGrid(d);
 
@@ -275,6 +341,8 @@ var UIElements = {
         UIElements.populateColumnsGrid(d);
 
         UIElements.populateJoinsGrid(d);
+
+        UIElements.populatePartitionsGrid(d);
     },
 
     refresh: function () {
@@ -335,6 +403,7 @@ var UIElements = {
         UIElements.dkInfoPanel = $("#dk-info-panel");
         //UIElements.columnAdditionalInfoPanel = $("#column-additional-info-panel");
         UIElements.joinAdditionalInfoPanel = $("#join-additional-info-panel");
+        UIElements.partitionAdditionalInfoPanel = $("#partition-additional-info-panel");
 
         UIElements.tableSelectDropdown = $("#table-select");
         UIElements.tableSelectDropdown.change(UIElements.onSelectedTableChanged);
@@ -362,7 +431,7 @@ var UIElements = {
                 return ("<span data-isname>" + row.name + "</span>");
             },
             "whereInfo": function (column, row) {
-                return (row["where-usage"] + (row["where-usage"] ? '<i class="fa fa-info-circle pull-right" style="font-size: 1.2em; cursor: pointer; padding-top: 1px" data-column-id="'+ row.originalObject.uniqueID +'"></i>' : ''));
+                return (row["where-usage"] + (row["where-usage"] ? '<i class="fa fa-info-circle pull-right" style="font-size: 1.2em; cursor: pointer; padding-top: 1px" data-column-id="' + row.originalObject.uniqueID + '"></i>' : ''));
             }
         };
 
@@ -380,22 +449,28 @@ var UIElements = {
             }
         };
 
+        var partitionsBootGridConfig = Object.create(bootgridPageableConfig);
+
         UIElements.summaryGrid = $("#summary-grid").bootgrid(bootgridCommonConfig);
         UIElements.dkInfoGrid = $("#dk-info-grid").bootgrid(bootgridCommonConfig);
 
         UIElements.columnsGrid = $("#columns-grid").bootgrid(columnsBootgridConfig);
         UIElements.columnsGrid.on("click.rs.jquery.bootgrid", UIElements.columnsGridRowClicked);
         UIElements.columnsGrid.on("loaded.rs.jquery.bootgrid", UIElements.gridDataLoaded);
-
         UIElements.columnAdditonalInfoGrid = $("#column-additional-info-grid").bootgrid(bootgridCommonConfig);
 
         UIElements.joinsGrid = $("#joins-grid").bootgrid(joinsBootgridConfig);
         UIElements.joinsGrid.on("click.rs.jquery.bootgrid", UIElements.joinsGridRowClicked);
         UIElements.joinsGrid.on("loaded.rs.jquery.bootgrid", UIElements.gridDataLoaded);
-
         UIElements.joinAdditionalInfoGrid = $("#join-additional-info-grid").bootgrid(bootgridCommonConfig);
 
-        UIElements.tableInfoTabs.on('show.bs.tab', onTableInfoTabChanged);
+        UIElements.partitionsGrid = $("#partitions-grid").bootgrid(partitionsBootGridConfig);
+        UIElements.partitionsGrid.on("click.rs.jquery.bootgrid", UIElements.partitionsGridRowClicked);
+        UIElements.partitionsGrid.on("loaded.rs.jquery.bootgrid", UIElements.gridDataLoaded);
+        UIElements.partitionAddtionalInfoGrid = $("#partition-additional-info-grid").bootgrid(bootgridCommonConfig);
+        UIElements.partitionAddtionalInfoGrid.on("loaded.rs.jquery.bootgrid", UIElements.gridDataLoaded);
+
+        UIElements.tableInfoTabs.on('show.bs.tab', UIElements.onTableInfoTabChanged);
 
         // Initialize all tooltips
         $('[data-toggle="tooltip"]').tooltip();
