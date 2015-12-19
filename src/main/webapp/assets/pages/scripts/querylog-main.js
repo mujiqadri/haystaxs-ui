@@ -84,7 +84,7 @@ jQuery(document).ready(function () {
             // What todo about this case ?
         }
 
-        loadViaAjax('/querylog/list', {"fromDate": fromDate, "toDate": toDate, "pgNo": $(this).attr("data-pgno"), "pgSize": 2}, "html",
+        loadViaAjax('/querylog/list', {"fromDate": fromDate, "toDate": toDate, "pgNo": $(this).attr("data-pgno"), "pgSize": 10}, "html",
             $('#querylog-list-portlet-body'));
     });
 
