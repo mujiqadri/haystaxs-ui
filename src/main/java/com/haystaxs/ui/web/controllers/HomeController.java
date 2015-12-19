@@ -303,9 +303,11 @@ public class HomeController {
         //http://www.javacodegeeks.com/2013/03/implement-bootstrap-pagination-with-spring-data-and-thymeleaf.html
         model.addAttribute("queryLogDates", queryLogDates);
 
-        PaginationInfo paginationInfo = new PaginationInfo(queryLogDates.get(0).getTotalRows(), pageSize, pageNo);
+        if(!queryLogDates.isEmpty()) {
+            PaginationInfo paginationInfo = new PaginationInfo(queryLogDates.get(0).getTotalRows(), pageSize, pageNo);
 
-        model.addAttribute("pi", paginationInfo);
+            model.addAttribute("pi", paginationInfo);
+        }
 
         return "fragments/querylog_list";
     }
