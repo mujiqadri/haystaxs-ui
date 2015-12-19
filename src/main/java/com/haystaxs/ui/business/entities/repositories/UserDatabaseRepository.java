@@ -1,19 +1,14 @@
 package com.haystaxs.ui.business.entities.repositories;
 
-import com.haystaxs.ui.business.entities.Gpsd;
 import com.haystaxs.ui.business.entities.UserQuery;
-import com.haystaxs.ui.business.entities.repositories.rowmappers.GpsdRowMapper;
 import com.haystaxs.ui.business.entities.selection.QueryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.validation.ObjectError;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * Created by Adnan on 10/21/2015.
@@ -49,43 +44,52 @@ public class UserDatabaseRepository extends RepositoryBase {
         return resultSet;
     }
 
-    public List<UserQuery> getQueries(String normalizedUserName, String forDate,
+    public List<UserQuery> getQueries(String normalizedUserName, String startDate, String endDate,
+                                      String startTime, String endTime,
                                       String dbNameLike, String userNameLike, String durationGreaterThan,
-                                      /*String startTime, String endTime,*/ String sqlLike,
+                                      String sqlLike,
                                       String queryType,
-                                      int pageSize, int pageNo) {
-        String whereClause = "";
+                                      int pageSize, int pageNo,
+                                      String orderBy) {
+        String whereClause = " where ";
         ArrayList<Object> params = new ArrayList<Object>();
 
-        params.add(forDate.toUpperCase());
+        if(startTime == null || startTime.isEmpty()) {
+            startTime = "00:00:00";
+        }
+        if(endTime == null || endTime.isEmpty()) {
+            endTime = "23:59:59";
+        }
+
+        whereClause += String.format(" logsessiontime::TIMESTAMP >= '%s %s'::timestamp", startDate, startTime);
+        whereClause += String.format(" AND logsessiontime::TIMESTAMP <= '%s %s'::timestamp", endDate, endTime);
 
         if (dbNameLike != null && !dbNameLike.isEmpty()) {
-            whereClause = String.format(" AND logdatabase LIKE '%%%s%%'", dbNameLike);
+            whereClause += String.format(" AND logdatabase LIKE '%%%s%%'\n", dbNameLike);
             //params.add(dbNameLike);
         }
         if (userNameLike != null && !userNameLike.isEmpty()) {
-            whereClause += String.format(" AND loguser LIKE '%%%s%%'", userNameLike);
+            whereClause += String.format(" AND loguser LIKE '%%%s%%'\n", userNameLike);
             //params.add(userNameLike);
         }
         if (durationGreaterThan != null && !durationGreaterThan.isEmpty()) {
-            whereClause += " AND extract(epoch from logduration) > ?";
+            whereClause += " AND extract(epoch from logduration) > ?\n";
             params.add(Double.parseDouble(durationGreaterThan));
         }
         if (sqlLike != null && !sqlLike.isEmpty()) {
-            whereClause += String.format(" AND sql LIKE '%%%s%%'", sqlLike);
+            whereClause += String.format(" AND sql LIKE '%%%s%%'\n", sqlLike);
             //params.add(userNameLike);
         }
         if (queryType != null && !queryType.equals("ALL")) {
-            whereClause += String.format(" AND qrytype = '%s'", queryType);
+            whereClause += String.format(" AND qrytype = '%s'\n", queryType);
         }
 
         String sql = String.format("SELECT logdatabase, loguser, logtimemin as queryStartTime, " +
-                "logtimemax as queryEndTime, extract(epoch from logduration) as durationSeconds, sql, qryType, count(0) OVER () as totalRows " +
-                "FROM %s.queries ", normalizedUserName) +
-                "where to_char(logsessiontime, 'DD-MON-YYYY') = ? " +
+                " logtimemax as queryEndTime, extract(epoch from logduration) as durationSeconds, sql, qryType, count(0) OVER () as totalRows " +
+                " FROM %s.queries ", normalizedUserName) +
                 whereClause +
-                //"ORDER BY logtimemin ASC " +
-                String.format("limit %d OFFSET %d", pageSize, (pageNo-1) * pageSize);
+                " ORDER BY " + orderBy +
+                String.format(" limit %d OFFSET %d ", pageSize, (pageNo-1) * pageSize);
 
         List<UserQuery> resultSet = jdbcTemplate.query(sql, params.toArray(), new BeanPropertyRowMapper<UserQuery>(UserQuery.class));
 

@@ -1,17 +1,35 @@
-<div th:if="${pi.totalNoOfPages} > 0" th:fragment="paginator" xmlns:th="http://www.w3.org/1999/xhtml">
+<div th:if="${pi.totalNoOfPages} > 0" th:fragment="paginator(showPages)" xmlns:th="http://www.w3.org/1999/xhtml">
     <ul class="pagination pagination-lg">
         <li>
-            <a href="javascript:;">
-                <i class="fa fa-angle-left"></i>
+            <a href="javascript:;" th:attr="data-pgno=1">
+                <i class="fa fa-angle-double-left"></i>
             </a>
         </li>
-        <li th:each="page,iterStat : ${pi.getAllPages()}" th:class="${page == pi.currentPageNo}? 'active'">
-            <a href="javascript:;" th:attr="data-pgno=${page}" th:text="${page}"> 1 </a>
-        </li>
+        <th:block th:if="${showPages}">
+            <li th:each="page,iterStat : ${pi.getAllPages()}" th:class="${page == pi.currentPageNo}? 'active'">
+                <a href="javascript:;" th:attr="data-pgno=${page}" th:text="${page}"> 1 </a>
+            </li>
+        </th:block>
+        <th:block th:if="not ${showPages}">
+            <li>
+                <a href="javascript:;" th:attr="data-pgno=prev">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            </li>
+            <li>
+                <span id="current-page-display" th:text="|Page ${pi.currentPageNo} of ${pi.totalNoOfPages}|"></span>
+            </li>
+            <li>
+                <a href="javascript:;" th:attr="data-pgno=next">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </th:block>
         <li>
-            <a href="javascript:;">
-                <i class="fa fa-angle-right"></i>
+            <a href="javascript:;" th:attr="data-pgno=${pi.totalNoOfPages}">
+                <i class="fa fa-angle-double-right"></i>
             </a>
         </li>
     </ul>
+    <input type="hidden" id="total-no-of-pages" th:value="${pi.totalNoOfPages}"/>
 </div>

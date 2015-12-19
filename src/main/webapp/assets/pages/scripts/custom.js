@@ -70,14 +70,13 @@ function hideFullScreenPortlet(portletId) {
     portlet.children('.portlet-body').css('height', 'auto');
 }
 
-function loadViaAjax(url, data, dataType, targetEl, async) {
+function loadViaAjax(url, data, dataType, resultTargetEl, blockTargetEl, async) {
     var result = {};
 
-    if(targetEl) {
-        App.blockUI({
-            target: targetEl,
-            boxed: true
-        });
+    blockTargetEl = blockTargetEl || resultTargetEl;
+
+    if(blockTargetEl) {
+        blockUI(blockTargetEl);
     }
 
     $.ajax({
@@ -88,9 +87,11 @@ function loadViaAjax(url, data, dataType, targetEl, async) {
         dataType: dataType ? dataType : "html",
         async: async === false ? false : true,
         success: function(res) {
-            if(targetEl) {
-                App.unblockUI(targetEl);
-                targetEl.html(res);
+            if(blockTargetEl) {
+                unBlockUI(blockTargetEl);
+            }
+            if(resultTargetEl) {
+                resultTargetEl.html(res);
             }
 
             if(dataType === "json") {
@@ -100,20 +101,11 @@ function loadViaAjax(url, data, dataType, targetEl, async) {
         error: function(xhr, ajaxOptions, thrownError) {
             var msg = 'Error on reloading the content. Please check your connection and try again.';
 
-            if(targetEl) {
-                App.unblockUI(targetEl);
-                /*if (error == "toastr" && toastr) {
-                 toastr.error(msg);
-                 } else if (error == "notific8" && $.notific8) {
-                 $.notific8('zindex', 11500);
-                 $.notific8(msg, {
-                 theme: 'ruby',
-                 life: 3000
-                 });
-                 } else {
-                 alert(msg);
-                 }*/
-                targetEl.html(msg);
+            if(blockTargetEl) {
+                unBlockUI(blockTargetEl);
+            }
+            if(resultTargetEl) {
+                resultTargetEl.html(msg);
             }
 
             console.log(xhr.responseText);
@@ -121,6 +113,25 @@ function loadViaAjax(url, data, dataType, targetEl, async) {
     });
 
     return result;
+}
+
+function blockUI(el) {
+    el.block({
+        message: 'Loading...',
+        css: {
+            border: '3px solid #aaa',
+            padding: '15px',
+            backgroundColor: '#000',
+            '-webkit-border-radius': '10px',
+            '-moz-border-radius': '10px',
+            opacity: .5,
+            color: '#fff'
+        }
+    });
+}
+
+function unBlockUI(el) {
+    el.unblock();
 }
 
 var Custom = function () {
@@ -185,7 +196,7 @@ jQuery(document).ready(function() {
         e.preventBubble();
     });*/
 
-    $('.portlet.box').has('.tools>.expand,.tools>.collapse').css('cursor', 'pointer').on('click', function (e) {
+    $('.portlet.box>.portlet-title').has('.tools>.expand,.tools>.collapse').css('cursor', 'pointer').on('click', function (e) {
         var expandCollapseLink = $(this).find('.tools>.expand,.tools>.collapse');
 
         var el = $(this).closest(".portlet").children(".portlet-body");

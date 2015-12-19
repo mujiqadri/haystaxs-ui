@@ -9,17 +9,34 @@
             <table class="table table-bordered table-hover" xmlns:th="http://www.thymeleaf.org">
                 <thead>
                 <tr>
+                    <!--<th>#</th>-->
                     <th>Database</th>
                     <th>User</th>
-                    <th>Start Time</th>
+                    <th>
+                        <a href="javascript:;" th:attr="data-orderby='queryStartTime ' + (${orderBy} == 'queryStartTime' ? ${orderByDir} : 'ASC')">Start Time
+                            <span th:if="${orderBy} == 'queryStartTime' and ${orderByDir} == 'ASC'" class="fa fa-caret-down"></span>
+                            <span th:if="${orderBy} == 'queryStartTime' and ${orderByDir} == 'DESC'" class="fa fa-caret-up"></span>
+                        </a>
+                    </th>
                     <th>End Time</th>
-                    <th>Duration</th>
-                    <th>Query Type</th>
-                    <th>SQL</th>
+                    <th>
+                        <a href="javascript:;" th:attr="data-orderby='durationSeconds ' + (${orderBy} == 'durationSeconds' ? ${orderByDir} : 'DESC')">Duration
+                            <span th:if="${orderBy} == 'durationSeconds' and ${orderByDir} == 'ASC'" class="fa fa-caret-down"></span>
+                            <span th:if="${orderBy} == 'durationSeconds' and ${orderByDir} == 'DESC'" class="fa fa-caret-up"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="javascript:;" th:attr="data-orderby='qryType ' + (${orderBy} == 'qryType' ? ${orderByDir} : 'DESC')">Query Type
+                            <span th:if="${orderBy} == 'qryType' and ${orderByDir} == 'ASC'" class="fa fa-caret-down"></span>
+                            <span th:if="${orderBy} == 'qryType' and ${orderByDir} == 'DESC'" class="fa fa-caret-up"></span>
+                        </a>
+                    </th>
+                    <th width="65%">SQL</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="uq,iterStatus : ${userQueries}">
+                    <!--<td th:text="${iterStatus.count}"></td>-->
                     <td th:text="${uq.logDatabase}"></td>
                     <td th:text="${uq.logUser}"></td>
                     <td th:text="${#dates.format(uq.queryStartTime, 'hh:mm:ss')}"></td>
@@ -33,4 +50,4 @@
         </div>
     </div>
 </div>
-<div th:if="${pi}" th:include="fragments/paginator::paginator"></div>
+<div th:if="${pi}" th:include="fragments/paginator::paginator(false)"></div>

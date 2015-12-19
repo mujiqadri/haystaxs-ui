@@ -12,36 +12,28 @@ public class PaginationInfo {
     private int totalNoOfPages;
     private int totalNoOfItems;
 
-    public int getCurrentPageNo() {
-        return currentPageNo;
+    public PaginationInfo(int totalNoOfItems, int pageSize, int currentPageNo) {
+        this.totalNoOfItems = totalNoOfItems;
+        this.pageSize = pageSize;
+        this.currentPageNo = currentPageNo;
+
+        totalNoOfPages = ((Double)Math.ceil((double) totalNoOfItems / pageSize)).intValue();
     }
 
-    public void setCurrentPageNo(int currentPageNo) {
-        this.currentPageNo = currentPageNo;
+    public int getCurrentPageNo() {
+        return currentPageNo;
     }
 
     public int getPageSize() {
         return pageSize;
     }
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
     public int getTotalNoOfPages() {
         return totalNoOfPages;
     }
 
-    public void setTotalNoOfPages(int totalNoOfPages) {
-        this.totalNoOfPages = totalNoOfPages;
-    }
-
     public int getTotalNoOfItems() {
         return totalNoOfItems;
-    }
-
-    public void setTotalNoOfItems(int totalNoOfItems) {
-        this.totalNoOfItems = totalNoOfItems;
     }
 
     public List<Integer> getAllPages() {

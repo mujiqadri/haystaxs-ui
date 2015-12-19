@@ -73,7 +73,7 @@ jQuery(document).ready(function () {
         var fromDate = $('#fromDate').val();
         var toDate = $('#toDate').val();
 
-        loadViaAjax('/querylog/list', {"fromDate": fromDate, "toDate": toDate}, $('#querylog-list-portlet-body'));
+        loadViaAjax('/querylog/list', {"fromDate": fromDate, "toDate": toDate}, "html", $('#querylog-list-portlet-body'));
     });
 
     $('body').on('click', 'a[data-pgno]', function(e) {
@@ -84,7 +84,9 @@ jQuery(document).ready(function () {
             // What todo about this case ?
         }
 
-        loadViaAjax('/querylog/list', {"fromDate": fromDate, "toDate": toDate, "pgNo": $(this).attr("data-pgno"), "pgSize": 2},
+        loadViaAjax('/querylog/list', {"fromDate": fromDate, "toDate": toDate, "pgNo": $(this).attr("data-pgno"), "pgSize": 2}, "html",
             $('#querylog-list-portlet-body'));
     });
+
+    loadViaAjax('/querylog/list', null, "html", $('#querylog-list-portlet-body'), $('#querylog-list-portlet-body').parent());
 });

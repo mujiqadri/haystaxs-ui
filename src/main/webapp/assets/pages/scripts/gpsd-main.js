@@ -95,4 +95,6 @@ jQuery(document).ready(function() {
         e.preventDefault();
         hideFullScreenPortlet('context-content-portlet');
     });
+
+    loadViaAjax('/gpsd/list', null, "html", $('#gpsd-list-container'), $('#gpsd-list-container').parent());
 });

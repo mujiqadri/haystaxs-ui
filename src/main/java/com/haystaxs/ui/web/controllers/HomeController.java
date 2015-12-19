@@ -303,10 +303,7 @@ public class HomeController {
         //http://www.javacodegeeks.com/2013/03/implement-bootstrap-pagination-with-spring-data-and-thymeleaf.html
         model.addAttribute("queryLogDates", queryLogDates);
 
-        PaginationInfo paginationInfo = new PaginationInfo();
-        paginationInfo.setPageSize(pageSize);
-        paginationInfo.setCurrentPageNo(pageNo);
-        paginationInfo.setTotalNoOfPages(((Double)Math.floor(queryLogDates.get(0).getTotalRows() / pageSize)).intValue());
+        PaginationInfo paginationInfo = new PaginationInfo(queryLogDates.get(0).getTotalRows(), pageSize, pageNo);
 
         model.addAttribute("pi", paginationInfo);
 
@@ -401,34 +398,34 @@ public class HomeController {
 
     @Layout(value = "", enabled = false)
     @RequestMapping("/querylog/analyze/search")
-    public String queryLogAnalyzeSearch(@RequestParam("forDate") String forDate,
+    public String queryLogAnalyzeSearch(@RequestParam("startDate") String startDate,
+                                        @RequestParam("endDate") String endDate,
+                                        @RequestParam("startTime") String startTime,
+                                        @RequestParam("endTime") String endTime,
                                         @RequestParam("dbNameLike") String dbNameLike,
                                         @RequestParam("userNameLike") String userNameLike,
-                                        /*@RequestParam("startTime") String startTime,
-                                        @RequestParam("endTime") String endTime,*/
                                         @RequestParam("sqlLike") String sqlLike,
                                         @RequestParam("duration") String duration,
                                         @RequestParam("queryType") String queryType,
-                                        @RequestParam(value = "pgSize", defaultValue = "10") int pageSize,
+                                        @RequestParam(value = "pgSize", defaultValue = "25") int pageSize,
                                         @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
+                                        @RequestParam(value="orderBy", defaultValue = "queryStartTime ASC") String orderBy,
                                         Model model) {
-        List<UserQuery> userQueries = userDatabaseRepository.getQueries(getNormalizedUserName(), forDate,
-                dbNameLike, userNameLike, duration, /*startTime, endTime,*/ sqlLike, queryType, pageSize, pageNo);
+        List<UserQuery> userQueries = userDatabaseRepository.getQueries(getNormalizedUserName(), startDate, endDate,
+                startTime, endTime, dbNameLike, userNameLike, duration, sqlLike, queryType, pageSize, pageNo, orderBy);
         // TODO: Check if list is empty
 
-        model.addAttribute("forDate", forDate);
+        model.addAttribute("forDate", startDate);
         model.addAttribute("userQueries", userQueries);
 
-        int totalRows = userQueries.get(0).getTotalRows();
-//        int computedPageSize = totalRows / 25;
-//        pageSize = computedPageSize > pageSize? computedPageSize : pageSize;
-        PaginationInfo paginationInfo = new PaginationInfo();
-        paginationInfo.setTotalNoOfItems(totalRows);
-        paginationInfo.setPageSize(pageSize);
-        paginationInfo.setCurrentPageNo(pageNo);
-        paginationInfo.setTotalNoOfPages(((Double)Math.floor(userQueries.get(0).getTotalRows() / pageSize)).intValue());
+        if(!userQueries.isEmpty()) {
+            int totalRows = userQueries.get(0).getTotalRows();
+            PaginationInfo paginationInfo = new PaginationInfo(totalRows, pageSize, pageNo);
 
-        model.addAttribute("pi", paginationInfo);
+            model.addAttribute("pi", paginationInfo);
+            model.addAttribute("orderBy", orderBy.split(" ")[0]);
+            model.addAttribute("orderByDir", orderBy.split(" ")[1].equals("ASC") ? "DESC" : "ASC");
+        }
 
         return "fragments/query_analysis_list";
     }
