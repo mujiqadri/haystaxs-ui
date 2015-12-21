@@ -12,6 +12,7 @@ import com.haystaxs.ui.util.MiscUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -108,6 +109,14 @@ public class HomeController {
         model.addAttribute("workloads", workloads);
 
         return ("dashboard");
+    }
+
+    @RequestMapping("/dashboard/ql/chartdata")
+    @ResponseBody
+    public List<UserQueryChartData> dashboardQueryLogChartData() {
+        List<UserQueryChartData> result = userDatabaseRepository.getQueriesForChart(getNormalizedUserName());
+
+        return(result);
     }
     //endregion
 

@@ -39,8 +39,8 @@
                     <!--<td th:text="${iterStatus.count}"></td>-->
                     <td th:text="${uq.logDatabase}"></td>
                     <td th:text="${uq.logUser}"></td>
-                    <td th:text="${#dates.format(uq.queryStartTime, 'hh:mm:ss')}"></td>
-                    <td th:text="${#dates.format(uq.queryEndTime, 'hh:mm:ss')}"></td>
+                    <td th:text="${#dates.format(uq.queryStartTime, 'HH:mm:ss')}"></td>
+                    <td th:text="${#dates.format(uq.queryEndTime, 'HH:mm:ss')}"></td>
                     <td th:text="${uq.durationSeconds}"></td>
                     <td th:text="${uq.qryType}"></td>
                     <td th:text="${uq.sql}" style="word-break: break-all"></td>

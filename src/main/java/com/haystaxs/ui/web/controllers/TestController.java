@@ -1,5 +1,6 @@
 package com.haystaxs.ui.web.controllers;
 
+import com.haystaxs.ui.business.entities.repositories.UserDatabaseRepository;
 import com.haystaxs.ui.business.entities.repositories.UserRepository;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MailUtil;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.thymeleaf.spring.support.Layout;
 
 import java.io.IOException;
 
@@ -39,6 +39,8 @@ public class TestController {
     private MiscUtil miscUtil;
     @Autowired
     private FileUtil fileUtil;
+    @Autowired
+    private UserDatabaseRepository userDatabaseRepository;
 
 /*
     @ModelAttribute("principal")
