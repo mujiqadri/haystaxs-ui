@@ -2,6 +2,7 @@ package com.haystaxs.ui.web.controllers;
 
 import com.haystaxs.ui.business.entities.repositories.UserDatabaseRepository;
 import com.haystaxs.ui.business.entities.repositories.UserRepository;
+import com.haystaxs.ui.support.JsonResponse;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MailUtil;
 import com.haystaxs.ui.util.MiscUtil;
@@ -9,6 +10,7 @@ import com.haystaxs.ui.util.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -139,6 +141,13 @@ public class TestController {
     public String testNewLayout(Model model) {
         model.addAttribute("title", "Dashboard 101");
         return "blank_template_page";
+    }
+
+    @Cacheable(value = "dataCache", key = "#root.methodName.concat('_').concat(#id)")
+    @RequestMapping("/test/caching/{id}")
+    @ResponseBody
+    public JsonResponse testCaching(@PathVariable("id") String id) {
+        return new JsonResponse("Working", "What the fuck");
     }
 
     /*@RequestMapping("/visualizer/{wlId}")

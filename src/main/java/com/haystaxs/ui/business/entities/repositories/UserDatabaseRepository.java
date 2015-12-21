@@ -37,6 +37,7 @@ public class UserDatabaseRepository extends RepositoryBase {
         return resultSet;
     }
 
+    @Cacheable(value = "dataCache")
     public List<QueryType> getQueryCountByCategory(String normalizedUserName, String forDate) {
         String sql = String.format("SELECT  qrytype as queryType, count(*) as count, sum(extract(epoch from logduration)) as totalDuration\n" +
                 "FROM %s.queries\n" +
@@ -110,7 +111,7 @@ public class UserDatabaseRepository extends RepositoryBase {
         return resultSet;
     }
 
-    @Cacheable(value = "jdkCache", key = "#normalizedUserName")
+    @Cacheable(value = "dataCache")
     public List<UserQueryChartData> getQueriesForChart(String normalizedUserName) {
         String sql = String.format("SELECT DATE,\n" +
                 "       sum(TOTAL_DURATION) TOTAL_DURATION,\n" +
