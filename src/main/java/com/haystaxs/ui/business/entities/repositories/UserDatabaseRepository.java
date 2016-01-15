@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -111,8 +112,28 @@ public class UserDatabaseRepository extends RepositoryBase {
         return resultSet;
     }
 
+    public List<String> getAllQueryTypes() {
+        return(Arrays.asList(
+        "UPDATE",
+        "EXCLUSIVE LOCK",
+        "SHOW",
+        "INTERNAL",
+        "DELETE",
+        "INSERT",
+        "OTHERS",
+        "COMMIT",
+        "CREATE EXTERNAL TABLE",
+        "DROP TABLE",
+        "CREATE TABLE",
+        "SELECT",
+        "ANALYZE",
+        "SET CONFIGURATION",
+        "TRUNCATE TABLE",
+        "TRANSACTION-OPERATION"));
+    }
+
     @Cacheable(value = "dataCache")
-    public List<UserQueryChartData> getQueriesForChart(String normalizedUserName) {
+    public List<UserQueryChartData> getQueryStatsForChart(String normalizedUserName) {
         String sql = String.format("SELECT DATE,\n" +
                 "       sum(TOTAL_DURATION) TOTAL_DURATION,\n" +
                 "       sum(TOTAL_COUNT) TOTAL_COUNT,\n" +
@@ -199,5 +220,21 @@ public class UserDatabaseRepository extends RepositoryBase {
         List<UserQueryChartData> result = jdbcTemplate.query(sql, new UserQueryChartDataRowMapper());
 
         return result;
+    }
+
+    public List<String> getDbNames(String normalizedUserName) {
+        String sql = String.format("select value from %s.query_metadata where type = 'dbname' order by 1", normalizedUserName);
+
+        List<String> resultSet = jdbcTemplate.queryForList(sql, String.class);
+
+        return resultSet;
+    }
+
+    public List<String> getUserNames(String normalizedUserName) {
+        String sql = String.format("select value from %s.query_metadata where type = 'username' order by 1", normalizedUserName);
+
+        List<String> resultSet = jdbcTemplate.queryForList(sql, String.class);
+
+        return resultSet;
     }
 }

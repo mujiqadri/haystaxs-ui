@@ -24,11 +24,11 @@ public class UserQueryChartDataRowMapper implements RowMapper {
 
         record.setTotalDuration(MathUtil.roundTo2DecimalPlaces(rs.getDouble("total_duration")));
         record.setTotalCount(rs.getInt("total_count"));
-        record.setSelectDuration(rs.getDouble("select_duration"));
+        record.setSelectDuration(MathUtil.roundTo2DecimalPlaces(rs.getDouble("select_duration")));
         record.setSelectCount(rs.getInt("select_count"));
-        record.setInsertDuration(rs.getDouble("insert_duration"));
+        record.setInsertDuration(MathUtil.roundTo2DecimalPlaces(rs.getDouble("insert_duration")));
         record.setInsertCount(rs.getInt("insert_count"));
-        record.setDropTableDuration(rs.getDouble("drop_table_duration"));
+        record.setDropTableDuration(MathUtil.roundTo2DecimalPlaces(rs.getDouble("drop_table_duration")));
         record.setDropTableCount(rs.getInt("drop_table_count"));
 
         return (record);

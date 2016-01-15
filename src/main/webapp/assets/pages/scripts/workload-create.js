@@ -1,51 +1,59 @@
-/**
- * Created by adnan on 11/26/15.
- */
-jQuery(document).ready(function() {
-    if (jQuery().datepicker) {
-        $('.date-picker').datepicker({
-            orientation: "left",
-            autoclose: true
+var CreateWorkload = function () {
+
+    var initializeDatePicker = function () {
+        if (jQuery().datepicker) {
+            $('.date-picker').datepicker({
+                orientation: "left",
+                autoclose: true
+            });
+        }
+    };
+
+    var fetchProgress = function(workloadId) {
+        loadViaAjax('/workload/progress', { workloadId: workloadId }, 'json', null, null, null, function(result) {
+            if(result.result === 'success') {
+                $('#workload-progress-bar').width(result.message + '%');
+                $('#workload-progress-bar-text').text(result.message + '% completed...');
+                if(result.message < 100) {
+                    setTimeout(fetchProgress(workloadId), 1000);
+                }
+            }
         });
     }
 
-    $('#create-workload-button').on('click', function() {
+    return {
+        init: function () {
+            initializeDatePicker();
+        },
+        fetchProgress: fetchProgress
+    }
+}();
+
+jQuery(document).ready(function () {
+
+    CreateWorkload.init();
+
+    $('#create-workload-button').on('click', function () {
         var portletBody = $('#portlet-body-1');
         var dbName = $('#dbName').val();
         var fromDate = $('#fromDate').val();
         var toDate = $('#toDate').val();
 
-        if(!isEmpty(fromDate) && !isEmpty(toDate)) {
+        if (!isEmpty(fromDate) && !isEmpty(toDate)) {
             $(this).prop('disabled', true);
 
-            $.ajax({
-                type: "POST",
-                cache: false,
-                url: App.webAppPath + '/workload/create',
-                data: {"dbName": dbName, "fromDate": fromDate, "toDate": toDate},
-                dataType: "html",
-                success: function (res) {
-                    //App.unblockUI(el);
-                    portletBody.html(res);
-                    //App.initAjax() // reinitialize elements & plugins for newly loaded content
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    //App.unblockUI(el);
-                    var msg = 'Error on reloading the content. Please check your connection and try again.';
-                    /*if (error == "toastr" && toastr) {
-                     toastr.error(msg);
-                     } else if (error == "notific8" && $.notific8) {
-                     $.notific8('zindex', 11500);
-                     $.notific8(msg, {
-                     theme: 'ruby',
-                     life: 3000
-                     });
-                     } else {
-                     alert(msg);
-                     }*/
-                    portletBody.html(msg);
-                }
-            });
+            var data = {"dbName": dbName, "fromDate": fromDate, "toDate": toDate};
+            loadViaAjax('/workload/create', data, 'json', null, null, null
+                , function (result) {
+                    if(result.result === 'success') {
+                        $('#info-area').html('Processing...')
+                    }
+
+                    $('#workload-progress-bar-holder').removeClass('hidden');
+                    CreateWorkload.fetchProgress(result.additionalInfo);
+                }, function () {
+
+                }, "POST");
         }
     });
 });

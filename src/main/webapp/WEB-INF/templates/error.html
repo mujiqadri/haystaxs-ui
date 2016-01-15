@@ -65,7 +65,10 @@
                 <!-- BEGIN PAGE CONTENT INNER -->
                 <div class="page-content-inner" th:fragment="main-content">
                     <div class="note note-danger">
-                        <p th:text="${errorMsg}">  </p>
+                        <h1>Error</h1>
+                        <p th:text="${errorMsg}"></p>
+                        <h1>Stack Trace</h1>
+                        <p th:each="st : ${stackTrace}" th:text="${st}"></p>
                     </div>
                 </div>
                 <!-- END PAGE CONTENT INNER -->

@@ -43,7 +43,7 @@
                     <td th:text="${#dates.format(uq.queryEndTime, 'HH:mm:ss')}"></td>
                     <td th:text="${uq.durationSeconds}"></td>
                     <td th:text="${uq.qryType}"></td>
-                    <td th:text="${uq.sql}" style="word-break: break-all"></td>
+                    <td style="word-break: break-all"><pre><code th:text="${uq.sql}"></code></pre></td>
                 </tr>
                 </tbody>
             </table>

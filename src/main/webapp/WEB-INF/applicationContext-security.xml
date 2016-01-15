@@ -21,6 +21,8 @@
         <intercept-url pattern="/favicon.ico" access="isAnonymous()" />
         <intercept-url pattern="/login" access="isAnonymous()"/>
         <intercept-url pattern="/register" access="isAnonymous()"/>
+        <intercept-url pattern="/regdone" access="isAnonymous()"/>
+        <intercept-url pattern="/verifyreg" access="isAnonymous()"/>
         <!--<intercept-url pattern="/visualizer/**" />-->
         <!--<intercept-url pattern="/login" access="isAnonymous() or hasRole('USER')" />-->
 

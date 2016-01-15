@@ -20,23 +20,23 @@ function initAmChartSample() {
         "insert": 54000,
         "drop table": 21000
     }/*, {
-        "date": "2012-01-13",
-        "townName": "Salt Lake City",
-        "townSize": 12,
-        "distance": 425,
-        "duration": 670,
-        "latitude": 40.75,
-        "alpha": 0.4
-    }, {
-        "date": "2012-01-14",
-        "latitude": 36.1,
-        "duration": 470,
-        "townName": "Las Vegas",
-        "townName2": "Las Vegas",
-        "bulletClass": "lastBullet"
-    }, {
-        "date": "2012-01-15"
-    }*/];
+     "date": "2012-01-13",
+     "townName": "Salt Lake City",
+     "townSize": 12,
+     "distance": 425,
+     "duration": 670,
+     "latitude": 40.75,
+     "alpha": 0.4
+     }, {
+     "date": "2012-01-14",
+     "latitude": 36.1,
+     "duration": 470,
+     "townName": "Las Vegas",
+     "townName2": "Las Vegas",
+     "bulletClass": "lastBullet"
+     }, {
+     "date": "2012-01-15"
+     }*/];
 
     var chart = AmCharts.makeChart("dashboard_amchart_1", {
         type: "serial",
@@ -93,13 +93,13 @@ function initAmChartSample() {
             axisAlpha: 0,
             inside: true,
             labelsEnabled: false/*,
-            duration: "mm",
-            durationUnits: {
-                DD: "d. ",
-                hh: "h ",
-                mm: "min",
-                ss: ""
-            }*/
+             duration: "mm",
+             durationUnits: {
+             DD: "d. ",
+             hh: "h ",
+             mm: "min",
+             ss: ""
+             }*/
         }],
         graphs: [{
             id: "g1",
@@ -172,12 +172,12 @@ function initAmChartSample() {
     });
 }
 
-function initQueryLogChart() {
-    if (typeof(AmCharts) === 'undefined' || $('#querylog-chart').size() === 0) {
+function initQueryLogDurationChart() {
+    if (typeof(AmCharts) === 'undefined' || $('#querylog-duration-chart').size() === 0) {
         return;
     }
 
-    var chart = AmCharts.makeChart("querylog-chart", {
+    var chart = AmCharts.makeChart("querylog-duration-chart", {
         type: "serial",
         fontSize: 12,
         fontFamily: "Open Sans",
@@ -215,75 +215,60 @@ function initQueryLogChart() {
         valueAxes: [{
             id: "a1",
             title: "Duration (Secs)",
-            gridAlpha: 0/*,
-            axisAlpha: 0*/
-        }, {
-            id: "a2",
-            title: "Query Count",
-            position: "right"
+            gridAlpha: 0.2,
+            axisAlpha: 0
         }],
 
         graphs: [{
             id: "g1",
             valueField: "totalDuration",
             title: "Total Duration",
-            type: "column",
+            type: "line",
             fillAlphas: 0.2,
             valueAxis: "a1",
+            bullet: "round",
+            bulletSizeField: "townSize",
+            bulletBorderColor: "blue",
+            bulletBorderAlpha: 1,
+            bulletBorderThickness: 1,
+            bulletColor: "lightblue",
             balloonText: "[[value]] Seconds",
-            legendValueText: "[[value]] Secs",
+            legendValueText: "[[value]]",
             //legendPeriodValueText: "total: [[value.sum]] mi",
             lineColor: "#08a3cc",
             alphaField: "alpha"
         }, {
             id: "g2",
-            valueField: "totalCount",
+            valueField: "selectDuration",
             classNameField: "bulletClass",
-            title: "Total Count",
+            title: "Select Duration",
             type: "line",
-            valueAxis: "a2",
-            bullet: "round",
-            bulletSizeField: "townSize",
-            bulletBorderColor: "green",
-            bulletBorderAlpha: 1,
-            bulletBorderThickness: 2,
-            bulletColor: "lightgreen",
+            fillAlphas: 0.2,
+            valueAxis: "a1",
             balloonText: "[[value]]",
             legendValueText: "[[value]]",
             //legendPeriodValueText: "total: [[value.sum]] mi",
             lineColor: "green",
             alphaField: "alpha"
         }, {
-            id: "g4",
-            valueField: "selectDuration",
-            classNameField: "bulletClass",
-            title: "Select Duration",
+            id: "g3",
+            valueField: "insertDuration",
+            title: "Insert Duration",
             type: "line",
+            fillAlphas: 0.2,
             valueAxis: "a1",
-            bullet: "round",
-            bulletSizeField: "townSize",
-            bulletBorderColor: "yellow",
-            bulletBorderAlpha: 1,
-            bulletBorderThickness: 2,
-            bulletColor: "lightyellow",
             balloonText: "[[value]]",
             legendValueText: "[[value]]",
             //legendPeriodValueText: "total: [[value.sum]] mi",
             lineColor: "yellow",
             alphaField: "alpha"
         }, {
-            id: "g3",
-            valueField: "selectCount",
-            classNameField: "bulletClass",
-            title: "Select Count",
+            id: "g4",
+            valueField: "dropTableDuration",
+            title: "Drop Table Duration",
             type: "line",
-            valueAxis: "a2",
-            bullet: "round",
-            bulletSizeField: "townSize",
-            bulletBorderColor: "red",
-            bulletBorderAlpha: 1,
-            bulletBorderThickness: 2,
-            bulletColor: "orange",
+            fillAlphas: 0.2,
+            valueAxis: "a1",
             balloonText: "[[value]]",
             legendValueText: "[[value]]",
             //legendPeriodValueText: "total: [[value.sum]] mi",
@@ -292,7 +277,7 @@ function initQueryLogChart() {
         }],
 
         chartCursor: {
-            zoomable: false,
+            zoomable: true,
             categoryBalloonDateFormat: "MMM DD",
             cursorAlpha: 0,
             categoryBalloonColor: "#e26a6a",
@@ -307,6 +292,431 @@ function initQueryLogChart() {
     });
 }
 
-$(function() {
-   initQueryLogChart();
+function initQueryLogCountChart() {
+    if (typeof(AmCharts) === 'undefined' || $('#querylog-count-chart').size() === 0) {
+        return;
+    }
+
+    var chart = AmCharts.makeChart("querylog-count-chart", {
+        type: "serial",
+        fontSize: 12,
+        fontFamily: "Open Sans",
+        dataDateFormat: "DD-MM-YYYY",
+        //dataProvider: chartData,
+        dataLoader: {
+            "url": App.webAppPath + "/dashboard/ql/chartdata",
+            "format": "json"
+        },
+
+        categoryField: "date",
+        categoryAxis: {
+            parseDates: true,
+            minPeriod: "DD",
+            autoGridCount: true,
+            gridCount: 10,
+            gridAlpha: 0.1,
+            gridColor: "#FFFFFF",
+            axisColor: "#555555",
+            dateFormats: [{
+                period: 'DD',
+                format: 'DD'
+            }, {
+                period: 'WW',
+                format: 'MMM DD'
+            }, {
+                period: 'MM',
+                format: 'MMM'
+            }, {
+                period: 'YYYY',
+                format: 'YYYY'
+            }]
+        },
+
+        valueAxes: [{
+            id: "a1",
+            title: "Count",
+            gridAlpha: 0,
+            axisAlpha: 0
+        }],
+
+        graphs: [{
+            id: "g1",
+            valueField: "totalCount",
+            title: "Total Count",
+            type: "line",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            /*bullet: "round",
+             bulletSizeField: "townSize",
+             bulletBorderColor: "blue",
+             bulletBorderAlpha: 1,
+             bulletBorderThickness: 1,
+             bulletColor: "lightblue",
+             balloonText: "[[value]]",*/
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "#08a3cc",
+            alphaField: "alpha"
+        }, {
+            id: "g2",
+            valueField: "selectCount",
+            title: "Select Count",
+            type: "line",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            balloonText: "[[value]]",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "green",
+            alphaField: "alpha"
+        }, {
+            id: "g3",
+            valueField: "insertCount",
+            title: "Insert Count",
+            type: "line",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            balloonText: "[[value]]",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "yellow",
+            alphaField: "alpha"
+        }, {
+            id: "g4",
+            valueField: "dropTableCount",
+            title: "Drop Table Count",
+            type: "line",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            balloonText: "[[value]]",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "red",
+            alphaField: "alpha"
+        }],
+
+        chartCursor: {
+            zoomable: true,
+            categoryBalloonDateFormat: "MMM DD",
+            cursorAlpha: 0,
+            categoryBalloonColor: "#e26a6a",
+            categoryBalloonAlpha: 0.8,
+            valueBalloonsEnabled: false
+        },
+
+        legend: {
+            useGraphSettings: true,
+            valueWidth: 120
+        }
+    });
+}
+
+function initGpsdGrowthChart() {
+    if (typeof(AmCharts) === 'undefined' || $('#gpsd-growth-chart').size() === 0) {
+        return;
+    }
+
+    var chartData = [
+        {
+            date: "01-10-2015",
+            customers_size: 1024,
+            customers_rows: 10223,
+            accounts_size: 2048,
+            accounts_rows: 228343,
+            sales_size: 125364,
+            sales_rows: 1234567
+        },
+        {
+            date: "01-11-2015",
+            customers_size: 1345,
+            customers_rows: 15253,
+            accounts_size: 2566,
+            accounts_rows: 328343,
+            sales_size: 225364,
+            sales_rows: 1934567
+        }
+    ];
+
+    var chart = AmCharts.makeChart("gpsd-growth-chart", {
+        type: "serial",
+        fontSize: 12,
+        fontFamily: "Open Sans",
+        dataDateFormat: "DD-MM-YYYY",
+        dataProvider: chartData,
+        /*dataLoader: {
+         "url": App.webAppPath + "/dashboard/ql/chartdata",
+         "format": "json"
+         },*/
+
+        categoryField: "date",
+        categoryAxis: {
+            parseDates: true,
+            minPeriod: "MM",
+            autoGridCount: true,
+            gridCount: 10,
+            gridAlpha: 0.1,
+            gridColor: "#FFFFFF",
+            axisColor: "#555555",
+            dateFormats: [{
+                period: 'DD',
+                format: 'DD'
+            }, {
+                period: 'WW',
+                format: 'MMM DD'
+            }, {
+                period: 'MM',
+                format: 'MMM'
+            }, {
+                period: 'YYYY',
+                format: 'YYYY'
+            }]
+        },
+
+        valueAxes: [{
+            id: "a1",
+            title: "No Of Rows",
+            gridAlpha: 0,
+            axisAlpha: 0
+        }],
+
+        graphs: [{
+            id: "g1",
+            valueField: "customers_rows",
+            title: "Customer Rows",
+            type: "column",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "#08a3cc",
+            alphaField: "alpha",
+            newStack: true
+        }, {
+            id: "g2",
+            valueField: "customers_size",
+            title: "Customers Size",
+            type: "column",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            balloonText: "[[value]]",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "green",
+            alphaField: "alpha",
+            newStack: true
+        },{
+            id: "g3",
+            valueField: "accounts_rows",
+            title: "Customer Rows",
+            type: "column",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "#yellow",
+            alphaField: "alpha",
+            newStack: true
+        }, {
+            id: "g4",
+            valueField: "accounts_size",
+            title: "Customers Size",
+            type: "column",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            balloonText: "[[value]]",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "orange",
+            alphaField: "alpha",
+            newStack: true
+        }],
+
+        chartCursor: {
+            zoomable: true,
+            categoryBalloonDateFormat: "MMM DD",
+            cursorAlpha: 0,
+            categoryBalloonColor: "#e26a6a",
+            categoryBalloonAlpha: 0.8,
+            valueBalloonsEnabled: false
+        },
+
+        legend: {
+            useGraphSettings: true,
+            valueWidth: 120
+        }
+    });
+}
+
+function initHourlyQueriesChart() {
+    if (typeof(AmCharts) === 'undefined' || $('#hourly-queries-chart').size() === 0) {
+        return;
+    }
+
+    var chartData = [
+        {
+            date: "01-10-2015 00:00",
+            select: 12332,
+            insert: 1234,
+            update: 3245
+        },
+        {
+            date: "01-10-2015 01:00",
+            select: 33211,
+            insert: 2123,
+            update: 444
+        },
+        {
+            date: "01-10-2015 02:00",
+            select: 4432,
+            insert: 121,
+            update: 355
+        },
+        {
+            date: "01-10-2015 03:00",
+            select: 1231,
+            insert: 25,
+            update: 12
+        },
+        {
+            date: "01-10-2015 04:00",
+            select: 15243,
+            insert: 367,
+            update: 788
+        }
+    ];
+
+    var chart = AmCharts.makeChart("hourly-queries-chart", {
+        type: "serial",
+        fontSize: 12,
+        fontFamily: "Open Sans",
+        dataDateFormat: "DD-MM-YYYY JJ:NN",
+        dataProvider: chartData,
+        /*dataLoader: {
+         "url": App.webAppPath + "/dashboard/ql/chartdata",
+         "format": "json"
+         },*/
+
+        categoryField: "date",
+        categoryAxis: {
+            parseDates: true,
+            minPeriod: "hh",
+            autoGridCount: true,
+            gridCount: 10,
+            gridAlpha: 0.1,
+            gridColor: "#FFFFFF",
+            axisColor: "#555555"/*,
+            dateFormats: [{
+                period: 'DD',
+                format: 'DD'
+            }, {
+                period: 'WW',
+                format: 'MMM DD'
+            }, {
+                period: 'MM',
+                format: 'MMM'
+            }, {
+                period: 'YYYY',
+                format: 'YYYY'
+            }, {
+                period: 'hh',
+                format: 'JJ:NN'
+            }]*/
+        },
+
+        valueAxes: [{
+            id: "a1",
+            title: "Duration (Secs)",
+            gridAlpha: 0,
+            axisAlpha: 0
+        }],
+
+        graphs: [{
+            id: "g1",
+            valueField: "select",
+            title: "Select",
+            type: "column",
+            fillAlphas: 1,
+            valueAxis: "a1",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "#08a3cc",
+            alphaField: "alpha",
+            newStack: true
+        }, {
+            id: "g2",
+            valueField: "insert",
+            title: "Insert",
+            type: "column",
+            fillAlphas: 1,
+            valueAxis: "a1",
+            balloonText: "[[value]]",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "green",
+            alphaField: "alpha",
+            newStack: true
+        },{
+            id: "g3",
+            valueField: "update",
+            title: "Update",
+            type: "column",
+            fillAlphas: 1,
+            valueAxis: "a1",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "red",
+            alphaField: "alpha",
+            newStack: true
+        }],
+
+        chartCursor: {
+            zoomable: true,
+            categoryBalloonDateFormat: "JJ",
+            cursorAlpha: 0,
+            categoryBalloonColor: "#e26a6a",
+            categoryBalloonAlpha: 0.8,
+            valueBalloonsEnabled: false
+        },
+
+        legend: {
+            useGraphSettings: true,
+            valueWidth: 120
+        }
+    });
+}
+
+$(function () {
+    initQueryLogDurationChart();
+
+    initQueryLogCountChart();
+
+    initGpsdGrowthChart();
+
+    initHourlyQueriesChart();
+
+    //var cd = generateChartData();
 });
+
+
+function generateChartData() {
+    var chartData = [];
+    // current date
+    var firstDate = new Date();
+    // now set 500 minutes back
+    firstDate.setMinutes(firstDate.getDate() - 1000);
+
+    // and generate 500 data items
+    for (var i = 0; i < 500; i++) {
+        var newDate = new Date(firstDate);
+        // each time we add one minute
+        newDate.setMinutes(newDate.getMinutes() + i);
+        // some random number
+        var visits = Math.round(Math.random() * 40 + 10 + i + Math.random() * i / 5);
+        // add data item to the array
+        chartData.push({
+            date: newDate,
+            visits: visits
+        });
+    }
+    return chartData;
+}

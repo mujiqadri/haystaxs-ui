@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet"
+          type="text/css"/>
+    <link th:href="@{/assets/global/plugins/font-awesome/css/font-awesome.min.css}"
+          href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}"
+          href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}"
+          href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}"
+          href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css}"
+          href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
+          rel="stylesheet" type="text/css"/>
+    <!-- END GLOBAL MANDATORY STYLES -->
+    <!-- BEGIN THEME GLOBAL STYLES -->
+    <link th:href="@{/assets/global/css/components-md.min.css}" href="/assets/global/css/components-md.min.css"
+          rel="stylesheet" id="style_components" type="text/css"/>
+    <link th:href="@{/assets/global/css/plugins-md.min.css}" href="/assets/global/css/plugins-md.min.css"
+          rel="stylesheet" type="text/css"/>
+    <!-- END THEME GLOBAL STYLES -->
+    <!-- BEGIN THEME LAYOUT STYLES -->
+    <link th:href="@{/assets/layouts/layout3/css/layout.min.css}" href="/assets/layouts/layout3/css/layout.min.css"
+          rel="stylesheet" type="text/css"/>
+    <link th:href="@{/assets/layouts/layout3/css/themes/default.min.css}"
+          href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet" type="text/css"
+          id="style_color"/>
+    <link th:href="@{/assets/layouts/layout3/css/custom.css}" href="/assets/layouts/layout3/css/custom.css  "
+          rel="stylesheet" type="text/css"/>
+    <!-- END THEME LAYOUT STYLES -->
+    <th:block th:fragment="page-level-styles">
+    </th:block>
+</head>
+<body class="page-container-bg-solid page-boxed page-md">
+<!-- BEGIN CONTAINER -->
+<div class="page-container">
+    <!-- BEGIN CONTENT -->
+    <div class="page-content-wrapper">
+        <!-- BEGIN CONTENT BODY -->
+        <!-- BEGIN PAGE HEAD-->
+        <div class="page-head">
+            <div class="container">
+                <!-- BEGIN PAGE TITLE -->
+                <div class="page-title" th:fragment="page-title">
+                    <h1>Processed Workloads</h1>
+                </div>
+                <!-- END PAGE TITLE -->
+            </div>
+        </div>
+        <!-- END PAGE HEAD-->
+        <!-- BEGIN PAGE CONTENT BODY -->
+        <div class="page-content">
+            <div class="container">
+                <!-- BEGIN PAGE BREADCRUMBS -->
+                <ul class="page-breadcrumb breadcrumb" th:fragment="breadcrumbs">
+                    <li>
+                        <a href="index.html">Home</a>
+                        <i class="fa fa-circle"></i>
+                    </li>
+                    <li>
+                        <span>Layouts</span>
+                    </li>
+                </ul>
+                <!-- END PAGE BREADCRUMBS -->
+                <!-- BEGIN PAGE CONTENT INNER -->
+                <div class="page-content-inner" th:fragment="main-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption caption-md">
+                                        <i class="icon-bar-chart font-red"></i>
+                                        <span class="caption-subject font-red bold uppercase">Processed Workloads</span>
+                                        <!--<span class="caption-helper">weekly stats...</span>-->
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="table-scrollable">
+                                        <table class="table table-bordered table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>Created On</th>
+                                                <th>Database</th>
+                                                <th>Start Dt</th>
+                                                <th>End Dt</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="wl : ${workloads}">
+                                                <td th:text="${#dates.format(wl.createdOn, 'dd-MMM-yyyy HH:mm')}"></td>
+                                                <td th:text="${wl.databaseName}"></td>
+                                                <td th:text="${#dates.format(wl.startDate, 'dd-MMM-yyyy')}"></td>
+                                                <td th:text="${#dates.format(wl.endDate, 'dd-MMM-yyyy')}"></td>
+                                                <td><a th:href="@{/visualizer/} + ${wl.workloadId}">Visualize</a></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END PAGE CONTENT INNER -->
+            </div>
+        </div>
+        <!-- END PAGE CONTENT BODY -->
+        <!-- END CONTENT BODY -->
+    </div>
+    <!-- END CONTENT -->
+</div>
+<!-- END CONTAINER -->
+<th:block th:fragment="page-level-scripts">
+</th:block>
+</body>
+
+</html>

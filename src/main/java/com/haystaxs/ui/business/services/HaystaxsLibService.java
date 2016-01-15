@@ -2,6 +2,7 @@ package com.haystaxs.ui.business.services;
 
 import com.haystack.service.CatalogService;
 import com.haystack.util.ConfigProperties;
+import com.haystaxs.ui.business.entities.repositories.WorkloadRepository;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
 import com.sun.javafx.collections.MappingChange;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -22,6 +24,8 @@ import java.util.Map;
 public class HaystaxsLibService {
     final static Logger logger = LoggerFactory.getLogger(HaystaxsLibService.class);
 
+    @Autowired
+    private WorkloadRepository workloadRepository;
     @Autowired
     private FileUtil fileUtil;
     @Autowired
@@ -71,22 +75,52 @@ public class HaystaxsLibService {
         logger.trace("createQueryLog Completed.");
     }
 
-    public String processWorkload(int workloadId) {
+    @Async
+    public void processWorkload(int workloadId, String normalizedUserName) {
         logger.trace(String.format("processWorkload Started. %d", workloadId));
 
-        String resultModelJson = "";
+        String modelJson = "";
 
         try {
             ConfigProperties configProperties = new ConfigProperties();
             configProperties.loadProperties();
 
             CatalogService cs = new CatalogService(configProperties);
-            resultModelJson = cs.processWorkload(workloadId);
+            modelJson = cs.processWorkload(workloadId);
+
+            if(modelJson != null) {
+                workloadRepository.setCompletedOn(workloadId);
+
+                String jsonFileBaseDir = appConfig.getGpsdSaveDirectory() + File.separator + normalizedUserName + File.separator
+                        + "workloads" + File.separator;
+
+                try {
+                    fileUtil.saveToFile(modelJson.getBytes(), jsonFileBaseDir, Integer.toString(workloadId) + ".json");
+                } catch (IOException e) {
+                    logger.error("Failed to save workload JSON to file system.", e);
+                    return;
+                }
+            }
+
+            logger.trace("processWorkload Completed.");
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }
-        logger.trace("processWorkload Completed.");
+    }
 
-        return resultModelJson;
+    public String getGpsdJson(int gpsdId) {
+        String result = "{}";
+
+        try {
+            ConfigProperties configProperties = new ConfigProperties();
+            configProperties.loadProperties();
+
+            CatalogService cs = new CatalogService(configProperties);
+            result = cs.getGPSDJson(gpsdId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+        }
+
+        return result;
     }
 }

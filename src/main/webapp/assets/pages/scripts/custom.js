@@ -70,7 +70,7 @@ function hideFullScreenPortlet(portletId) {
     portlet.children('.portlet-body').css('height', 'auto');
 }
 
-function loadViaAjax(url, data, dataType, resultTargetEl, blockTargetEl, async) {
+function loadViaAjax(url, data, dataType, resultTargetEl, blockTargetEl, async, successCallback, failureCallback, httpMethod) {
     var result = {};
 
     blockTargetEl = blockTargetEl || resultTargetEl;
@@ -80,12 +80,12 @@ function loadViaAjax(url, data, dataType, resultTargetEl, blockTargetEl, async) 
     }
 
     $.ajax({
-        type: "GET",
+        type: httpMethod ? httpMethod : "GET",
         cache: false,
         url: App.webAppPath + url,
         data: data,
         dataType: dataType ? dataType : "html",
-        async: async === false ? false : true,
+        async: (async === false) ? async : true,
         success: function(res) {
             if(blockTargetEl) {
                 unBlockUI(blockTargetEl);
@@ -97,6 +97,10 @@ function loadViaAjax(url, data, dataType, resultTargetEl, blockTargetEl, async) 
             if(dataType === "json") {
                 result = res;
             }
+
+            if(successCallback) {
+                successCallback(res);
+            }
         },
         error: function(xhr, ajaxOptions, thrownError) {
             var msg = 'Error on reloading the content. Please check your connection and try again.';
@@ -106,6 +110,10 @@ function loadViaAjax(url, data, dataType, resultTargetEl, blockTargetEl, async) 
             }
             if(resultTargetEl) {
                 resultTargetEl.html(msg);
+            }
+
+            if(failureCallback) {
+                failureCallback(xhr, thrownError);
             }
 
             console.log(xhr.responseText);

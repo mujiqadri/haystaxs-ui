@@ -31,6 +31,7 @@
               href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
         <link th:href="@{/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css}"
               href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/styles/default.min.css"/>
         <!-- END PAGE LEVEL PLUGINS -->
     </th:block>
 </head>
@@ -78,8 +79,16 @@
                                        data-toggle="tooltip" title="Start Time" data-placement="top" value="00:00" />
                                 <input type="text" class="form-control tooltips timepicker" id="end-time" placeholder="End Time" size="8"
                                        data-toggle="tooltip" title="End Time" data-placement="top" value="23:59" />
-                                <input type="text" class="form-control" id="db-name-like" placeholder="Database Name like"/>
-                                <input type="text" class="form-control" id="user-name-like" placeholder="User Name Like"/>
+                                <select class="form-control tooltips" id="db-name-like">
+                                    <option value="---ANY---">---</option>
+                                    <option th:each="dbName : ${dbNames}" th:value="${dbName}" th:text="${dbName}"></option>
+                                </select>
+                                <!--<input type="text" class="form-control" id="db-name-like" placeholder="Database Name like"/>-->
+                                <select class="form-control tooltips" id="user-name-like">
+                                    <option value="---ANY---">---</option>
+                                    <option th:each="userName : ${userNames}" th:value="${userName}" th:text="${userName}"></option>
+                                </select>
+                                <!--<input type="text" class="form-control" id="user-name-like" placeholder="User Name Like"/>-->
                                 <input type="number" class="form-control" id="duration-greater-than" placeholder="Duration > than" style="width: 100px" />
                                 <input type="text" class="form-control" id="sql-like" placeholder="SQL like"/>
                                 <select class="form-control tooltips" id="query-type"
@@ -116,6 +125,8 @@
     <script th:src="@{/assets/global/plugins/bootstrap-daterangepicker/moment.min.js}" type="text/javascript"></script>
     <script th:src="@{/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js}" type="text/javascript"></script>
     <script th:src="@{/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js}" type="text/javascript"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/highlight.min.js"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN PAGE LEVEL SCRIPTS -->
     <script th:src="@{/assets/pages/scripts/querylog-analysis.js}" type="text/javascript"></script>

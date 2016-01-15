@@ -49,4 +49,21 @@ public class WorkloadRepository extends RepositoryBase {
         return resultSet;
     }
 
+    public int getWorkloadProgress(int workloadId) {
+        String sql = String.format("select percent_processed from %s.workloads where workload_id = ?",
+                getHsSchemaName());
+
+        Integer result = 0;
+
+        try {
+            result = jdbcTemplate.queryForObject(sql, new Object[]{workloadId}, Integer.class);
+        } catch(Exception ex) {
+            result = 0;
+        }
+
+        if(result == null)
+            result = 0;
+
+        return result;
+    }
 }

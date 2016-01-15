@@ -34,6 +34,15 @@ public class UserRepository extends  RepositoryBase{
         }
     }
 
+    public boolean verifyRegistration(int userId, String verificationCode) {
+        String sql = String.format("UPDATE %s.users SET reg_verified = true where user_id = ? and reg_verification_code = ?",
+                getHsSchemaName());
+
+        int noOfRows = jdbcTemplate.update(sql, new Object[] {userId, verificationCode});
+
+        return(noOfRows > 0 ? true : false);
+    }
+
     public int createNew(HsUser hsUser) {
         /*
             -- To get a UUID alternative, works in newer versions of postgres
@@ -45,7 +54,7 @@ public class UserRepository extends  RepositoryBase{
         String regVerificationCode = UUID.randomUUID().toString();
 
         sql = String.format("INSERT INTO %s.users(user_id, first_name, last_name, email_address, password, organization, " +
-                "created_on, reg_requested_on, req_verificaton_code, reg_verified, user_name) VALUES " +
+                "created_on, reg_requested_on, reg_verification_code, reg_verified, user_name) VALUES " +
                 "(?, ?, ?, ?, ?, ?, localtimestamp, localtimestamp, ?, false, ?)", getHsSchemaName());
         jdbcTemplate.update(sql, new Object[] {newUserId, hsUser.getFirstName(), hsUser.getLastName(), hsUser.getEmailAddress(), hsUser.getPassword(), hsUser.getOrganization(),
         regVerificationCode, miscUtil.getNormalizedUserName(hsUser.getEmailAddress())});

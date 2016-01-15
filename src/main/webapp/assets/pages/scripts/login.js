@@ -125,32 +125,6 @@ var Login = function() {
 
     var handleRegister = function() {
 
-        function format(state) {
-            if (!state.id) { return state.text; }
-            var $state = $(
-             '<span><img src="../assets/global/img/flags/' + state.element.value.toLowerCase() + '.png" class="img-flag" /> ' + state.text + '</span>'
-            );
-            
-            return $state;
-        }
-
-        if (jQuery().select2 && $('#country_list').size() > 0) {
-            $("#country_list").select2({
-	            placeholder: '<i class="fa fa-map-marker"></i>&nbsp;Select a Country',
-	            templateResult: format,
-                templateSelection: format,
-                width: 'auto', 
-	            escapeMarkup: function(m) {
-	                return m;
-	            }
-	        });
-
-
-	        $('#country_list').change(function() {
-	            $('.register-form').validate().element($(this)); //revalidate the chosen dropdown value and show error or success message for the input
-	        });
-    	}
-
         $('.register-form').validate({
             errorElement: 'span', //default input error message container
             errorClass: 'help-block', // default input error message class
@@ -158,25 +132,18 @@ var Login = function() {
             ignore: "",
             rules: {
 
-                fullname: {
+                organization: {
                     required: true
                 },
-                email: {
+                firstName: {
+                    required: true
+                },
+                lastName: {
+                    required: true
+                },
+                emailAddress: {
                     required: true,
                     email: true
-                },
-                address: {
-                    required: true
-                },
-                city: {
-                    required: true
-                },
-                country: {
-                    required: true
-                },
-
-                username: {
-                    required: true
                 },
                 password: {
                     required: true

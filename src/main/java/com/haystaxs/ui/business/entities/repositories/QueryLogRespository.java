@@ -2,9 +2,11 @@ package com.haystaxs.ui.business.entities.repositories;
 
 import com.haystaxs.ui.business.entities.QueryLog;
 import com.haystaxs.ui.business.entities.QueryLogDate;
+import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -67,5 +69,19 @@ public class QueryLogRespository extends RepositoryBase{
         List<QueryLogDate> resultSet = jdbcTemplate.query(sql, new Object[] { userId, fromDate, toDate }, new BeanPropertyRowMapper(QueryLogDate.class));
 
         return resultSet;
+    }
+
+    public QueryLogMinMaxDates getQueryLogMinMaxDates(String normalizedUsername) {
+        String sql = String.format("select min(logsessiontime)::date, max(logsessiontime)::date from %s.queries",
+                normalizedUsername);
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
+        rowSet.next();
+
+        QueryLogMinMaxDates result = new QueryLogMinMaxDates();
+        result.setMinDate(rowSet.getDate(1));
+        result.setMaxDate(rowSet.getDate(2));
+
+        return result;
     }
 }

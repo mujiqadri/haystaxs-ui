@@ -7,8 +7,8 @@ var QueryLogAnalysis = function() {
             result.endDate = $('#end-date').val();
             result.startTime = $('#start-time').val();
             result.endTime = $('#end-time').val();
-            result.dbNameLike = $('#db-name-like').val();
-            result.userNameLike = $('#user-name-like').val();
+            result.dbNameLike = $('#db-name-like').val() === "---ANY---" ? "" : $('#db-name-like').val();
+            result.userNameLike = $('#user-name-like').val() === "---ANY---" ? "" : $('#user-name-like').val();
             result.sqlLike = $('#sql-like').val();
             result.duration = $('#duration-greater-than').val();
             result.queryType = $('#query-type').val();
@@ -28,7 +28,18 @@ jQuery(document).ready(function () {
         // TODO: remember last order by
         var data = QueryLogAnalysis.dataForAjax(1, $('#order-by').val());
 
-        loadViaAjax('/querylog/analyze/search', data, 'html', $('#queries-list'));
+        if(data.startDate === "") {
+            $('#start-date').focus();
+            return;
+        }
+        if(data.endDate === "") {
+            $('#end-date').focus();
+            return;
+        }
+
+        loadViaAjax('/querylog/analyze/search', data, 'html', $('#queries-list'), null, null, function () {
+            hljs.initHighlighting();
+        });
     });
 
     $('body').on('click', 'a[data-pgno]', function(e) {
@@ -89,5 +100,9 @@ jQuery(document).ready(function () {
     });
 
     $('.date-picker').datepicker();
+
+    hljs.configure({
+        languages: ["SQL"]
+    });
 });
 

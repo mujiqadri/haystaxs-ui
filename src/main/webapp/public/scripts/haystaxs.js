@@ -118,8 +118,10 @@ $(function () {
         }
     });
 
-    dataModel = new Haystaxs.DataModel(loadViaAjax([['/workload/json/' + $('#workload-id').val()]], null, "json", null, false));
-    dataLoadSuccessful();
+    loadViaAjax('/workload/json/' + $('#workload-id').val(), null, "json", null, null, null, function(result) {
+        dataModel = new Haystaxs.DataModel(result);
+        dataLoadSuccessful();
+    });
 });
 
 /// GLOBAL VARIABLES ///

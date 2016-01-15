@@ -2,8 +2,10 @@ package com.haystaxs.ui.web.controllers;
 
 import com.haystaxs.ui.business.entities.*;
 import com.haystaxs.ui.business.entities.repositories.*;
+import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDates;
 import com.haystaxs.ui.business.services.HaystaxsLibService;
 import com.haystaxs.ui.business.services.QueryLogService;
+import com.haystaxs.ui.support.JsonResponse;
 import com.haystaxs.ui.support.PaginationInfo;
 import com.haystaxs.ui.support.UploadedFileInfo;
 import com.haystaxs.ui.util.AppConfig;
@@ -12,7 +14,6 @@ import com.haystaxs.ui.util.MiscUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -69,7 +71,7 @@ public class HomeController {
     @Autowired
     private QueryLogService queryLogService;
     @Autowired
-    private HaystaxsLibService haystaxsLibService;
+    private HaystaxsLibService haystaxsLibServiceWrapper;
     //endregion
 
     //region ### Controller Level Model Attributes ###
@@ -113,11 +115,14 @@ public class HomeController {
 
     @RequestMapping("/dashboard/ql/chartdata")
     @ResponseBody
-    public List<UserQueryChartData> dashboardQueryLogChartData() {
-        List<UserQueryChartData> result = userDatabaseRepository.getQueriesForChart(getNormalizedUserName());
+    public List<UserQueryChartData> dashboardQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                                               @RequestParam(value = "toDate", required = false) String toDate) {
+        List<UserQueryChartData> result = userDatabaseRepository.getQueryStatsForChart(getNormalizedUserName());
 
         return(result);
     }
+
+
     //endregion
 
     //region ### GPSD Actions ###
@@ -156,7 +161,7 @@ public class HomeController {
             fileUtil.saveMultipartFileToPath(gpsdFile, gpsdFileDirectory, originalFileName);
 
             logger.trace("About to invoke Async method createGPSD.");
-            haystaxsLibService.createGPSD(newGpsdId, normalizedUserName, gpsdFilePath);
+            haystaxsLibServiceWrapper.createGPSD(newGpsdId, normalizedUserName, gpsdFilePath);
             // TODO: Assuming GPSD has been created successfully, do an entry in user inbox (should be done by Muji ?)
             logger.trace("createGPSD invoked as a separate thread.");
         } catch (Exception e) {
@@ -373,7 +378,7 @@ public class HomeController {
         }
 
         // TODO: Once analyzed put entries in user inbox (Muji or me ?)
-        haystaxsLibService.analyzeQueryLogs(extractedQueryLogFiles);
+        haystaxsLibServiceWrapper.analyzeQueryLogs(extractedQueryLogFiles);
 
         files.put("files", uploadedFileInfos);
         return files;
@@ -395,17 +400,27 @@ public class HomeController {
         return "fragments/user_queries_by_cat_list";
     }
 
-    @RequestMapping("/querylog/analyze/{date}")
-    public String queryLogAnalysis(@PathVariable("date") String forDate,
+    @RequestMapping("/querylog/analyze")
+    public String analyzeQueryLog(@RequestParam(value = "date", required = false) String forDate,
                                    Model model) {
         model.addAttribute("title", "Analyze Queries");
 
-        model.addAttribute("forDate", forDate);
+        if(forDate != null && !forDate.isEmpty()) {
+            model.addAttribute("forDate", forDate);
+        }
         // For QueryTypes Filter Dropdown..
-        model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
+        //model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
+        model.addAttribute("queryTypes", userDatabaseRepository.getAllQueryTypes());
+        try {
+            model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getNormalizedUserName()));
+            model.addAttribute("userNames", userDatabaseRepository.getUserNames(getNormalizedUserName()));
+        } catch(Exception ex) {
+
+        }
 
         return "querylog_analysis";
     }
+
 
     @Layout(value = "", enabled = false)
     @RequestMapping("/querylog/analyze/search")
@@ -445,16 +460,25 @@ public class HomeController {
     //region ### Workload Actions ###
     @RequestMapping(value = "/workload/create", method = RequestMethod.GET)
     public String newWorkload(Workload workload, Model model) {
+        model.addAttribute("title", "Create Workoad");
+
         List<String> distinctGpsds = gpsdRepository.getAllDistinct(getUserId());
 
+        QueryLogMinMaxDates queryLogMinMaxDates = queryLogRespository.getQueryLogMinMaxDates(getNormalizedUserName());
+
+        // TODO: Define this formatter at the class level
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+
         model.addAttribute("distinctGpsds", distinctGpsds);
+        model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
+        model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
 
         return "workload_create";
     }
 
     @RequestMapping(value = "/workload/create", method = RequestMethod.POST)
     @ResponseBody
-    public String createWorkload(@RequestParam("dbName") String dbName,
+    public JsonResponse createWorkload(@RequestParam("dbName") String dbName,
                                  @RequestParam("fromDate") String fromDate,
                                  @RequestParam("toDate") String toDate,
                                  Model model) {
@@ -463,7 +487,7 @@ public class HomeController {
         try {
             maxGpsdId = gpsdRepository.getMaxGpsdIdByName(getUserId(), dbName);
         } catch (Exception ex) {
-            return "NO GPSD Found with dbName = " + dbName;
+            return new JsonResponse(JsonResponse.FAILURE, "NO GPSD Found with dbName = " + dbName);
         }
 
         SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("dd-MMM-yyyy");
@@ -476,31 +500,22 @@ public class HomeController {
         } catch (ParseException e) {
             // TODO
             e.printStackTrace();
-
-            return "Invalid date submitted";
+            return new JsonResponse(JsonResponse.FAILURE, "Invalid date submitted");
         }
 
         int newWorkloadId = workloadRepository.createNew(getUserId(), workload);
 
-        String modelJson = haystaxsLibService.processWorkload(newWorkloadId);
+        haystaxsLibServiceWrapper.processWorkload(newWorkloadId, getNormalizedUserName());
 
-        if(modelJson != null) {
-            workloadRepository.setCompletedOn(newWorkloadId);
+        return new JsonResponse(JsonResponse.SUCCESS, "Workload Submitted", Integer.toString(newWorkloadId));
+    }
 
-            String jsonFileBaseDir = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator
-                    + "workloads" + File.separator;
+    @RequestMapping("/workload/progress")
+    @ResponseBody
+    public JsonResponse workloadProgress(@RequestParam("workloadId") int workloadId) {
+        int progressPercent = workloadRepository.getWorkloadProgress(workloadId);
 
-            try {
-                fileUtil.saveToFile(modelJson.getBytes(), jsonFileBaseDir, Integer.toString(newWorkloadId) + ".json");
-            } catch (IOException e) {
-                // TODO: log the error
-                e.printStackTrace();
-            }
-
-            return "Success";
-        }
-
-        return "Failed to generate Model JSON, Check Logs";
+        return new JsonResponse(JsonResponse.SUCCESS, Integer.toString(progressPercent));
     }
 
     @RequestMapping(value = "/workload/json/{id}", method = RequestMethod.GET)
@@ -519,28 +534,44 @@ public class HomeController {
 
         return result;
     }
+
+    @RequestMapping("/workloads/list")
+    public String visualizeWorkloads(Model model) {
+        model.addAttribute("title", "Processed Workloads");
+        List<Workload> workloads = workloadRepository.getLastnWorkloads(getUserId(), 10);
+        model.addAttribute("workloads", workloads);
+
+        return "visualize_workloads";
+    }
     //endregion
 
     @RequestMapping("/visualizer/{wlId}")
     public String showInVisualizer(@PathVariable("wlId") int workloadId, Model model) {
         model.addAttribute("title", "Visualizer");
-
         model.addAttribute("workloadId", workloadId);
 
         return "visualizer";
     }
 
-    @ExceptionHandler(Throwable.class)
+    /*@ExceptionHandler(Throwable.class)
     public String handleException(Throwable t) {
         return "redirect:/errorPages/500.jsp";
-    }
+    }*/
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException1(Throwable t) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("errorMsg", t.toString());
+        modelAndView.addObject("stackTrace", t.getStackTrace());
         modelAndView.setViewName("error");
 
         return modelAndView;
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseBody
+    public String handleMyException(Exception exception) {
+        logger.debug(exception.getMessage());
+        return exception.getMessage();
     }
 }

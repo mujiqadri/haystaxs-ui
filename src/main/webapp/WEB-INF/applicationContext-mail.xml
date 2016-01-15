@@ -7,12 +7,12 @@
        <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
               <property name="host" value="smtp.mandrillapp.com"/>
               <property name="port" value="587"/>
-              <property name="username" value="dev.admin@danatev.com"/>
-              <property name="password" value="EY1FUS0iRM_J0ZbwQahK7g"/>
+              <property name="username" value="adnanshussain@gmail.com"/>
+              <property name="password" value="06PcvGwrhAuY_nCwNWqUag"/>
        </bean>
 
        <!-- this is a template message that we can pre-load with default state -->
        <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
-              <property name="from" value="system@haystaxs.com"/>
+              <property name="from" value="system@argaam.com"/>
        </bean>
 </beans>

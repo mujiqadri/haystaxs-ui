@@ -6,16 +6,25 @@ import org.springframework.beans.propertyeditors.StringArrayPropertyEditor;
  * Created by adnan on 11/20/15.
  */
 public class JsonResponse {
+    public static final String SUCCESS = "success";
+    public static final String FAILURE = "failure";
+    public static final String DONE = "done";
+
     private String result;
+    private String message;
     private String additionalInfo;
-    private String exceptionMessage;
 
     public JsonResponse(String result) {
         this.result = result;
     }
 
-    public JsonResponse(String result, String additionalInfo) {
+    public JsonResponse(String result, String message) {
         this(result);
+        this.message = message;
+    }
+
+    public  JsonResponse(String result, String message, String additionalInfo) {
+        this(result, message);
         this.additionalInfo = additionalInfo;
     }
 
@@ -27,19 +36,11 @@ public class JsonResponse {
         this.result = result;
     }
 
-    public String getAdditionalInfo() {
-        return additionalInfo;
+    public String getMessage() {
+        return message;
     }
 
-    public void setAdditionalInfo(String additionalInfo) {
-        this.additionalInfo = additionalInfo;
-    }
-
-    public String getExceptionMessage() {
-        return exceptionMessage;
-    }
-
-    public void setExceptionMessage(String exceptionMessage) {
-        this.exceptionMessage = exceptionMessage;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
