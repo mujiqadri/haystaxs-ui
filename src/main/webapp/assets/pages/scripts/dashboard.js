@@ -173,123 +173,176 @@ function initAmChartSample() {
 }
 
 function initQueryLogDurationChart() {
+
     if (typeof(AmCharts) === 'undefined' || $('#querylog-duration-chart').size() === 0) {
         return;
     }
 
-    var chart = AmCharts.makeChart("querylog-duration-chart", {
-        type: "serial",
-        fontSize: 12,
-        fontFamily: "Open Sans",
-        dataDateFormat: "DD-MM-YYYY",
-        //dataProvider: chartData,
-        dataLoader: {
-            "url": App.webAppPath + "/dashboard/ql/chartdata",
-            "format": "json"
-        },
+    var rawChartData = [];
 
-        categoryField: "date",
-        categoryAxis: {
-            parseDates: true,
-            minPeriod: "DD",
-            autoGridCount: true,
-            gridCount: 10,
-            gridAlpha: 0.1,
-            gridColor: "#FFFFFF",
-            axisColor: "#555555",
-            dateFormats: [{
-                period: 'DD',
-                format: 'DD'
-            }, {
-                period: 'WW',
-                format: 'MMM DD'
-            }, {
-                period: 'MM',
-                format: 'MMM'
-            }, {
-                period: 'YYYY',
-                format: 'YYYY'
-            }]
-        },
-
-        valueAxes: [{
-            id: "a1",
-            title: "Duration (Secs)",
-            gridAlpha: 0.2,
-            axisAlpha: 0
-        }],
-
-        graphs: [{
-            id: "g1",
-            valueField: "totalDuration",
-            title: "Total Duration",
-            type: "line",
-            fillAlphas: 0.2,
-            valueAxis: "a1",
-            bullet: "round",
-            bulletSizeField: "townSize",
-            bulletBorderColor: "blue",
-            bulletBorderAlpha: 1,
-            bulletBorderThickness: 1,
-            bulletColor: "lightblue",
-            balloonText: "[[value]] Seconds",
-            legendValueText: "[[value]]",
-            //legendPeriodValueText: "total: [[value.sum]] mi",
-            lineColor: "#08a3cc",
-            alphaField: "alpha"
-        }, {
-            id: "g2",
-            valueField: "selectDuration",
-            classNameField: "bulletClass",
-            title: "Select Duration",
-            type: "line",
-            fillAlphas: 0.2,
-            valueAxis: "a1",
-            balloonText: "[[value]]",
-            legendValueText: "[[value]]",
-            //legendPeriodValueText: "total: [[value.sum]] mi",
-            lineColor: "green",
-            alphaField: "alpha"
-        }, {
-            id: "g3",
-            valueField: "insertDuration",
-            title: "Insert Duration",
-            type: "line",
-            fillAlphas: 0.2,
-            valueAxis: "a1",
-            balloonText: "[[value]]",
-            legendValueText: "[[value]]",
-            //legendPeriodValueText: "total: [[value.sum]] mi",
-            lineColor: "yellow",
-            alphaField: "alpha"
-        }, {
-            id: "g4",
-            valueField: "dropTableDuration",
-            title: "Drop Table Duration",
-            type: "line",
-            fillAlphas: 0.2,
-            valueAxis: "a1",
-            balloonText: "[[value]]",
-            legendValueText: "[[value]]",
-            //legendPeriodValueText: "total: [[value.sum]] mi",
-            lineColor: "red",
-            alphaField: "alpha"
-        }],
-
-        chartCursor: {
-            zoomable: true,
-            categoryBalloonDateFormat: "MMM DD",
-            cursorAlpha: 0,
-            categoryBalloonColor: "#e26a6a",
-            categoryBalloonAlpha: 0.8,
-            valueBalloonsEnabled: false
-        },
-
-        legend: {
-            useGraphSettings: true,
-            valueWidth: 120
-        }
+    loadViaAjax('/dashboard/ql/chartdata', null, 'json', null, null, null, function (result) {
+        rawChartData = result;
+        var sequencer = rawChartData[rawChartData.length-1];
+        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length-1));
     });
+
+    var getGraphsArray = function(sequencer, topN) {
+        var graphs = [];
+        var durations = [];
+
+        for(var type in sequencer) {
+            if(type.endsWith('Duration') && type !== 'totalDuration') {
+                var o = {};
+                o[type] = sequencer[type];
+                durations.push(o)
+            }
+        }
+
+        var durationsSorted = durations.sort(function(a, b) { return(b[Object.keys(b)[0]] - a[Object.keys(a)[0]]); });
+
+        var colorSegments = [0, 60, 120, 180, 240, 300];
+        for(var index in durationsSorted) {
+            var qryTypeCount = durationsSorted[index][Object.keys(durationsSorted[index])[0]];
+            if(qryTypeCount === 0) {
+                continue;
+            }
+            if(topN && topN == index) {
+                break;
+            }
+
+            var qryType = Object.keys(durationsSorted[index])[0];
+            var qryTypeProperties = getQueryTypeProperties(qryType);
+
+            var colorSegment = colorSegments[Math.floor(Math.random() * 6)];
+            var hue = Math.floor(Math.random() * 22.5) + (22.5 * index);
+            var pastel = 'hsl(' + hue + ', 100%, 65%)';
+
+            var g = {
+                valueField: qryType,
+                title: qryTypeProperties["title"],
+                type: "line",
+                fillAlphas: 0.2,
+                valueAxis: "va1",
+                legendValueText: "[[value]]",
+                lineColor: pastel,
+                lineThickness: 1.5
+            };
+
+            graphs.push(g);
+        }
+
+        return(graphs);
+    }
+
+    var getQueryTypeProperties = function(qryType) {
+        switch (qryType) {
+            case "selectDuration": return({ title: "Select" });
+            case "analyzeDuration": return({ title: "Analyze" });
+            case "commitDuration": return({ title: "Commit" });
+            case "createExternalTableDuration": return({ title: "Create Ext Tbl" });
+            case "createTableDuration": return({ title: "Create Tbl" });
+            case "deleteDuration": return({ title: "Delete" });
+            case "dropTableDuration": return({ title: "Drop Tbl" });
+            case "exclusiveLockDuration": return({ title: "Ex Lock" });
+            case "insertDuration": return({ title: "Insert" });
+            case "internalDuration": return({ title: "Internal" });
+            case "othersDuration": return({ title: "Other" });
+            case "showConfigurationDuration": return({ title: "Show Config" });
+            case "showDuration": return({ title: "Show" });
+            case "transactionOperationDuration": return({ title: "Tx Op" });
+            case "truncateTableDuration": return({ title: "Truncate Tbl" });
+            case "updateDuration": return({ title: "Update" });
+        }
+    }
+
+    var makeChart = function(graphs, chartData) {
+        debugger;
+        var chart = AmCharts.makeChart("querylog-duration-chart", {
+            type: "serial",
+            fontSize: 12,
+            fontFamily: "Open Sans",
+            dataDateFormat: "DD-MM-YYYY",
+            dataProvider: chartData,
+            /*dataLoader: {
+             "url": App.webAppPath + "/dashboard/ql/chartdata",
+             "format": "json"
+             },*/
+
+            categoryField: "date",
+            categoryAxis: {
+                parseDates: true,
+                minPeriod: "DD",
+                autoGridCount: true,
+                //gridCount: 10,
+                gridAlpha: 0.1,
+                gridColor: "#FFFFFF",
+                axisColor: "#555555",
+                dateFormats: [{
+                    period: 'DD',
+                    format: 'DD'
+                }, {
+                    period: 'WW',
+                    format: 'MMM DD'
+                }, {
+                    period: 'MM',
+                    format: 'MMM'
+                }, {
+                    period: 'YYYY',
+                    format: 'YYYY'
+                }]
+            },
+
+            valueAxes: [{
+                id: "va1",
+                title: "Duration (Secs)",
+                gridAlpha: 0.2,
+                axisAlpha: 0
+            }],
+
+            graphs: graphs/*[{
+                id: "g1",
+                valueField: "selectDuration",
+                title: "Select",
+                type: "line",
+                fillAlphas: 0.75,
+                valueAxis: "va1",
+                legendValueText: "[[value]]",
+                lineColor: "#44B4D5"
+            }, {
+                id: "g2",
+                valueField: "dropTableDuration",
+                title: "Drop Tbl",
+                type: "line",
+                fillAlphas: 0.75,
+                valueAxis: "va1",
+                legendValueText: "[[value]]",
+                lineColor: "#AE70ED"
+            }, {
+                id: "g3",
+                valueField: "createExternalTableDuration",
+                title: "Ext Tbl",
+                type: "line",
+                fillAlphas: 0.75,
+                valueAxis: "va1",
+                legendValueText: "[[value]]",
+                lineColor: "#FF3542"
+            }]*/,
+
+            chartCursor: {
+                //zoomable: true,
+                categoryBalloonDateFormat: "MMM DD",
+                cursorAlpha: 0.25,
+                //categoryBalloonColor: "#e26a6a",
+                categoryBalloonAlpha: 0.75,
+                valueBalloonsEnabled: false
+            },
+
+            legend: {
+                valueAlign: "left",
+                //enabled: false
+            }
+        });
+    }
 }
 
 function initQueryLogCountChart() {
@@ -688,7 +741,7 @@ function initHourlyQueriesChart() {
 $(function () {
     initQueryLogDurationChart();
 
-    initQueryLogCountChart();
+    //initQueryLogCountChart();
 
     initGpsdGrowthChart();
 

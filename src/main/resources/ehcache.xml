@@ -10,7 +10,7 @@
            maxEntriesLocalHeap="250"
            maxEntriesLocalDisk="25"
            eternal="false"
-           timeToIdleSeconds="300"
+           timeToIdleSeconds="600"
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU">
 

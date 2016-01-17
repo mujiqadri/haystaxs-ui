@@ -38,6 +38,7 @@ jQuery(document).ready(function () {
         }
 
         loadViaAjax('/querylog/analyze/search', data, 'html', $('#queries-list'), null, null, function () {
+            hljs.initHighlighting.called = false;
             hljs.initHighlighting();
         });
     });
@@ -75,7 +76,10 @@ jQuery(document).ready(function () {
 
         var data = QueryLogAnalysis.dataForAjax(currentPageNo, $('#order-by').val());
 
-        loadViaAjax('/querylog/analyze/search', data, 'html', $('#queries-list'));
+        loadViaAjax('/querylog/analyze/search', data, 'html', $('#queries-list'), null, null, function () {
+            hljs.initHighlighting.called = false;
+            hljs.initHighlighting();
+        });
 
         /*if($('#current-page-display')) {
             $('#current-page-display').text('Page ' + currentPageNo + ' of ' + totalNoOfPages);

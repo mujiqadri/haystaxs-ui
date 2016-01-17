@@ -135,40 +135,40 @@ public class UserDatabaseRepository extends RepositoryBase {
     @Cacheable(value = "dataCache")
     public List<UserQueryChartData> getQueryStatsForChart(String normalizedUserName) {
         String sql = String.format("SELECT DATE,\n" +
-                "       sum(TOTAL_DURATION) TOTAL_DURATION,\n" +
-                "       sum(TOTAL_COUNT) TOTAL_COUNT,\n" +
-                "       sum(ANALYZE_DURATION) ANALYZE_DURATION,\n" +
-                "        sum(ANALYZE_COUNT) ANALYZE_COUNT,\n" +
-                "       sum(COMMIT_DURATION) COMMIT_DURATION,\n" +
-                "        sum(COMMIT_COUNT) COMMIT_COUNT,\n" +
-                "       sum(CREATE_EXTERNAL_TABLE_DURATION) CREATE_EXTERNAL_TABLE_DURATION,\n" +
-                "        sum(CREATE_EXTERNAL_TABLE_COUNT) CREATE_EXTERNAL_TABLE_COUNT,\n" +
-                "       sum(CREATE_TABLE_DURATION) CREATE_TABLE_DURATION,\n" +
-                "        sum(CREATE_TABLE_COUNT) CREATE_TABLE_COUNT,\n" +
-                "       sum(DELETE_DURATION) DELETE_DURATION,\n" +
-                "        sum(DELETE_COUNT) DELETE_COUNT,\n" +
-                "       sum(DROP_TABLE_DURATION) DROP_TABLE_DURATION,\n" +
-                "        sum(DROP_TABLE_COUNT) DROP_TABLE_COUNT,\n" +
-                "       sum(EXCLUSIVE_LOCK_DURATION) EXCLUSIVE_LOCK_DURATION,\n" +
-                "        sum(EXCLUSIVE_LOCK_COUNT) EXCLUSIVE_LOCK_COUNT,\n" +
-                "       sum(INSERT_DURATION) INSERT_DURATION,\n" +
-                "        sum(INSERT_COUNT) INSERT_COUNT,\n" +
-                "       sum(INTERNAL_DURATION) INTERNAL_DURATION,\n" +
-                "        sum(INTERNAL_COUNT) INTERNAL_COUNT,\n" +
-                "       sum(OTHERS_DURATION) OTHERS_DURATION,\n" +
-                "        sum(OTHERS_COUNT) OTHERS_COUNT,\n" +
-                "       sum(SELECT_DURATION) SELECT_DURATION,\n" +
-                "        sum(SELECT_COUNT) SELECT_COUNT,\n" +
-                "       sum(SHOW_CONFIGURATION_DURATION) SHOW_CONFIGURATION_DURATION,\n" +
-                "        sum(SHOW_CONFIGURATION_COUNT) SHOW_CONFIGURATION_COUNT,\n" +
-                "       sum(SHOW_DURATION) SHOW_DURATION,\n" +
-                "        sum(SHOW_COUNT) SHOW_COUNT,\n" +
-                "       sum(TRANSACTION_OPERATION_DURATION) TRANSACTION_OPERATION_DURATION,\n" +
-                "        sum(TRANSACTION_OPERATION_COUNT) TRANSACTION_OPERATION_COUNT,\n" +
-                "       sum(TRUNCATE_TABLE_DURATION) TRUNCATE_TABLE_DURATION,\n" +
-                "        sum(TRUNCATE_TABLE_COUNT) TRUNCATE_TABLE_COUNT,\n" +
-                "       sum(UPDATE_DURATION) UPDATE_DURATION,\n" +
-                "        sum(UPDATE_COUNT) UPDATE_COUNT\n" +
+                "       coalesce(sum(TOTAL_DURATION), 0) TOTAL_DURATION,\n" +
+                "       coalesce(sum(TOTAL_COUNT), 0) TOTAL_COUNT,\n" +
+                "       coalesce(sum(ANALYZE_DURATION), 0) ANALYZE_DURATION,\n" +
+                "       coalesce(sum(ANALYZE_COUNT), 0) ANALYZE_COUNT,\n" +
+                "       coalesce(sum(COMMIT_DURATION), 0) COMMIT_DURATION,\n" +
+                "       coalesce(sum(COMMIT_COUNT), 0) COMMIT_COUNT,\n" +
+                "       coalesce(sum(CREATE_EXTERNAL_TABLE_DURATION), 0) CREATE_EXTERNAL_TABLE_DURATION,\n" +
+                "       coalesce(sum(CREATE_EXTERNAL_TABLE_COUNT), 0) CREATE_EXTERNAL_TABLE_COUNT,\n" +
+                "       coalesce(sum(CREATE_TABLE_DURATION), 0) CREATE_TABLE_DURATION,\n" +
+                "       coalesce(sum(CREATE_TABLE_COUNT), 0) CREATE_TABLE_COUNT,\n" +
+                "       coalesce(sum(DELETE_DURATION), 0) DELETE_DURATION,\n" +
+                "       coalesce(sum(DELETE_COUNT), 0) DELETE_COUNT,\n" +
+                "       coalesce(sum(DROP_TABLE_DURATION), 0) DROP_TABLE_DURATION,\n" +
+                "       coalesce(sum(DROP_TABLE_COUNT), 0) DROP_TABLE_COUNT,\n" +
+                "       coalesce(sum(EXCLUSIVE_LOCK_DURATION), 0) EXCLUSIVE_LOCK_DURATION,\n" +
+                "       coalesce(sum(EXCLUSIVE_LOCK_COUNT), 0) EXCLUSIVE_LOCK_COUNT,\n" +
+                "       coalesce(sum(INSERT_DURATION), 0) INSERT_DURATION,\n" +
+                "       coalesce(sum(INSERT_COUNT), 0) INSERT_COUNT,\n" +
+                "       coalesce(sum(INTERNAL_DURATION), 0) INTERNAL_DURATION,\n" +
+                "       coalesce(sum(INTERNAL_COUNT), 0) INTERNAL_COUNT,\n" +
+                "       coalesce(sum(OTHERS_DURATION), 0) OTHERS_DURATION,\n" +
+                "       coalesce(sum(OTHERS_COUNT), 0) OTHERS_COUNT,\n" +
+                "       coalesce(sum(SELECT_DURATION), 0) SELECT_DURATION,\n" +
+                "       coalesce(sum(SELECT_COUNT), 0) SELECT_COUNT,\n" +
+                "       coalesce(sum(SHOW_CONFIGURATION_DURATION), 0) SHOW_CONFIGURATION_DURATION,\n" +
+                "       coalesce(sum(SHOW_CONFIGURATION_COUNT), 0) SHOW_CONFIGURATION_COUNT,\n" +
+                "       coalesce(sum(SHOW_DURATION), 0) SHOW_DURATION,\n" +
+                "       coalesce(sum(SHOW_COUNT), 0) SHOW_COUNT,\n" +
+                "       coalesce(sum(TRANSACTION_OPERATION_DURATION), 0) TRANSACTION_OPERATION_DURATION,\n" +
+                "       coalesce(sum(TRANSACTION_OPERATION_COUNT), 0) TRANSACTION_OPERATION_COUNT,\n" +
+                "       coalesce(sum(TRUNCATE_TABLE_DURATION), 0) TRUNCATE_TABLE_DURATION,\n" +
+                "       coalesce(sum(TRUNCATE_TABLE_COUNT), 0) TRUNCATE_TABLE_COUNT,\n" +
+                "       coalesce(sum(UPDATE_DURATION), 0) UPDATE_DURATION,\n" +
+                "       coalesce(sum(UPDATE_COUNT), 0) UPDATE_COUNT\n" +
                 "FROM (\n" +
                 "       select logsessiontime as DATE,\n" +
                 "              CASE WHEN qrytype IS NULL THEN  duration END as TOTAL_DURATION,\n" +
@@ -207,14 +207,14 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "              CASE WHEN qrytype = 'UPDATE' THEN count END as UPDATE_COUNT\n" +
                 "\n" +
                 "       FROM (\n" +
-                "              select logsessiontime::date, qrytype, count(0), coalesce(sum(extract(epoch from logduration)),0) as duration\n" +
+                "              select logsessiontime::date, qrytype, count(0), round(coalesce(sum(extract(epoch from logduration)),0)) as duration\n" +
                 "              from %s.queries\n" +
-                "              --where logsessiontime::date between '2015-01-01' and '2016-01-01'\n" +
+                "              --where logsessiontime::date between '2015-10-01' and '2015-11-01'\n" +
                 "              group by rollup(logsessiontime::date, qrytype)\n" +
                 "            ) AS Y\n" +
                 "     ) AS X\n" +
                 "where DATE IS NOT NULL\n" +
-                "group by date\n" +
+                "group by rollup(date)\n" +
                 "order by date;\n", normalizedUserName);
 
         List<UserQueryChartData> result = jdbcTemplate.query(sql, new UserQueryChartDataRowMapper());

@@ -22,3 +22,6 @@ Spring File upload
 
 Spring MVC Custom Parameter Resolution
     https://sergialmar.wordpress.com/2011/03/29/extending-handler-method-argument-resolution-in-spring-mvc/
+
+HTML Colours
+    http://www.computerhope.com/htmcolor.htm
