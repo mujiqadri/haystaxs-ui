@@ -122,6 +122,14 @@ public class HomeController {
         return(result);
     }
 
+    @RequestMapping("/dashboard/ql/hourlyavgchartdata")
+    @ResponseBody
+    public List<UserQueryChartData> hourlyAvgQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                                               @RequestParam(value = "toDate", required = false) String toDate) {
+        List<UserQueryChartData> result = userDatabaseRepository.getHourlyAvgQueryStatsForChart(getNormalizedUserName());
+
+        return(result);
+    }
 
     //endregion
 

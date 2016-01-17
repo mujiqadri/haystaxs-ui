@@ -25,3 +25,4 @@ Spring MVC Custom Parameter Resolution
 
 HTML Colours
     http://www.computerhope.com/htmcolor.htm
+    http://thenewcode.com/61/An-Easy-Guide-To-HSL-Color-In-CSS3

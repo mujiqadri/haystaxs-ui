@@ -2,13 +2,12 @@ package com.haystaxs.ui.business.entities.repositories;
 
 import com.haystaxs.ui.business.entities.UserQueryChartData;
 import com.haystaxs.ui.business.entities.UserQuery;
-import com.haystaxs.ui.business.entities.repositories.rowmappers.GpsdRowMapper;
-import com.haystaxs.ui.business.entities.repositories.rowmappers.UserQueryChartDataRowMapper;
+import com.haystaxs.ui.business.entities.repositories.rowmappers.HourlyAvgQueryChartDataMapper;
+import com.haystaxs.ui.business.entities.repositories.rowmappers.TimelineQueryChartDataMapper;
 import com.haystaxs.ui.business.entities.selection.QueryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -217,7 +216,64 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "group by rollup(date)\n" +
                 "order by date;\n", normalizedUserName);
 
-        List<UserQueryChartData> result = jdbcTemplate.query(sql, new UserQueryChartDataRowMapper());
+        List<UserQueryChartData> result = jdbcTemplate.query(sql, new TimelineQueryChartDataMapper());
+
+        return result;
+    }
+
+    @Cacheable(value = "dataCache")
+    public List<UserQueryChartData> getHourlyAvgQueryStatsForChart(String normalizedUserName) {
+        String sql = String.format("select \n" +
+                "\tdate,\n" +
+                "\tcoalesce(sum(ANALYZE_DURATION), 0) ANALYZE_DURATION,\n" +
+                "\tcoalesce(sum(COMMIT_DURATION), 0) COMMIT_DURATION,\n" +
+                "\tcoalesce(sum(CREATE_EXTERNAL_TABLE_DURATION), 0) CREATE_EXTERNAL_TABLE_DURATION,\n" +
+                "\tcoalesce(sum(CREATE_TABLE_DURATION), 0) CREATE_TABLE_DURATION,\n" +
+                "\tcoalesce(sum(DELETE_DURATION), 0) DELETE_DURATION,\n" +
+                "\tcoalesce(sum(DROP_TABLE_DURATION), 0) DROP_TABLE_DURATION,\n" +
+                "\tcoalesce(sum(EXCLUSIVE_LOCK_DURATION), 0) EXCLUSIVE_LOCK_DURATION,\n" +
+                "\tcoalesce(sum(INSERT_DURATION), 0) INSERT_DURATION,\n" +
+                "\tcoalesce(sum(INTERNAL_DURATION), 0) INTERNAL_DURATION,\n" +
+                "\tcoalesce(sum(OTHERS_DURATION), 0) OTHERS_DURATION,\n" +
+                "\tcoalesce(sum(SELECT_DURATION), 0) SELECT_DURATION,\n" +
+                "\tcoalesce(sum(SHOW_CONFIGURATION_DURATION), 0) SHOW_CONFIGURATION_DURATION,\n" +
+                "\tcoalesce(sum(SHOW_DURATION), 0) SHOW_DURATION,\n" +
+                "\tcoalesce(sum(TRANSACTION_OPERATION_DURATION), 0) TRANSACTION_OPERATION_DURATION,\n" +
+                "\tcoalesce(sum(TRUNCATE_TABLE_DURATION), 0) TRUNCATE_TABLE_DURATION,\n" +
+                "\tcoalesce(sum(UPDATE_DURATION), 0) UPDATE_DURATION\n" +
+                "FROM (\t\n" +
+                "\tselect \n" +
+                "\t\tdate,\n" +
+                "\t\tCASE WHEN qrytype = 'ANALYZE' THEN duration END as ANALYZE_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'COMMIT' THEN duration END as COMMIT_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'CREATE EXTERNAL TABLE' THEN duration END as CREATE_EXTERNAL_TABLE_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'CREATE TABLE' THEN duration END as CREATE_TABLE_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'DELETE' THEN duration END as DELETE_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'DROP TABLE' THEN duration END as DROP_TABLE_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'EXCLUSIVE LOCK' THEN duration END as EXCLUSIVE_LOCK_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'INSERT' THEN duration END as INSERT_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'INTERNAL' THEN duration END as INTERNAL_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'OTHERS' THEN duration END as OTHERS_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'SELECT' THEN duration END as SELECT_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'SHOW CONFIGURATION' THEN duration END as SHOW_CONFIGURATION_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'SHOW' THEN duration END as SHOW_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'TRANSACTION-OPERATION' THEN duration END as TRANSACTION_OPERATION_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'TRUNCATE TABLE' THEN duration END as TRUNCATE_TABLE_DURATION,\n" +
+                "\t\tCASE WHEN qrytype = 'UPDATE' THEN duration END as UPDATE_DURATION\n" +
+                "\tFROM (\n" +
+                "\t\tselect qrytype, extract(hour from logsessiontime) as date, round(avg(extract(epoch from logduration))) as duration\n" +
+                "\t\tfrom tpcds_at_gmail_dot_com.queries\n" +
+                "\t\twhere extract(epoch from logduration) > 0\n" +
+                "\t\t--and logsessiontime < '2016-11-01' and logsessiontime >= '2015-10-01'\n" +
+                "\t\t--and logsessiontime::date between '2015-10-01' and '2015-11-01'\n" +
+                "\t\tgroup by EXTRACT(hour from logsessiontime),qrytype\n" +
+                "\t\tORDER BY EXTRACT(hour from logsessiontime) ,qrytype\n" +
+                "\t) AS A\n" +
+                ") AS B\n" +
+                "group by rollup(date)\n" +
+                "order by date", normalizedUserName);
+
+        List<UserQueryChartData> result = jdbcTemplate.query(sql, new HourlyAvgQueryChartDataMapper());
 
         return result;
     }
