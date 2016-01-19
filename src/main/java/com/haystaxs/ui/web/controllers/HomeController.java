@@ -412,7 +412,7 @@ public class HomeController {
         model.addAttribute("title", "Analyze Queries");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
-            SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("hh:mm");
+            SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
 
         QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getNormalizedUserName());
 
@@ -423,7 +423,7 @@ public class HomeController {
             model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
             model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
             model.addAttribute("minTime", simpleTimeFormat.format(queryLogMinMaxDates.getMinTime()));
-            model.addAttribute("maxTime", simpleTimeFormat.format(queryLogMinMaxDates.getMaxDate()));
+            model.addAttribute("maxTime", simpleTimeFormat.format(queryLogMinMaxDates.getMaxTime()));
         }
         // For QueryTypes Filter Dropdown..
         //model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
