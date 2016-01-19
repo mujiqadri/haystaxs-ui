@@ -2,35 +2,48 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/global/plugins/font-awesome/css/font-awesome.min.css}" href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet"
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet"
           type="text/css"/>
-    <link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}" href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
+    <link th:href="@{/assets/global/plugins/font-awesome/css/font-awesome.min.css}"
+          href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}"
+          href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
           rel="stylesheet"
           type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}" href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet"
+    <link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}"
+          href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet"
           type="text/css"/>
-    <link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}" href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet"
+    <link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}"
+          href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet"
           type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css}" href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
+    <link th:href="@{/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css}"
+          href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
           rel="stylesheet" type="text/css"/>
     <!-- END GLOBAL MANDATORY STYLES -->
     <!-- BEGIN THEME GLOBAL STYLES -->
-    <link th:href="@{/assets/global/css/components-md.min.css}" href="/assets/global/css/components-md.min.css" rel="stylesheet" id="style_components" type="text/css"/>
-    <link th:href="@{/assets/global/css/plugins-md.min.css}" href="/assets/global/css/plugins-md.min.css" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/assets/global/css/components-md.min.css}" href="/assets/global/css/components-md.min.css"
+          rel="stylesheet" id="style_components" type="text/css"/>
+    <link th:href="@{/assets/global/css/plugins-md.min.css}" href="/assets/global/css/plugins-md.min.css"
+          rel="stylesheet" type="text/css"/>
     <!-- END THEME GLOBAL STYLES -->
     <!-- BEGIN THEME LAYOUT STYLES -->
-    <link th:href="@{/assets/layouts/layout3/css/layout.min.css}" href="/assets/layouts/layout3/css/layout.min.css" rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/layouts/layout3/css/themes/default.min.css}" href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet" type="text/css"
+    <link th:href="@{/assets/layouts/layout3/css/layout.min.css}" href="/assets/layouts/layout3/css/layout.min.css"
+          rel="stylesheet" type="text/css"/>
+    <link th:href="@{/assets/layouts/layout3/css/themes/default.min.css}"
+          href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet" type="text/css"
           id="style_color"/>
-    <link th:href="@{/assets/layouts/layout3/css/custom.css}" href="/assets/layouts/layout3/css/custom.css  " rel="stylesheet" type="text/css"/>
+    <link th:href="@{/assets/layouts/layout3/css/custom.css}" href="/assets/layouts/layout3/css/custom.css  "
+          rel="stylesheet" type="text/css"/>
     <!-- END THEME LAYOUT STYLES -->
     <th:block th:fragment="page-level-styles">
         <!-- BEGIN PAGE LEVEL PLUGINS -->
         <link th:href="@{/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css}"
-              href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />
+              href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet"
+              type="text/css"/>
         <link th:href="@{/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css}"
-              href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css" />
+              href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet"
+              type="text/css"/>
         <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/styles/default.min.css"/>
         <!-- END PAGE LEVEL PLUGINS -->
     </th:block>
@@ -46,7 +59,9 @@
             <div class="container">
                 <!-- BEGIN PAGE TITLE -->
                 <div class="page-title" th:fragment="page-title">
-                    <h1 style="display: inline-block">Analyze queries for </h1>&nbsp;&nbsp;<h1 class="bold" th:text="${forDate}" style="display: inline-block"></h1>
+                    <h1 style="display: inline-block">Analyze queries for </h1>&nbsp;&nbsp;<h1 class="bold"
+                                                                                               th:text="${forDate}"
+                                                                                               style="display: inline-block"></h1>
                 </div>
                 <!-- END PAGE TITLE -->
             </div>
@@ -71,41 +86,82 @@
                     <div class="row">
                         <div class="col-lg-12" style="padding-bottom: 10px">
                             <form class="form-inline" role="form">
-                                <input type="text" id="start-date" th:value="${forDate}" class="form-control tooltips date-picker" size="8"
-                                       data-toggle="tooltip" title="Start Date" data-placement="top" data-date-format="dd-M-yyyy" />
-                                <input type="text" id="end-date" th:value="${forDate}" class="form-control tooltips date-picker" size="8"
-                                       data-toggle="tooltip" title="End Date" data-placement="top" data-date-format="dd-M-yyyy" />
-                                <input type="text" class="form-control tooltips timepicker-24" id="start-time" placeholder="Start Time" size="8"
-                                       data-toggle="tooltip" title="Start Time" data-placement="top" value="00:00" />
-                                <input type="text" class="form-control tooltips timepicker" id="end-time" placeholder="End Time" size="8"
-                                       data-toggle="tooltip" title="End Time" data-placement="top" value="23:59" />
-                                <select class="form-control tooltips" id="db-name-like">
-                                    <option value="---ANY---">---</option>
-                                    <option th:each="dbName : ${dbNames}" th:value="${dbName}" th:text="${dbName}"></option>
-                                </select>
-                                <!--<input type="text" class="form-control" id="db-name-like" placeholder="Database Name like"/>-->
-                                <select class="form-control tooltips" id="user-name-like">
-                                    <option value="---ANY---">---</option>
-                                    <option th:each="userName : ${userNames}" th:value="${userName}" th:text="${userName}"></option>
-                                </select>
-                                <!--<input type="text" class="form-control" id="user-name-like" placeholder="User Name Like"/>-->
-                                <input type="number" class="form-control" id="duration-greater-than" placeholder="Duration > than" style="width: 100px" />
-                                <input type="text" class="form-control" id="sql-like" placeholder="SQL like"/>
-                                <select class="form-control tooltips" id="query-type"
-                                        data-toggle="tooltip" title="Query Type" data-placement="top" >
-                                    <option value="ALL">ALL</option>
-                                    <option th:each="qt : ${queryTypes}" th:value="${qt}" th:text="${qt}"></option>
-                                </select>
-                                <select class="form-control" id="page-size">
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                    <option value="500">500</option>
-                                    <option value="1000">1000</option>
-                                </select>
-                                <button type="submit" class="btn btn-default blue" id="search-queries">Search</button>
-                                <input type="hidden" id="order-by" value="queryStartTime ASC"/>
-                                <input type="hidden" id="current-page-no" value="1"/>
+                                <div class="row" style="margin-bottom: 10px">
+                                    <div class="col-lg-12">
+                                        <select class="form-control tooltips" id="timespan"
+                                                data-toggle="tooltip" title="Timespan" data-placement="top"
+                                                style="width: 200px">
+                                            <option value="ALL">ALL</option>
+                                            <option value="12hr">Last 12 Hours</option>
+                                            <option value="1w">Last Week</option>
+                                            <option value="2w">Last 2 Weeks</option>
+                                            <option value="1m">Last Month</option>
+                                            <option value="3m">Last Quarter</option>
+                                            <!--<option value="ty">Current Year</option>-->
+                                                <option value="12m">Last 12 Months</option>
+                                        </select>
+                                        <input type="text" id="start-date" th:value="${minDate}"
+                                               class="form-control tooltips date-picker" size="8"
+                                               data-toggle="tooltip" title="Start Date" data-placement="top"
+                                               data-date-format="dd-M-yyyy"/>
+                                        <input type="text" id="end-date" th:value="${maxDate}"
+                                               class="form-control tooltips date-picker" size="8"
+                                               data-toggle="tooltip" title="End Date" data-placement="top"
+                                               data-date-format="dd-M-yyyy"/>
+                                        <input type="text" class="form-control tooltips timepicker-24" id="start-time"
+                                               placeholder="Start Time" size="8"
+                                               data-toggle="tooltip" title="Start Time" data-placement="top"
+                                               th:value="${minTime}"/>
+                                        <input type="text" class="form-control tooltips timepicker" id="end-time"
+                                               placeholder="End Time" size="8"
+                                               data-toggle="tooltip" title="End Time" data-placement="top"
+                                               th:value="${maxTime}"/>
+                                        <select class="form-control tooltips" id="db-name-like"
+                                                data-toggle="tooltip" title="Database Name" data-placement="top">
+                                            <option value="---ANY---">---</option>
+                                            <option th:each="dbName : ${dbNames}" th:value="${dbName}"
+                                                    th:text="${dbName}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <!--<input type="text" class="form-control" id="db-name-like" placeholder="Database Name like"/>-->
+                                        <select class="form-control tooltips" id="user-name-like"
+                                                data-toggle="tooltip" title="Username" data-placement="top" style="width: 200px">
+                                            <option value="---ANY---">---</option>
+                                            <option th:each="userName : ${userNames}" th:value="${userName}"
+                                                    th:text="${userName}"></option>
+                                        </select>
+                                        <!--<input type="text" class="form-control" id="user-name-like" placeholder="User Name Like"/>-->
+                                        <input type="number" class="form-control" id="duration-greater-than"
+                                               placeholder="Duration > than" style="width: 108px" value=""
+                                               data-toggle="tooltip" title="Duration > than" data-placement="top"/>
+                                        <input type="text" class="form-control" id="sql-like" placeholder="SQL like" style="width: 328px"/>
+                                        <select class="form-control tooltips" id="query-type"
+                                                data-toggle="tooltip" title="Query Type" data-placement="top">
+                                            <option value="ALL">ALL</option>
+                                            <option th:each="qt : ${queryTypes}" th:value="${qt}"
+                                                    th:text="${qt}"></option>
+                                        </select>
+                                        <select class="form-control" id="page-size"
+                                                data-toggle="tooltip" title="# of Rows to display" data-placement="top"
+                                                style="width: 98px">
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                            <option value="500">500</option>
+                                            <option value="1000">1000</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-default blue" id="search-queries"
+                                                style="width: 100px; margin-left: 10px">Search
+                                        </button>
+                                        <input type="hidden" id="minDate" th:value="${minDate}"/>
+                                        <input type="hidden" id="maxDate" th:value="${maxDate}"/>
+                                        <input type="hidden" id="order-by" value="queryStartTime ASC"/>
+                                        <input type="hidden" id="current-page-no" value="1"/>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -122,9 +178,11 @@
 <!-- END CONTAINER -->
 <th:block th:fragment="page-level-scripts">
     <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <script th:src="@{/assets/global/plugins/bootstrap-daterangepicker/moment.min.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js}" type="text/javascript"></script>
+    <script th:src="@{/assets/global/plugins/moment.js}" type="text/javascript"></script>
+    <script th:src="@{/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js}"
+            type="text/javascript"></script>
+    <script th:src="@{/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js}"
+            type="text/javascript"></script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/highlight.min.js"></script>
     <!-- END PAGE LEVEL PLUGINS -->

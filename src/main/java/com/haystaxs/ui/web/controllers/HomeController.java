@@ -2,7 +2,7 @@ package com.haystaxs.ui.web.controllers;
 
 import com.haystaxs.ui.business.entities.*;
 import com.haystaxs.ui.business.entities.repositories.*;
-import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDates;
+import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDateTimes;
 import com.haystaxs.ui.business.services.HaystaxsLibService;
 import com.haystaxs.ui.business.services.QueryLogService;
 import com.haystaxs.ui.support.JsonResponse;
@@ -119,7 +119,7 @@ public class HomeController {
                                                                @RequestParam(value = "toDate", required = false) String toDate) {
         List<UserQueryChartData> result = userDatabaseRepository.getQueryStatsForChart(getNormalizedUserName());
 
-        return(result);
+        return (result);
     }
 
     @RequestMapping("/dashboard/ql/hourlyavgchartdata")
@@ -128,7 +128,7 @@ public class HomeController {
                                                                @RequestParam(value = "toDate", required = false) String toDate) {
         List<UserQueryChartData> result = userDatabaseRepository.getHourlyAvgQueryStatsForChart(getNormalizedUserName());
 
-        return(result);
+        return (result);
     }
 
     //endregion
@@ -207,7 +207,7 @@ public class HomeController {
 
     @RequestMapping(value = "/gpsd/file/{gpsdId}")
     @ResponseBody
-    public ResponseEntity<byte[]> downloadGpsdFile(@PathVariable("gpsdId") int gpsdId, HttpServletResponse resp){
+    public ResponseEntity<byte[]> downloadGpsdFile(@PathVariable("gpsdId") int gpsdId, HttpServletResponse resp) {
         Gpsd gpsd = gpsdRepository.getSingle(gpsdId, getUserId());
         String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator +
                 "gpsd" + File.separator + gpsdId + File.separator + gpsd.getFilename();
@@ -256,8 +256,7 @@ public class HomeController {
             outputStream.close();
             inputStream.close();
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             String msg = "ERROR: Could not read file.";
             headers.setContentType(MediaType.TEXT_PLAIN);
             return new ResponseEntity<byte[]>(msg.getBytes(), headers, HttpStatus.NOT_FOUND);
@@ -308,16 +307,15 @@ public class HomeController {
 
         Date fromDt, toDt;
 
-        if(fromDate == null || fromDate.isEmpty())
+        if (fromDate == null || fromDate.isEmpty())
             fromDate = "01-JAN-1960";
-        if(toDate == null || toDate.isEmpty())
+        if (toDate == null || toDate.isEmpty())
             toDate = hsDateFormatter.format(new Date());
 
         try {
             fromDt = hsDateFormatter.parse(fromDate);
             toDt = hsDateFormatter.parse(toDate);
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             throw ex;
         }
 
@@ -325,7 +323,7 @@ public class HomeController {
         //http://www.javacodegeeks.com/2013/03/implement-bootstrap-pagination-with-spring-data-and-thymeleaf.html
         model.addAttribute("queryLogDates", queryLogDates);
 
-        if(!queryLogDates.isEmpty()) {
+        if (!queryLogDates.isEmpty()) {
             PaginationInfo paginationInfo = new PaginationInfo(queryLogDates.get(0).getTotalRows(), pageSize, pageNo);
 
             model.addAttribute("pi", paginationInfo);
@@ -410,11 +408,22 @@ public class HomeController {
 
     @RequestMapping("/querylog/analyze")
     public String analyzeQueryLog(@RequestParam(value = "date", required = false) String forDate,
-                                   Model model) {
+                                  Model model) {
         model.addAttribute("title", "Analyze Queries");
 
-        if(forDate != null && !forDate.isEmpty()) {
-            model.addAttribute("forDate", forDate);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+            SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("hh:mm");
+
+        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getNormalizedUserName());
+
+        if (forDate != null && !forDate.isEmpty()) {
+            model.addAttribute("minDate", forDate);
+            model.addAttribute("maxDate", forDate);
+        } else {
+            model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
+            model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
+            model.addAttribute("minTime", simpleTimeFormat.format(queryLogMinMaxDates.getMinTime()));
+            model.addAttribute("maxTime", simpleTimeFormat.format(queryLogMinMaxDates.getMaxDate()));
         }
         // For QueryTypes Filter Dropdown..
         //model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
@@ -422,9 +431,7 @@ public class HomeController {
         try {
             model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getNormalizedUserName()));
             model.addAttribute("userNames", userDatabaseRepository.getUserNames(getNormalizedUserName()));
-        } catch(Exception ex) {
-
-        }
+        } catch (Exception ex) { }
 
         return "querylog_analysis";
     }
@@ -432,7 +439,8 @@ public class HomeController {
 
     @Layout(value = "", enabled = false)
     @RequestMapping("/querylog/analyze/search")
-    public String queryLogAnalyzeSearch(@RequestParam("startDate") String startDate,
+    public String queryLogAnalyzeSearch(//@RequestParam("timespan") String timeSpan,
+                                        @RequestParam("startDate") String startDate,
                                         @RequestParam("endDate") String endDate,
                                         @RequestParam("startTime") String startTime,
                                         @RequestParam("endTime") String endTime,
@@ -443,7 +451,7 @@ public class HomeController {
                                         @RequestParam("queryType") String queryType,
                                         @RequestParam(value = "pgSize", defaultValue = "25") int pageSize,
                                         @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
-                                        @RequestParam(value="orderBy", defaultValue = "queryStartTime ASC") String orderBy,
+                                        @RequestParam(value = "orderBy", defaultValue = "queryStartTime ASC") String orderBy,
                                         Model model) {
         List<UserQuery> userQueries = userDatabaseRepository.getQueries(getNormalizedUserName(), startDate, endDate,
                 startTime, endTime, dbNameLike, userNameLike, duration, sqlLike, queryType, pageSize, pageNo, orderBy);
@@ -452,7 +460,7 @@ public class HomeController {
         model.addAttribute("forDate", startDate);
         model.addAttribute("userQueries", userQueries);
 
-        if(!userQueries.isEmpty()) {
+        if (!userQueries.isEmpty()) {
             int totalRows = userQueries.get(0).getTotalRows();
             PaginationInfo paginationInfo = new PaginationInfo(totalRows, pageSize, pageNo);
 
@@ -472,7 +480,7 @@ public class HomeController {
 
         List<String> distinctGpsds = gpsdRepository.getAllDistinct(getUserId());
 
-        QueryLogMinMaxDates queryLogMinMaxDates = queryLogRespository.getQueryLogMinMaxDates(getNormalizedUserName());
+        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getNormalizedUserName());
 
         // TODO: Define this formatter at the class level
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
@@ -487,9 +495,9 @@ public class HomeController {
     @RequestMapping(value = "/workload/create", method = RequestMethod.POST)
     @ResponseBody
     public JsonResponse createWorkload(@RequestParam("dbName") String dbName,
-                                 @RequestParam("fromDate") String fromDate,
-                                 @RequestParam("toDate") String toDate,
-                                 Model model) {
+                                       @RequestParam("fromDate") String fromDate,
+                                       @RequestParam("toDate") String toDate,
+                                       Model model) {
         int maxGpsdId = 0;
 
         try {

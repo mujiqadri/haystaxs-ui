@@ -4,11 +4,13 @@ import com.haystaxs.ui.business.entities.UserQueryChartData;
 import com.haystaxs.ui.business.entities.UserQuery;
 import com.haystaxs.ui.business.entities.repositories.rowmappers.HourlyAvgQueryChartDataMapper;
 import com.haystaxs.ui.business.entities.repositories.rowmappers.TimelineQueryChartDataMapper;
+import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDateTimes;
 import com.haystaxs.ui.business.entities.selection.QueryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -131,7 +133,24 @@ public class UserDatabaseRepository extends RepositoryBase {
         "TRANSACTION-OPERATION"));
     }
 
-    @Cacheable(value = "dataCache")
+    public QueryLogMinMaxDateTimes getQueryLogMinMaxDates(String normalizedUsername) {
+        String sql = String.format("select min(logsessiontime)::date, max(logsessiontime)::date, " +
+                        "min(logsessiontime)::time, max(logsessiontime)::time  from %s.queries",
+                normalizedUsername);
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
+        rowSet.next();
+
+        QueryLogMinMaxDateTimes result = new QueryLogMinMaxDateTimes();
+        result.setMinDate(rowSet.getDate(1));
+        result.setMaxDate(rowSet.getDate(2));
+        result.setMinTime(rowSet.getTime(3));
+        result.setMaxTime(rowSet.getTime(4));
+
+        return result;
+    }
+
+    //@Cacheable(value = "dataCache")
     public List<UserQueryChartData> getQueryStatsForChart(String normalizedUserName) {
         String sql = String.format("SELECT DATE,\n" +
                 "       coalesce(sum(TOTAL_DURATION), 0) TOTAL_DURATION,\n" +
@@ -221,7 +240,7 @@ public class UserDatabaseRepository extends RepositoryBase {
         return result;
     }
 
-    @Cacheable(value = "dataCache")
+    //@Cacheable(value = "dataCache")
     public List<UserQueryChartData> getHourlyAvgQueryStatsForChart(String normalizedUserName) {
         String sql = String.format("select \n" +
                 "\tdate,\n" +
