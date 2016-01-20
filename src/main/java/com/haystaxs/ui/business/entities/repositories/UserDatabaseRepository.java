@@ -151,7 +151,26 @@ public class UserDatabaseRepository extends RepositoryBase {
     }
 
     //@Cacheable(value = "dataCache")
-    public List<UserQueryChartData> getQueryStatsForChart(String normalizedUserName) {
+    public List<UserQueryChartData> getQueryStatsForChart(String normalizedUserName, String fromDate, String toDate,
+                                                          String dbName, String userName) {
+        String whereClause = " ";
+        boolean prependAnd = false;
+
+        if(fromDate != null && toDate != null && !fromDate.isEmpty()  && !toDate.isEmpty()) {
+            whereClause += " WHERE logsessiontime::date >= '" + fromDate + "' ";
+            whereClause += " AND logsessiontime::date <= '" + toDate + "' ";
+            prependAnd = true;
+        }
+
+        if(dbName != null && !dbName.isEmpty()) {
+            whereClause += (prependAnd ? " AND " : " WHERE ") + " logdatabase = '" + dbName + "' ";
+            prependAnd = true;
+        }
+
+        if(userName != null && !userName.isEmpty()) {
+            whereClause += (prependAnd ? " AND " : " WHERE ") + " loguser = '" + userName + "' ";
+        }
+
         String sql = String.format("SELECT DATE,\n" +
                 "       coalesce(sum(TOTAL_DURATION), 0) TOTAL_DURATION,\n" +
                 "       coalesce(sum(TOTAL_COUNT), 0) TOTAL_COUNT,\n" +
@@ -227,13 +246,13 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "       FROM (\n" +
                 "              select logsessiontime::date, qrytype, count(0), round(coalesce(sum(extract(epoch from logduration)),0)) as duration\n" +
                 "              from %s.queries\n" +
-                "              --where logsessiontime::date between '2015-10-01' and '2015-11-01'\n" +
+                "              %2s\n" +
                 "              group by rollup(logsessiontime::date, qrytype)\n" +
                 "            ) AS Y\n" +
                 "     ) AS X\n" +
                 "where DATE IS NOT NULL\n" +
                 "group by rollup(date)\n" +
-                "order by date;\n", normalizedUserName);
+                "order by date;\n", normalizedUserName, whereClause);
 
         List<UserQueryChartData> result = jdbcTemplate.query(sql, new TimelineQueryChartDataMapper());
 
@@ -241,7 +260,23 @@ public class UserDatabaseRepository extends RepositoryBase {
     }
 
     //@Cacheable(value = "dataCache")
-    public List<UserQueryChartData> getHourlyAvgQueryStatsForChart(String normalizedUserName) {
+    public List<UserQueryChartData> getHourlyAvgQueryStatsForChart(String normalizedUserName, String fromDate, String toDate,
+                                                                   String dbName, String userName) {
+        String whereClause = " ";
+
+        if(fromDate != null && toDate != null && !fromDate.isEmpty()  && !toDate.isEmpty()) {
+            whereClause += " AND logsessiontime::date >= '" + fromDate + "' ";
+            whereClause += " AND logsessiontime::date <= '" + toDate + "' ";
+        }
+
+        if(dbName != null && !dbName.isEmpty()) {
+            whereClause += " AND logdatabase = '" + dbName + "' ";
+        }
+
+        if(userName != null && !userName.isEmpty()) {
+            whereClause += " AND loguser = '" + userName + "' ";
+        }
+
         String sql = String.format("select \n" +
                 "\tdate,\n" +
                 "\tcoalesce(sum(ANALYZE_DURATION), 0) ANALYZE_DURATION,\n" +
@@ -281,16 +316,17 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "\t\tCASE WHEN qrytype = 'UPDATE' THEN duration END as UPDATE_DURATION\n" +
                 "\tFROM (\n" +
                 "\t\tselect qrytype, extract(hour from logsessiontime) as date, round(avg(extract(epoch from logduration))) as duration\n" +
-                "\t\tfrom tpcds_at_gmail_dot_com.queries\n" +
+                "\t\tfrom %s.queries\n" +
                 "\t\twhere extract(epoch from logduration) > 0\n" +
                 "\t\t--and logsessiontime < '2016-11-01' and logsessiontime >= '2015-10-01'\n" +
                 "\t\t--and logsessiontime::date between '2015-10-01' and '2015-11-01'\n" +
+                " %2s " +
                 "\t\tgroup by EXTRACT(hour from logsessiontime),qrytype\n" +
                 "\t\tORDER BY EXTRACT(hour from logsessiontime) ,qrytype\n" +
                 "\t) AS A\n" +
                 ") AS B\n" +
                 "group by rollup(date)\n" +
-                "order by date", normalizedUserName);
+                "order by date", normalizedUserName, whereClause);
 
         List<UserQueryChartData> result = jdbcTemplate.query(sql, new HourlyAvgQueryChartDataMapper());
 

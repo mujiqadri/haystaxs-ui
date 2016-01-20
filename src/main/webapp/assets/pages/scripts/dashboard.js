@@ -172,7 +172,7 @@ function initAmChartSample() {
     });
 }
 
-function initQueryLogDurationChart() {
+function initQueryLogDurationChart(data) {
 
     if (typeof(AmCharts) === 'undefined' || $('#querylog-duration-chart').size() === 0) {
         return;
@@ -180,10 +180,13 @@ function initQueryLogDurationChart() {
 
     var rawChartData = [];
 
-    loadViaAjax('/dashboard/ql/chartdata', null, 'json', null, null, null, function (result) {
+    blockUI($('#querylog-duration-chart-holder'));
+
+    loadViaAjax('/dashboard/ql/chartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
         var sequencer = rawChartData[rawChartData.length-1];
         makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length-1));
+        unBlockUI($('#querylog-duration-chart-holder'));
     });
 
     var getGraphsArray = function(sequencer, topN) {
@@ -341,20 +344,25 @@ function initQueryLogDurationChart() {
                 //enabled: false
             }
         });
+
+        chart.validateData();
     }
 }
 
-function initQueryLogCountChart() {
+function initQueryLogCountChart(data) {
     if (typeof(AmCharts) === 'undefined' || $('#querylog-count-chart').size() === 0) {
         return;
     }
 
     var rawChartData = [];
 
-    loadViaAjax('/dashboard/ql/chartdata', null, 'json', null, null, null, function (result) {
+    blockUI($('#querylog-count-chart-holder'));
+
+    loadViaAjax('/dashboard/ql/chartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
         var sequencer = rawChartData[rawChartData.length-1];
         makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length-1));
+        unBlockUI($('#querylog-count-chart-holder'));
     });
 
     var getGraphsArray = function(sequencer, topN) {
@@ -488,153 +496,20 @@ function initQueryLogCountChart() {
     }
 }
 
-function initGpsdGrowthChart() {
-    if (typeof(AmCharts) === 'undefined' || $('#gpsd-growth-chart').size() === 0) {
-        return;
-    }
-
-    var chartData = [
-        {
-            date: "01-10-2015",
-            customers_size: 1024,
-            customers_rows: 10223,
-            accounts_size: 2048,
-            accounts_rows: 228343,
-            sales_size: 125364,
-            sales_rows: 1234567
-        },
-        {
-            date: "01-11-2015",
-            customers_size: 1345,
-            customers_rows: 15253,
-            accounts_size: 2566,
-            accounts_rows: 328343,
-            sales_size: 225364,
-            sales_rows: 1934567
-        }
-    ];
-
-    var chart = AmCharts.makeChart("gpsd-growth-chart", {
-        type: "serial",
-        fontSize: 12,
-        fontFamily: "Open Sans",
-        dataDateFormat: "DD-MM-YYYY",
-        dataProvider: chartData,
-        /*dataLoader: {
-         "url": App.webAppPath + "/dashboard/ql/chartdata",
-         "format": "json"
-         },*/
-
-        categoryField: "date",
-        categoryAxis: {
-            parseDates: true,
-            minPeriod: "MM",
-            autoGridCount: true,
-            gridCount: 10,
-            gridAlpha: 0.1,
-            gridColor: "#FFFFFF",
-            axisColor: "#555555",
-            dateFormats: [{
-                period: 'DD',
-                format: 'DD'
-            }, {
-                period: 'WW',
-                format: 'MMM DD'
-            }, {
-                period: 'MM',
-                format: 'MMM'
-            }, {
-                period: 'YYYY',
-                format: 'YYYY'
-            }]
-        },
-
-        valueAxes: [{
-            id: "a1",
-            title: "No Of Rows",
-            gridAlpha: 0,
-            axisAlpha: 0
-        }],
-
-        graphs: [{
-            id: "g1",
-            valueField: "customers_rows",
-            title: "Customer Rows",
-            type: "column",
-            fillAlphas: 0.75,
-            valueAxis: "a1",
-            legendValueText: "[[value]]",
-            //legendPeriodValueText: "total: [[value.sum]] mi",
-            lineColor: "#08a3cc",
-            alphaField: "alpha",
-            newStack: true
-        }, {
-            id: "g2",
-            valueField: "customers_size",
-            title: "Customers Size",
-            type: "column",
-            fillAlphas: 0.75,
-            valueAxis: "a1",
-            balloonText: "[[value]]",
-            legendValueText: "[[value]]",
-            //legendPeriodValueText: "total: [[value.sum]] mi",
-            lineColor: "green",
-            alphaField: "alpha",
-            newStack: true
-        },{
-            id: "g3",
-            valueField: "accounts_rows",
-            title: "Customer Rows",
-            type: "column",
-            fillAlphas: 0.75,
-            valueAxis: "a1",
-            legendValueText: "[[value]]",
-            //legendPeriodValueText: "total: [[value.sum]] mi",
-            lineColor: "#yellow",
-            alphaField: "alpha",
-            newStack: true
-        }, {
-            id: "g4",
-            valueField: "accounts_size",
-            title: "Customers Size",
-            type: "column",
-            fillAlphas: 0.75,
-            valueAxis: "a1",
-            balloonText: "[[value]]",
-            legendValueText: "[[value]]",
-            //legendPeriodValueText: "total: [[value.sum]] mi",
-            lineColor: "orange",
-            alphaField: "alpha",
-            newStack: true
-        }],
-
-        chartCursor: {
-            zoomable: true,
-            categoryBalloonDateFormat: "MMM DD",
-            cursorAlpha: 0,
-            categoryBalloonColor: "#e26a6a",
-            categoryBalloonAlpha: 0.8,
-            valueBalloonsEnabled: false
-        },
-
-        legend: {
-            useGraphSettings: true,
-            valueWidth: 120
-        }
-    });
-}
-
-function initHourlyQueriesChart() {
+function initHourlyQueriesChart(data) {
     if (typeof(AmCharts) === 'undefined' || $('#hourly-queries-chart').size() === 0) {
         return;
     }
 
     var rawChartData = [];
 
-    loadViaAjax('/dashboard/ql/hourlyavgchartdata', null, 'json', null, null, null, function (result) {
+    blockUI($('#hourly-queries-chart-holder'));
+
+    loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
         var sequencer = rawChartData[rawChartData.length-1];
         makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length-1));
+        unBlockUI($('#hourly-queries-chart-holder'));
     });
 
     var getGraphsArray = function(sequencer, topN) {
@@ -809,7 +684,191 @@ function initHourlyQueriesChart() {
     }
 }
 
+function initGpsdGrowthChart() {
+    if (typeof(AmCharts) === 'undefined' || $('#gpsd-growth-chart').size() === 0) {
+        return;
+    }
+
+    var chartData = [
+        {
+            date: "01-10-2015",
+            customers_size: 1024,
+            customers_rows: 10223,
+            accounts_size: 2048,
+            accounts_rows: 228343,
+            sales_size: 125364,
+            sales_rows: 1234567
+        },
+        {
+            date: "01-11-2015",
+            customers_size: 1345,
+            customers_rows: 15253,
+            accounts_size: 2566,
+            accounts_rows: 328343,
+            sales_size: 225364,
+            sales_rows: 1934567
+        }
+    ];
+
+    var chart = AmCharts.makeChart("gpsd-growth-chart", {
+        type: "serial",
+        fontSize: 12,
+        fontFamily: "Open Sans",
+        dataDateFormat: "DD-MM-YYYY",
+        dataProvider: chartData,
+        /*dataLoader: {
+         "url": App.webAppPath + "/dashboard/ql/chartdata",
+         "format": "json"
+         },*/
+
+        categoryField: "date",
+        categoryAxis: {
+            parseDates: true,
+            minPeriod: "MM",
+            autoGridCount: true,
+            gridCount: 10,
+            gridAlpha: 0.1,
+            gridColor: "#FFFFFF",
+            axisColor: "#555555",
+            dateFormats: [{
+                period: 'DD',
+                format: 'DD'
+            }, {
+                period: 'WW',
+                format: 'MMM DD'
+            }, {
+                period: 'MM',
+                format: 'MMM'
+            }, {
+                period: 'YYYY',
+                format: 'YYYY'
+            }]
+        },
+
+        valueAxes: [{
+            id: "a1",
+            title: "No Of Rows",
+            gridAlpha: 0,
+            axisAlpha: 0
+        }],
+
+        graphs: [{
+            id: "g1",
+            valueField: "customers_rows",
+            title: "Customer Rows",
+            type: "column",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "#08a3cc",
+            alphaField: "alpha",
+            newStack: true
+        }, {
+            id: "g2",
+            valueField: "customers_size",
+            title: "Customers Size",
+            type: "column",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            balloonText: "[[value]]",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "green",
+            alphaField: "alpha",
+            newStack: true
+        },{
+            id: "g3",
+            valueField: "accounts_rows",
+            title: "Customer Rows",
+            type: "column",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "#yellow",
+            alphaField: "alpha",
+            newStack: true
+        }, {
+            id: "g4",
+            valueField: "accounts_size",
+            title: "Customers Size",
+            type: "column",
+            fillAlphas: 0.75,
+            valueAxis: "a1",
+            balloonText: "[[value]]",
+            legendValueText: "[[value]]",
+            //legendPeriodValueText: "total: [[value.sum]] mi",
+            lineColor: "orange",
+            alphaField: "alpha",
+            newStack: true
+        }],
+
+        chartCursor: {
+            zoomable: true,
+            categoryBalloonDateFormat: "MMM DD",
+            cursorAlpha: 0,
+            categoryBalloonColor: "#e26a6a",
+            categoryBalloonAlpha: 0.8,
+            valueBalloonsEnabled: false
+        },
+
+        legend: {
+            useGraphSettings: true,
+            valueWidth: 120
+        }
+    });
+}
+
+function dataForAjax() {
+    var result = {};
+
+    result.fromDate = $('#start-date').val();
+    result.toDate = $('#end-date').val();
+    result.dbName = $('#db-name-like').val() === "---ANY---" ? "" : $('#db-name-like').val();
+    result.userName = $('#user-name-like').val() === "---ANY---" ? "" : $('#user-name-like').val();
+
+    return result;
+}
+
 $(function () {
+    minDateWithTimeZone = new Date($('#start-date').val() + " 00:00");
+    maxDateWithTimeZone = new Date($('#end-date').val() + " 23:59");
+
+    $('#filter-chart-data').on('click', function(e) {
+        e.preventDefault();
+
+        var data = dataForAjax();
+
+        initQueryLogDurationChart(data);
+        initQueryLogCountChart(data);
+        initHourlyQueriesChart(data);
+    });
+
+    $('#timespan').on('change', function(e) {
+        var selectedValue = $(this).val();
+        var startDate = $('#start-date');
+        var endDate = $('#end-date');
+
+        var mdm = new moment(maxDateWithTimeZone);
+
+        if(selectedValue === "ALL") {
+            startDate.val(moment(minDateWithTimeZone).format("DD-MMM-YYYY"));
+            endDate.val(moment(maxDateWithTimeZone).format("DD-MMM-YYYY"));
+        } else {
+            switch(selectedValue) {
+                case "12hr": mdm.subtract(12, 'h'); break;
+                case "1w": mdm.subtract(1, "w"); break;
+                case "2w": mdm.subtract(2, "w"); break;
+                case "1m": mdm.subtract(1, "M"); break;
+                case "3m": mdm.subtract(3, "M"); break;
+                case "12m": mdm.subtract(12, "M"); break;
+            }
+
+            startDate.val(mdm.format('DD-MMM-YYYY'));
+        }
+    });
+
     initQueryLogDurationChart();
 
     initQueryLogCountChart();

@@ -106,9 +106,27 @@ public class HomeController {
     public String dashBoard(Model model) {
         model.addAttribute("title", "Dashboard");
 
-        List<Workload> workloads = workloadRepository.getLastnWorkloads(getUserId(), 10);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
 
-        model.addAttribute("workloads", workloads);
+        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getNormalizedUserName());
+
+        /*if (forDate != null && !forDate.isEmpty()) {
+            model.addAttribute("minDate", forDate);
+            model.addAttribute("maxDate", forDate);
+        } else*/ {
+            model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
+            model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
+            model.addAttribute("minTime", simpleTimeFormat.format(queryLogMinMaxDates.getMinTime()));
+            model.addAttribute("maxTime", simpleTimeFormat.format(queryLogMinMaxDates.getMaxTime()));
+        }
+        // For QueryTypes Filter Dropdown..
+        //model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
+        //model.addAttribute("queryTypes", userDatabaseRepository.getAllQueryTypes());
+        try {
+            model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getNormalizedUserName()));
+            model.addAttribute("userNames", userDatabaseRepository.getUserNames(getNormalizedUserName()));
+        } catch (Exception ex) { }
 
         return ("dashboard");
     }
@@ -116,8 +134,12 @@ public class HomeController {
     @RequestMapping("/dashboard/ql/chartdata")
     @ResponseBody
     public List<UserQueryChartData> dashboardQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
-                                                               @RequestParam(value = "toDate", required = false) String toDate) {
-        List<UserQueryChartData> result = userDatabaseRepository.getQueryStatsForChart(getNormalizedUserName());
+                                                               @RequestParam(value = "toDate", required = false) String toDate,
+                                                               @RequestParam(value = "dbName", required = false) String dbName,
+                                                               @RequestParam(value = "userName", required = false) String userName) {
+
+        List<UserQueryChartData> result = userDatabaseRepository.getQueryStatsForChart(getNormalizedUserName(), fromDate, toDate,
+                dbName, userName);
 
         return (result);
     }
@@ -125,8 +147,11 @@ public class HomeController {
     @RequestMapping("/dashboard/ql/hourlyavgchartdata")
     @ResponseBody
     public List<UserQueryChartData> hourlyAvgQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
-                                                               @RequestParam(value = "toDate", required = false) String toDate) {
-        List<UserQueryChartData> result = userDatabaseRepository.getHourlyAvgQueryStatsForChart(getNormalizedUserName());
+                                                               @RequestParam(value = "toDate", required = false) String toDate,
+                                                               @RequestParam(value = "dbName", required = false) String dbName,
+                                                               @RequestParam(value = "userName", required = false) String userName) {
+        List<UserQueryChartData> result = userDatabaseRepository.getHourlyAvgQueryStatsForChart(getNormalizedUserName(), fromDate, toDate,
+                dbName, userName);
 
         return (result);
     }
@@ -412,7 +437,7 @@ public class HomeController {
         model.addAttribute("title", "Analyze Queries");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
-            SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
 
         QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getNormalizedUserName());
 

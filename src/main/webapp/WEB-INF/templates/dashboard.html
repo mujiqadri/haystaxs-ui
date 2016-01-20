@@ -77,6 +77,45 @@
                 <!-- BEGIN PAGE CONTENT INNER -->
                 <div class="page-content-inner" th:fragment="main-content">
                     <div class="row">
+                        <div class="col-lg-12" style="padding-bottom: 10px">
+                            <form class="form-inline" role="form">
+                                <Label class="bold">Graph filters:</Label>
+                                <select class="form-control tooltips" id="timespan"
+                                        data-toggle="tooltip" title="Timespan" data-placement="top">
+                                    <option value="ALL">ALL</option>
+                                    <option value="12hr">Last 12 Hours</option>
+                                    <option value="1w">Last Week</option>
+                                    <option value="2w">Last 2 Weeks</option>
+                                    <option value="1m">Last Month</option>
+                                    <option value="3m">Last Quarter</option>
+                                    <!--<option value="ty">Current Year</option>-->
+                                    <option value="12m">Last 12 Months</option>
+                                </select>
+                                <select class="form-control tooltips" id="db-name-like"
+                                        data-toggle="tooltip" title="Database Name" data-placement="top">
+                                    <option value="---ANY---">---</option>
+                                    <option th:each="dbName : ${dbNames}" th:value="${dbName}"
+                                            th:text="${dbName}"></option>
+                                </select>
+                                <select class="form-control tooltips" id="user-name-like"
+                                        data-toggle="tooltip" title="Username" data-placement="top">
+                                    <option value="---ANY---">---</option>
+                                    <option th:each="userName : ${userNames}" th:value="${userName}"
+                                            th:text="${userName}"></option>
+                                </select>
+                                <button type="submit" class="btn btn-default blue" id="filter-chart-data"
+                                        style="width: 100px; margin-left: 10px">Apply
+                                </button>
+                                <input type="hidden" id="start-date" th:value="${minDate}"/>
+                                <input type="hidden" id="end-date" th:value="${maxDate}"/>
+                                <input type="hidden" id="minDate" th:value="${minDate}"/>
+                                <input type="hidden" id="maxDate" th:value="${maxDate}"/>
+                                <input type="hidden" id="order-by" value="queryStartTime ASC"/>
+                                <input type="hidden" id="current-page-no" value="1"/>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6 col-sm-6">
                             <div class="portlet light ">
                                 <div class="portlet-title">
@@ -86,7 +125,7 @@
                                         <span class="caption-helper hide">weekly stats...</span>
                                     </div>
                                 </div>
-                                <div class="portlet-body">
+                                <div class="portlet-body" id="querylog-duration-chart-holder">
                                     <div id="querylog-duration-chart" class="CSSAnimationChart"></div>
                                 </div>
                             </div>
@@ -99,7 +138,7 @@
                                         <span class="caption-subject font-blue uppercase bold">Query Load (Counts)</span>
                                     </div>
                                 </div>
-                                <div class="portlet-body">
+                                <div class="portlet-body" id="querylog-count-chart-holder">
                                     <div id="querylog-count-chart" class="CSSAnimationChart"></div>
                                 </div>
                             </div>
@@ -114,21 +153,8 @@
                                         <span class="caption-subject font-blue uppercase bold">Queries - Hourly Averages</span>
                                     </div>
                                 </div>
-                                <div class="portlet-body">
+                                <div class="portlet-body" id="hourly-queries-chart-holder">
                                     <div id="hourly-queries-chart" class="CSSAnimationChart"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-6">
-                            <div class="portlet light ">
-                                <div class="portlet-title">
-                                    <div class="caption caption-md">
-                                        <i class="icon-bar-chart font-blue"></i>
-                                        <span class="caption-subject font-blue uppercase bold">GPSD Growth</span>
-                                    </div>
-                                </div>
-                                <div class="portlet-body">
-                                    <div id="gpsd-growth-chart" class="CSSAnimationChart"></div>
                                 </div>
                             </div>
                         </div>
@@ -226,8 +252,9 @@
     <script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/light.js}" type="text/javascript"></script>
     <script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/patterns.js}" type="text/javascript"></script>
     <script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/chalk.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/plugins/dataloader/dataloader.min.js}"
-            type="text/javascript"></script>
+    <script th:src="@{/assets/global/plugins/amcharts/amcharts/plugins/dataloader/dataloader.min.js}" type="text/javascript"></script>
+
+    <script th:src="@{/assets/global/plugins/moment.js}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN PAGE LEVEL SCRIPTS -->
     <script th:src="@{/assets/pages/scripts/dashboard.js}" type="text/javascript"></script>
