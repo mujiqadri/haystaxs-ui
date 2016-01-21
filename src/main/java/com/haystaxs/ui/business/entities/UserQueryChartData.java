@@ -40,6 +40,14 @@ public class UserQueryChartData {
     private int dropTableDuration;
     private int dropTableCount;
 
+    public UserQueryChartData() {
+
+    }
+
+    public UserQueryChartData(String date) {
+        this.date = date;
+    }
+
     public String getDate() {
         return date;
     }

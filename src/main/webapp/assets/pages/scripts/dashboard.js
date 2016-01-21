@@ -678,7 +678,8 @@ function initHourlyQueriesChart(data) {
             },
 
             legend: {
-                valueAlign: "left"
+                valueAlign: "left",
+                enabled: graphs.length > 0
             }
         });
     }

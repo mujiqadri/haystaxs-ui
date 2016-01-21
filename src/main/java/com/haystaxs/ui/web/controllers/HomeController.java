@@ -114,7 +114,8 @@ public class HomeController {
         /*if (forDate != null && !forDate.isEmpty()) {
             model.addAttribute("minDate", forDate);
             model.addAttribute("maxDate", forDate);
-        } else*/ {
+        } else*/
+        {
             model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
             model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
             model.addAttribute("minTime", simpleTimeFormat.format(queryLogMinMaxDates.getMinTime()));
@@ -126,7 +127,8 @@ public class HomeController {
         try {
             model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getNormalizedUserName()));
             model.addAttribute("userNames", userDatabaseRepository.getUserNames(getNormalizedUserName()));
-        } catch (Exception ex) { }
+        } catch (Exception ex) {
+        }
 
         return ("dashboard");
     }
@@ -152,6 +154,33 @@ public class HomeController {
                                                                @RequestParam(value = "userName", required = false) String userName) {
         List<UserQueryChartData> result = userDatabaseRepository.getHourlyAvgQueryStatsForChart(getNormalizedUserName(), fromDate, toDate,
                 dbName, userName);
+
+        // The resulting list may contain less or none rows, so the below is a workaround as the chart needs full data
+        if (result.size() < 25) {
+            UserQueryChartData[] finalResult = new UserQueryChartData[25];
+
+            if (result.size() == 0) {
+                finalResult[24] = new UserQueryChartData();
+            }
+
+            for (int i = 0; i < result.size(); i++) {
+                UserQueryChartData data = result.get(i);
+
+                if (data.getDate() == null) {
+                    finalResult[24] = data;
+                } else {
+                    finalResult[Integer.parseInt(data.getDate())] = data;
+                }
+            }
+
+            for(int i = 0; i < 24; i++) {
+                if(finalResult[i] == null) {
+                    finalResult[i] = new UserQueryChartData(Integer.toString(i));
+                }
+            }
+
+            return (Arrays.asList(finalResult));
+        }
 
         return (result);
     }
@@ -456,7 +485,8 @@ public class HomeController {
         try {
             model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getNormalizedUserName()));
             model.addAttribute("userNames", userDatabaseRepository.getUserNames(getNormalizedUserName()));
-        } catch (Exception ex) { }
+        } catch (Exception ex) {
+        }
 
         return "querylog_analysis";
     }
