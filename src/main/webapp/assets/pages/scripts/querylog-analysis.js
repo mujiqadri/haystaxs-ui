@@ -84,7 +84,6 @@ jQuery(document).ready(function () {
     });
 
     $('body').on('click', 'a[data-pgno]', function(e) {
-        debugger;
         e.preventDefault();
 
         var currentPageNo = $('#current-page-no').val();
@@ -132,7 +131,10 @@ jQuery(document).ready(function () {
         $('#order-by').val($(this).attr('data-orderby'));
         var data = QueryLogAnalysis.dataForAjax(1, $(this).attr('data-orderby'));
 
-        loadViaAjax('/querylog/analyze/search', data, 'html', $('#queries-list'));
+        loadViaAjax('/querylog/analyze/search', data, 'html', $('#queries-list'), null, null, function () {
+            hljs.initHighlighting.called = false;
+            hljs.initHighlighting();
+        });
     });
 
     $('.timepicker-24').timepicker({

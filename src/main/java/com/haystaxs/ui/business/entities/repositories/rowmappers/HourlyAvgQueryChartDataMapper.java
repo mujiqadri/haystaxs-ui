@@ -20,6 +20,7 @@ public class HourlyAvgQueryChartDataMapper implements RowMapper {
         if(!rs.isLast())
             record.setDate(rs.getString("date"));
 
+        record.setTotalDuration(rs.getInt("total_duration"));
         record.setAnalyzeDuration(rs.getInt("analyze_duration"));
         record.setCommitDuration(rs.getInt("commit_duration"));
         record.setCreateExternalTableDuration(rs.getInt("create_external_table_duration"));

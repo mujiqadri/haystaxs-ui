@@ -279,6 +279,7 @@ public class UserDatabaseRepository extends RepositoryBase {
 
         String sql = String.format("select \n" +
                 "\tdate,\n" +
+                "\tcoalesce(sum(TOTAL_DURATION), 0) TOTAL_DURATION,\n" +
                 "\tcoalesce(sum(ANALYZE_DURATION), 0) ANALYZE_DURATION,\n" +
                 "\tcoalesce(sum(COMMIT_DURATION), 0) COMMIT_DURATION,\n" +
                 "\tcoalesce(sum(CREATE_EXTERNAL_TABLE_DURATION), 0) CREATE_EXTERNAL_TABLE_DURATION,\n" +
@@ -298,6 +299,7 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "FROM (\t\n" +
                 "\tselect \n" +
                 "\t\tdate,\n" +
+                "\t\tCASE WHEN qrytype IS NULL THEN duration END as TOTAL_DURATION,\n" +
                 "\t\tCASE WHEN qrytype = 'ANALYZE' THEN duration END as ANALYZE_DURATION,\n" +
                 "\t\tCASE WHEN qrytype = 'COMMIT' THEN duration END as COMMIT_DURATION,\n" +
                 "\t\tCASE WHEN qrytype = 'CREATE EXTERNAL TABLE' THEN duration END as CREATE_EXTERNAL_TABLE_DURATION,\n" +
@@ -318,13 +320,12 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "\t\tselect qrytype, extract(hour from logsessiontime) as date, round(avg(extract(epoch from logduration))) as duration\n" +
                 "\t\tfrom %s.queries\n" +
                 "\t\twhere extract(epoch from logduration) > 0\n" +
-                "\t\t--and logsessiontime < '2016-11-01' and logsessiontime >= '2015-10-01'\n" +
-                "\t\t--and logsessiontime::date between '2015-10-01' and '2015-11-01'\n" +
                 " %2s " +
-                "\t\tgroup by EXTRACT(hour from logsessiontime),qrytype\n" +
+                "\t\tgroup by ROLLUP(EXTRACT(hour from logsessiontime),qrytype)\n" +
                 "\t\tORDER BY EXTRACT(hour from logsessiontime) ,qrytype\n" +
                 "\t) AS A\n" +
                 ") AS B\n" +
+                " where date IS NOT NULL\n" +
                 "group by rollup(date)\n" +
                 "order by date", normalizedUserName, whereClause);
 

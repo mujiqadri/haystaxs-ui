@@ -1,6 +1,8 @@
 package com.haystaxs.ui.business.services;
 
+import com.haystack.domain.Tables;
 import com.haystack.service.CatalogService;
+import com.haystack.service.ClusterService;
 import com.haystack.util.ConfigProperties;
 import com.haystaxs.ui.business.entities.repositories.WorkloadRepository;
 import com.haystaxs.ui.util.AppConfig;
@@ -117,6 +119,22 @@ public class HaystaxsLibService {
 
             CatalogService cs = new CatalogService(configProperties);
             result = cs.getGPSDJson(gpsdId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+        }
+
+        return result;
+    }
+
+    public Tables getTablesInfoForDbExplorer() {
+        Tables result = null;
+
+        try {
+            ConfigProperties configProperties = new ConfigProperties();
+            configProperties.loadProperties();
+
+            ClusterService cs = new ClusterService(configProperties);
+            result = cs.getTablefromGPDBStats(2);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }

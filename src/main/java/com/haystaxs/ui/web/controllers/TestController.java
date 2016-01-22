@@ -1,5 +1,6 @@
 package com.haystaxs.ui.web.controllers;
 
+import com.haystack.domain.Tables;
 import com.haystaxs.ui.business.entities.repositories.UserDatabaseRepository;
 import com.haystaxs.ui.business.entities.repositories.UserRepository;
 import com.haystaxs.ui.business.services.HaystaxsLibService;
@@ -165,5 +166,11 @@ public class TestController {
     @ResponseBody
     public String gpsdJson(@RequestParam("id") int id) {
         return haystaxsLibServiceWrapper.getGpsdJson(id);
+    }
+
+    @RequestMapping("/test/exploredb")
+    @ResponseBody
+    public Tables exploreDb() {
+        return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer();
     }
 }
