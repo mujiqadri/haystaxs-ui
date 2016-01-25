@@ -1,11 +1,20 @@
 package com.haystaxs.ui.util;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
+import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -14,6 +23,8 @@ import java.util.zip.ZipInputStream;
  */
 @Component
 public class FileUtil {
+    final static Logger logger = LoggerFactory.getLogger(FileUtil.class);
+
     @Autowired
     private AppConfig appConfig;
 
@@ -23,14 +34,14 @@ public class FileUtil {
         saveToFile(bytes, baseDir, fileName);
     }
 
-    public void unZip(String zipFile, String outputFolder){
+    public void unZip(String zipFile, String outputFolder) {
 
         byte[] buffer = new byte[1024];
 
-        try{
+        try {
             //create output directory is not exists
             File folder = new File(outputFolder);
-            if(!folder.exists()){
+            if (!folder.exists()) {
                 folder.mkdir();
             }
 
@@ -40,12 +51,12 @@ public class FileUtil {
             //get the zipped file list entry
             ZipEntry ze = zis.getNextEntry();
 
-            while(ze!=null){
+            while (ze != null) {
 
                 String fileName = ze.getName();
                 File newFile = new File(outputFolder + File.separator + fileName);
 
-                System.out.println("file unzip : "+ newFile.getAbsoluteFile());
+                System.out.println("file unzip : " + newFile.getAbsoluteFile());
 
                 //create all non exists folders
                 //else you will hit FileNotFoundException for compressed folder
@@ -64,8 +75,43 @@ public class FileUtil {
 
             zis.closeEntry();
             zis.close();
-        }catch(IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
+        }
+    }
+
+    public void unGZipTarArchive(String tarGzipFile, String outputFolder) {
+        try {
+            File directory = new File(outputFolder);
+
+            /* Read TAR File into TarArchiveInputStream */
+            TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(
+                    new GZIPInputStream(
+                            new FileInputStream(tarGzipFile)));
+
+            List<String> result = new ArrayList<String>();
+
+            TarArchiveEntry entry = tarArchiveInputStream.getNextTarEntry();
+
+            while (entry != null) {
+                if (entry.isDirectory()) {
+                    entry = tarArchiveInputStream.getNextTarEntry();
+                    continue;
+                }
+                File curfile = new File(directory, entry.getName());
+                File parent = curfile.getParentFile();
+                if (!parent.exists()) {
+                    parent.mkdirs();
+                }
+                OutputStream out = new FileOutputStream(curfile);
+                IOUtils.copy(tarArchiveInputStream, out);
+                out.close();
+                result.add(entry.getName());
+                entry = tarArchiveInputStream.getNextTarEntry();
+            }
+            tarArchiveInputStream.close();
+        } catch (Exception ex) {
+            logger.error("Cannot UnArchive file.", ex);
         }
     }
 
@@ -106,8 +152,8 @@ public class FileUtil {
     private void createFtpDirectoryHierarchy(String dirHierarchy, FTPClient ftpClient) throws IOException {
         String[] dirs = dirHierarchy.split("/");
 
-        for(int i=0; i<dirs.length; i++) {
-            if(ftpClient.makeDirectory(dirs[i])) {
+        for (int i = 0; i < dirs.length; i++) {
+            if (ftpClient.makeDirectory(dirs[i])) {
                 ftpClient.changeWorkingDirectory(dirs[i]);
             } else {
                 throw new IOException(String.format("FTP directory creation failed for %s", dirs[i]));

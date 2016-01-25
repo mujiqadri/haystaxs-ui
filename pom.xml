@@ -167,6 +167,13 @@
             <version>1.10</version>
         </dependency>
 
+        <!-- Apache Commons Compress -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.10</version>
+        </dependency>
+
         <!-- EMAIL SUPPORT -->
         <dependency>
             <groupId>com.sun.mail</groupId>
@@ -184,6 +191,13 @@
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>2.10.1</version>
+        </dependency>
+
+        <!-- TAR GZIP UNARCHIVER -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-archiver</artifactId>
+            <version>2.2</version>
         </dependency>
 
         <!--<dependency>

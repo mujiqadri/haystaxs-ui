@@ -169,8 +169,14 @@ public class TestController {
     }
 
     @RequestMapping("/test/exploredb")
+    public String exploreDb() {
+        //return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer();
+        return "db_explorer";
+    }
+
+    @RequestMapping("/test/exploredb/json")
     @ResponseBody
-    public Tables exploreDb() {
+    public Tables exploreDbJson() {
         return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer();
     }
 }

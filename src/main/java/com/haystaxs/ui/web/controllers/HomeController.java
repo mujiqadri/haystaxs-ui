@@ -421,8 +421,8 @@ public class HomeController {
                 try {
                     fileUtil.saveMultipartFileToPath(queryLogFile, fileBaseDir, originalFileName);
 
-                    // TODO: Need to fix this for tar.gz
-                    fileUtil.unZip(fileBaseDir + File.separator + originalFileName, fileBaseDir);
+                    //fileUtil.unZip(fileBaseDir + File.separator + originalFileName, fileBaseDir);
+                    fileUtil.unGZipTarArchive(fileBaseDir + File.separator + originalFileName, fileBaseDir);
 
                     extractedQueryLogFiles.put(newQueryLogId, File.separator + normalizedUserName + File.separator + "querylogs" + File.separator + newQueryLogId);
                 } catch (Exception e) {
@@ -438,7 +438,7 @@ public class HomeController {
         }
 
         // TODO: Once analyzed put entries in user inbox (Muji or me ?)
-        haystaxsLibServiceWrapper.analyzeQueryLogs(extractedQueryLogFiles);
+        //haystaxsLibServiceWrapper.analyzeQueryLogs(extractedQueryLogFiles);
 
         files.put("files", uploadedFileInfos);
         return files;
