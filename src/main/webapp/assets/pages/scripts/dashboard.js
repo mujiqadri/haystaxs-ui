@@ -584,12 +584,12 @@ function initHourlyComparisonQueriesChart(data) {
                 mdmMin.subtract(1, 'M');
                 break;
             case "3m":
-                mdm.subtract(3, "M");
+                mdmMax.subtract(3, "M");
                 mdmMin = mdmMax.clone();
                 mdmMin.subtract(3, 'M');
                 break;
             case "12m":
-                mdm.subtract(12, "M");
+                mdmMax.subtract(12, "M");
                 mdmMin = mdmMax.clone();
                 mdmMin.subtract(12, 'M');
                 break;
