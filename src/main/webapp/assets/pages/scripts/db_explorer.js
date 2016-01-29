@@ -5,15 +5,15 @@
 function normalizeForTreeView(tables) {
     var db = [];
 
-    var schemas = [];
+    var uniqueSchemaNames = [];
 
     for (var tableIndex in tables) {
         var table = tables[tableIndex];
         var schemaName = table["Schema Name"];
         var schemaNode = {};
 
-        if (schemas.length === 0 || !_.contains(schemas, schemaName)) {
-            schemas.push(schemaName);
+        if (uniqueSchemaNames.length === 0 || !_.contains(uniqueSchemaNames, schemaName)) {
+            uniqueSchemaNames.push(schemaName);
 
             schemaNode["_name_"] = schemaName;
             schemaNode["_noOfTables_"] = 1;
@@ -32,15 +32,27 @@ function normalizeForTreeView(tables) {
 
         var tableNode = {};
 
-        tableNode["text"] = "<b>Table:</b> " + table["Table Name"] + " (" + table["stats"]["Size On Disk (Compressed)"] + ")";
-        tableNode["icon"] = "fa fa-archive"
+        tableNode["text"] = "<b>Table:</b> " + table["Table Name"] + " (Size=" + table["stats"]["Size On Disk (Compressed)"] + "; " +
+            "No of Rows=" + table["stats"]["No Of Rows"] + ")";
+        tableNode["icon"] = "fa fa-archive";
+        tableNode["sizeOnDisk"] = table["stats"]["SizeOnDisk"]["value"];
 
         schemaNode["children"].push(tableNode);
     }
 
-    for(var schemaNodeIndex in db) {
+    for (var schemaNodeIndex in db) {
         var schemaNode = db[schemaNodeIndex];
-        schemaNode["text"] = "<b>Schema:</b> " + schemaNode["_name_"] + " (" + schemaNode["_noOfTables_"] + " Tables)";
+        schemaNode["children"].sort(function (a, b) {
+            return (b["sizeOnDisk"] - a["sizeOnDisk"]);
+        });
+        var schemaSize = schemaNode["children"].reduce(function (prevVal, currVal, index) {
+            if(index === 1)
+                return (prevVal["sizeOnDisk"] + currVal["sizeOnDisk"]);
+            else
+                return (prevVal + currVal["sizeOnDisk"]);
+        });
+        schemaNode["text"] = "<b>Schema:</b> " + schemaNode["_name_"] + " (No of Tables=" + schemaNode["_noOfTables_"] + "; " +
+            "Size=" + schemaSize.toFixed(4) + " GB)";
     }
 
     return (db);
@@ -49,7 +61,10 @@ function normalizeForTreeView(tables) {
 $(function () {
     blockUI($('#db_tree'));
 
-    loadViaAjax('/test/exploredb/json', null, 'json', null, null, null, function (result) {
+    var data = {};
+    data["gpsd_id"] = $('#current-gpsd-id').val();
+
+    loadViaAjax('/test/exploredb/json', data, 'json', null, null, null, function (result) {
         var jsonForDataModel = {};
 
         for (var k in result["tableHashMap"]) {
@@ -61,18 +76,17 @@ $(function () {
 
         var dbTreeJson = normalizeForTreeView(dataModel.allTables);
 
-        //var jsonString = JSON.stringify();
-
-        //$('html').html(jsonString);
+        /*var jsonString = JSON.stringify(result);
+         $('html').html(jsonString);*/
 
         unBlockUI($('#db_tree'));
 
         $.jstree.defaults.core.themes.variant = "large";
         $('#db_tree').jstree({
-                'core': {
-                    'data': dbTreeJson
-                },
-                "plugins": ["wholerow"]
-            });
+            'core': {
+                'data': dbTreeJson
+            },
+            "plugins": ["wholerow"]
+        });
     });
 });

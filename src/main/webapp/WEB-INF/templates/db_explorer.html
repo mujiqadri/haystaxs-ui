@@ -72,6 +72,7 @@
                 <!-- END PAGE BREADCRUMBS -->
                 <!-- BEGIN PAGE CONTENT INNER -->
                 <div class="page-content-inner" th:fragment="main-content">
+                    <input type="hidden" th:value="${gpsd_id}" id="current-gpsd-id"/>
                     <h3>TPC-DS</h3>
 
                     <div id="db_tree">

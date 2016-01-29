@@ -126,7 +126,7 @@ public class HaystaxsLibService {
         return result;
     }
 
-    public Tables getTablesInfoForDbExplorer() {
+    public Tables getTablesInfoForDbExplorer(int gpsdId) {
         Tables result = null;
 
         try {
@@ -134,7 +134,7 @@ public class HaystaxsLibService {
             configProperties.loadProperties();
 
             ClusterService cs = new ClusterService(configProperties);
-            result = cs.getTablefromGPDBStats(2);
+            result = cs.getTablefromGPDBStats(gpsdId);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }

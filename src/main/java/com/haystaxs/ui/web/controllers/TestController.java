@@ -177,6 +177,6 @@ public class TestController {
     @RequestMapping("/test/exploredb/json")
     @ResponseBody
     public Tables exploreDbJson() {
-        return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer();
+        return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer(2);
     }
 }

@@ -1,5 +1,6 @@
 package com.haystaxs.ui.web.controllers;
 
+import com.haystack.domain.Tables;
 import com.haystaxs.ui.business.entities.*;
 import com.haystaxs.ui.business.entities.repositories.*;
 import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDateTimes;
@@ -335,6 +336,18 @@ public class HomeController {
         model.addAttribute("gpsdees", gpsdees);
 
         return "fragments/gpsd_list";
+    }
+
+    @RequestMapping("/gpsd/exploredb/{gpsdId}")
+    public String exploreDb(@PathVariable("gpsdId") int gpsdId, Model model) {
+        model.addAttribute("gpsd_id", gpsdId);
+        return "db_explorer";
+    }
+
+    @RequestMapping("/gpsd/exploredb/json")
+    @ResponseBody
+    public Tables exploreDbJson(@RequestParam("gpsd_id") int gpsdId) {
+        return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer(gpsdId);
     }
 
     @RequestMapping("/gpsd/delete/{id}")
