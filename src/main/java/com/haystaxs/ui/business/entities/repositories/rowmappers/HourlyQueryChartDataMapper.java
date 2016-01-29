@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 /**
  * Created by Adnan on 10/21/2015.
  */
-public class HourlyAvgQueryChartDataMapper implements RowMapper {
+public class HourlyQueryChartDataMapper implements RowMapper {
     @Override
     public Object mapRow(ResultSet rs, int i) throws SQLException {
         UserQueryChartData record = new UserQueryChartData();

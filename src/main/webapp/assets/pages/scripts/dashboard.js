@@ -84,7 +84,6 @@ function initQueryLogDurationChart(data) {
     }
 
     var makeChart = function(graphs, chartData) {
-        debugger;
         var chart = AmCharts.makeChart("querylog-duration-chart", {
             type: "serial",
             fontSize: 12,
@@ -331,6 +330,11 @@ function initHourlyQueriesChart(data) {
 
     blockUI($('#hourly-queries-chart-holder'));
 
+    data = data || {};
+    if(!data["sqlWindowOp"]) {
+        data["sqlWindowOp"] = "avg";
+    }
+
     loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
         var sequencer = rawChartData[rawChartData.length-1];
@@ -522,15 +526,198 @@ function initHourlyQueriesChart(data) {
     }
 }
 
-function dataForAjax() {
-    var result = {};
+function initHourlyComparisonQueriesChart(data) {
+    if (typeof(AmCharts) === 'undefined' || $('#hourly-queries-comparison-chart').size() === 0) {
+        return;
+    }
 
-    result.fromDate = $('#start-date').val();
-    result.toDate = $('#end-date').val();
+    var rawChartData;
+
+    blockUI($('#hourly-queries-comparison-chart-holder'));
+
+    data = data || {};
+    if(!data["sqlWindowOp"]) {
+        data["sqlWindowOp"] = "avg";
+    }
+
+    loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result_1) {
+        rawChartData = result_1;
+        //var sequencer = rawChartData_Timeline1[rawChartData_Timeline1.length-1];
+        var graphs = [];
+        graphs.push({
+            valueField: "totalDuration",
+            title: "Selected Timeline",
+            type: "line",
+            fillAlphas: 0,
+            valueAxis: "va1",
+            legendValueText: "[[value]]",
+            lineColor: "red"
+        });
+
+        // TODO: Compute previous timeline
+        var timespanSelectedValue = $('#timespan').val();
+        var comparisonExists = true;
+        var mdmMax = new moment(maxDateWithTimeZone);
+        var mdmMin;
+        switch(timespanSelectedValue) {
+            case "ALL":
+                comparisonExists = false;
+                break;
+            case "12hr":
+                mdmMax.subtract(12, 'h');
+                mdmMin = mdmMax.clone();
+                mdmMin.subtract(12, 'h');
+                break;
+            case "1w":
+                mdmMax.subtract(1, 'w');
+                mdmMin = mdmMax.clone();
+                mdmMin.subtract(1, 'w');
+                break;
+            case "2w":
+                mdmMax.subtract(2, 'w');
+                mdmMin = mdmMax.clone();
+                mdmMin.subtract(2, 'w');
+                break;
+            case "1m":
+                mdmMax.subtract(1, "M");
+                mdmMin = mdmMax.clone();
+                mdmMin.subtract(1, 'M');
+                break;
+            case "3m":
+                mdm.subtract(3, "M");
+                mdmMin = mdmMax.clone();
+                mdmMin.subtract(3, 'M');
+                break;
+            case "12m":
+                mdm.subtract(12, "M");
+                mdmMin = mdmMax.clone();
+                mdmMin.subtract(12, 'M');
+                break;
+        }
+        if(comparisonExists) {
+            data = dataForAjax(mdmMin.format("DD-MMM-YYYY"), mdmMax.format("DD-MMM-YYYY"), data);
+            loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result_2) {
+                for(index in rawChartData) {
+                    rawChartData[index]["totalDurationPrev"] = result_2[index]["totalDuration"];
+                }
+
+                graphs.push({
+                    valueField: "totalDurationPrev",
+                    title: "Previous Timeline",
+                    type: "line",
+                    fillAlphas: 0,
+                    valueAxis: "va1",
+                    legendValueText: "[[value]]",
+                    lineColor: "blue"
+                });
+
+                makeChart(graphs, rawChartData.slice(0, rawChartData.length-1));
+                unBlockUI($('#hourly-queries-comparison-chart-holder'));
+            });
+        } else {
+            makeChart(graphs, rawChartData.slice(0, rawChartData.length-1));
+            unBlockUI($('#hourly-queries-comparison-chart-holder'));
+
+        }
+    });
+
+    var makeChart = function(graphs, chartData) {
+        var chart = AmCharts.makeChart("hourly-queries-comparison-chart", {
+            type: "serial",
+            fontSize: 12,
+            fontFamily: "Open Sans",
+            dataDateFormat: "JJ:NN",
+            dataProvider: chartData,
+            //handDrawn: true,
+            /*dataLoader: {
+             "url": App.webAppPath + "/dashboard/ql/chartdata",
+             "format": "json"
+             },*/
+
+            categoryField: "date",
+            categoryAxis: {
+                parseDates: true,
+                minPeriod: "hh",
+                //autoGridCount: true,
+                gridCount: 24,
+                minHorizontalGap: 25,
+                gridAlpha: 0.1,
+                gridColor: "#FFFFFF",
+                axisColor: "#555555",
+                boldPeriodBeginning: false,
+                labelRotation: "90",
+                equalSpacing: true,
+                dateFormats: [{
+                    period: 'DD',
+                    format: 'JJ:NN'
+                }, {
+                    period: 'WW',
+                    format: 'MMM DD'
+                }, {
+                    period: 'MM',
+                    format: 'MMM'
+                }, {
+                    period: 'YYYY',
+                    format: 'YYYY'
+                }, {
+                    period: 'hh',
+                    format: 'JJ:NN'
+                }]
+            },
+
+            valueAxes: [{
+                id: "va1",
+                title: "Duration (Secs)",
+                gridAlpha: 0.2,
+                axisAlpha: 0
+            }],
+
+            graphs: graphs,
+
+            chartCursor: {
+                //zoomable: true,
+                categoryBalloonDateFormat: "",
+                cursorAlpha: 0.25,
+                //categoryBalloonColor: "#e26a6a",
+                categoryBalloonEnabled: false,
+                categoryBalloonAlpha: 0,
+                fullWidth: true,
+                valueBalloonsEnabled: false
+            },
+
+            legend: {
+                valueAlign: "left",
+                enabled: graphs.length > 0
+            }
+        });
+    }
+}
+
+function dataForAjax(minDate, maxDate, data) {
+    var result = data || {};
+
+    result.fromDate = minDate ? minDate : $('#start-date').val();
+    result.toDate = maxDate ? maxDate : $('#end-date').val();
     result.dbName = $('#db-name-like').val() === "---ANY---" ? "" : $('#db-name-like').val();
     result.userName = $('#user-name-like').val() === "---ANY---" ? "" : $('#user-name-like').val();
 
     return result;
+}
+
+function hourlyQueriesSqlWindowOp_Change() {
+    var data = {};
+
+    data["sqlWindowOp"] = $(this).val();
+
+    initHourlyQueriesChart(data);
+}
+
+function hourlyQueriesComparisonSqlWindowOp_Change() {
+    var data = {};
+
+    data["sqlWindowOp"] = $(this).val();
+
+    initHourlyComparisonQueriesChart(data);
 }
 
 $(function () {
@@ -545,8 +732,8 @@ $(function () {
         initQueryLogDurationChart(data);
         initQueryLogCountChart(data);
         initHourlyQueriesChart(data);
+        initHourlyComparisonQueriesChart(data);
     });
-
     $('#timespan').on('change', function(e) {
         var selectedValue = $(this).val();
         var startDate = $('#start-date');
@@ -570,6 +757,8 @@ $(function () {
             startDate.val(mdm.format('DD-MMM-YYYY'));
         }
     });
+    $('#hourly-queries-sqlwindowop').on('change', hourlyQueriesSqlWindowOp_Change);
+    $('#hourly-queries-comparison-sqlwindowop').on('change', hourlyQueriesComparisonSqlWindowOp_Change);
 
     initQueryLogDurationChart();
 
@@ -577,9 +766,8 @@ $(function () {
 
     initHourlyQueriesChart();
 
-    //var cd = generateChartData();
+    initHourlyComparisonQueriesChart();
 });
-
 
 function generateChartData() {
     var chartData = [];

@@ -80,6 +80,7 @@ public class FileUtil {
         }
     }
 
+    // TODO: Should we force the user to upload QueryLogs without any subdirectories in the TAR File ?
     public void unGZipTarArchive(String tarGzipFile, String outputFolder) {
         try {
             File directory = new File(outputFolder);

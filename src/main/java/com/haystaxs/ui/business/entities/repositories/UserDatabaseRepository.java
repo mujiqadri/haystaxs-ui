@@ -2,7 +2,7 @@ package com.haystaxs.ui.business.entities.repositories;
 
 import com.haystaxs.ui.business.entities.UserQueryChartData;
 import com.haystaxs.ui.business.entities.UserQuery;
-import com.haystaxs.ui.business.entities.repositories.rowmappers.HourlyAvgQueryChartDataMapper;
+import com.haystaxs.ui.business.entities.repositories.rowmappers.HourlyQueryChartDataMapper;
 import com.haystaxs.ui.business.entities.repositories.rowmappers.TimelineQueryChartDataMapper;
 import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDateTimes;
 import com.haystaxs.ui.business.entities.selection.QueryType;
@@ -260,9 +260,13 @@ public class UserDatabaseRepository extends RepositoryBase {
     }
 
     //@Cacheable(value = "dataCache")
-    public List<UserQueryChartData> getHourlyAvgQueryStatsForChart(String normalizedUserName, String fromDate, String toDate,
-                                                                   String dbName, String userName) {
+    public List<UserQueryChartData> getHourlyQueryStatsForChart(String normalizedUserName, String fromDate, String toDate,
+                                                                String dbName, String userName, String windowOp) {
         String whereClause = " ";
+
+        if(windowOp == null || windowOp.isEmpty()) {
+            windowOp = "avg";
+        }
 
         if(fromDate != null && toDate != null && !fromDate.isEmpty()  && !toDate.isEmpty()) {
             whereClause += " AND logsessiontime::date >= '" + fromDate + "' ";
@@ -317,19 +321,21 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "\t\tCASE WHEN qrytype = 'TRUNCATE TABLE' THEN duration END as TRUNCATE_TABLE_DURATION,\n" +
                 "\t\tCASE WHEN qrytype = 'UPDATE' THEN duration END as UPDATE_DURATION\n" +
                 "\tFROM (\n" +
-                "\t\tselect qrytype, extract(hour from logsessiontime) as date, round(avg(extract(epoch from logduration))) as duration\n" +
+                "\t\tselect qrytype, extract(hour from logsessiontime) as date, round("+
+                "%3$s" +
+                "(extract(epoch from logduration))) as duration\n" +
                 "\t\tfrom %s.queries\n" +
                 "\t\twhere extract(epoch from logduration) > 0\n" +
-                " %2s " +
+                " %2$s " +
                 "\t\tgroup by ROLLUP(EXTRACT(hour from logsessiontime),qrytype)\n" +
                 "\t\tORDER BY EXTRACT(hour from logsessiontime) ,qrytype\n" +
                 "\t) AS A\n" +
                 ") AS B\n" +
                 " where date IS NOT NULL\n" +
                 "group by rollup(date)\n" +
-                "order by date", normalizedUserName, whereClause);
+                "order by date", normalizedUserName, whereClause, windowOp);
 
-        List<UserQueryChartData> result = jdbcTemplate.query(sql, new HourlyAvgQueryChartDataMapper());
+        List<UserQueryChartData> result = jdbcTemplate.query(sql, new HourlyQueryChartDataMapper());
 
         return result;
     }

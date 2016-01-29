@@ -148,18 +148,22 @@ public class HomeController {
 
     @RequestMapping("/dashboard/ql/hourlyavgchartdata")
     @ResponseBody
-    public List<UserQueryChartData> hourlyAvgQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
-                                                               @RequestParam(value = "toDate", required = false) String toDate,
-                                                               @RequestParam(value = "dbName", required = false) String dbName,
-                                                               @RequestParam(value = "userName", required = false) String userName) {
-        List<UserQueryChartData> result = userDatabaseRepository.getHourlyAvgQueryStatsForChart(getNormalizedUserName(), fromDate, toDate,
-                dbName, userName);
+    public List<UserQueryChartData> hourlyQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                                            @RequestParam(value = "toDate", required = false) String toDate,
+                                                            @RequestParam(value = "dbName", required = false) String dbName,
+                                                            @RequestParam(value = "userName", required = false) String userName,
+                                                            @RequestParam("sqlWindowOp") String windowOp) {
+        List<UserQueryChartData> result = userDatabaseRepository.getHourlyQueryStatsForChart(getNormalizedUserName(), fromDate, toDate,
+                dbName, userName, windowOp);
 
         // The resulting list may contain less or none rows, so the below is a workaround as the chart needs full data
         if (result.size() < 25) {
+            // Define an array to hold the 24 hour data plus the sequencer (Last row from query summing all the columns)
             UserQueryChartData[] finalResult = new UserQueryChartData[25];
 
+            // If no data was returned from the query
             if (result.size() == 0) {
+                // Set the sequencer object used in the client JS
                 finalResult[24] = new UserQueryChartData();
             }
 
@@ -167,12 +171,15 @@ public class HomeController {
                 UserQueryChartData data = result.get(i);
 
                 if (data.getDate() == null) {
+                    // If sequencer is found put it in the last position
                     finalResult[24] = data;
                 } else {
+                    // Put all other hours found in the correct index
                     finalResult[Integer.parseInt(data.getDate())] = data;
                 }
             }
 
+            // Fill up all the other empty indexes with zero values
             for(int i = 0; i < 24; i++) {
                 if(finalResult[i] == null) {
                     finalResult[i] = new UserQueryChartData(Integer.toString(i));
@@ -422,6 +429,7 @@ public class HomeController {
                     fileUtil.saveMultipartFileToPath(queryLogFile, fileBaseDir, originalFileName);
 
                     //fileUtil.unZip(fileBaseDir + File.separator + originalFileName, fileBaseDir);
+                    // NOTE: Assuming that the Tar file only has log files, no other files or folders...
                     fileUtil.unGZipTarArchive(fileBaseDir + File.separator + originalFileName, fileBaseDir);
 
                     extractedQueryLogFiles.put(newQueryLogId, File.separator + normalizedUserName + File.separator + "querylogs" + File.separator + newQueryLogId);
@@ -438,7 +446,7 @@ public class HomeController {
         }
 
         // TODO: Once analyzed put entries in user inbox (Muji or me ?)
-        //haystaxsLibServiceWrapper.analyzeQueryLogs(extractedQueryLogFiles);
+        haystaxsLibServiceWrapper.analyzeQueryLogs(extractedQueryLogFiles);
 
         files.put("files", uploadedFileInfos);
         return files;

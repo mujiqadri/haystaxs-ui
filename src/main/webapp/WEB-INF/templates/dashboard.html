@@ -79,7 +79,7 @@
                     <div class="row">
                         <div class="col-lg-12" style="padding-bottom: 10px">
                             <form class="form-inline" role="form">
-                                <Label class="bold">Graph filters:</Label>
+                                <Label class="bold">All Graph filters:</Label>
                                 <select class="form-control tooltips" id="timespan"
                                         data-toggle="tooltip" title="Timespan" data-placement="top">
                                     <option value="ALL">ALL</option>
@@ -108,8 +108,6 @@
                                 </button>
                                 <input type="hidden" id="start-date" th:value="${minDate}"/>
                                 <input type="hidden" id="end-date" th:value="${maxDate}"/>
-                                <input type="hidden" id="minDate" th:value="${minDate}"/>
-                                <input type="hidden" id="maxDate" th:value="${maxDate}"/>
                                 <input type="hidden" id="order-by" value="queryStartTime ASC"/>
                                 <input type="hidden" id="current-page-no" value="1"/>
                             </form>
@@ -150,11 +148,40 @@
                                 <div class="portlet-title">
                                     <div class="caption caption-md">
                                         <i class="icon-bar-chart font-blue"></i>
-                                        <span class="caption-subject font-blue uppercase bold">Queries - Hourly Averages</span>
+                                        <span class="caption-subject font-blue uppercase bold">Queries - Hourly</span>
+                                    </div>
+                                    <div class="inputs" style="float: none; padding-left: 10px;">
+                                        <form class="form-inline">
+                                            <select class="form-control" id="hourly-queries-sqlwindowop">
+                                                <option value="avg">Averages</option>
+                                                <option value="sum">Sum</option>
+                                            </select>
+                                        </form>
                                     </div>
                                 </div>
                                 <div class="portlet-body" id="hourly-queries-chart-holder">
                                     <div id="hourly-queries-chart" class="CSSAnimationChart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption caption-md">
+                                        <i class="icon-bar-chart font-blue"></i>
+                                        <span class="caption-subject font-blue uppercase bold">Queries - Hourly Comparison</span>
+                                    </div>
+                                    <div class="inputs" style="float: none; padding-left: 10px;">
+                                        <form class="form-inline">
+                                            <select class="form-control" id="hourly-queries-comparison-sqlwindowop">
+                                                <option value="avg">Averages</option>
+                                                <option value="sum">Sum</option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="portlet-body" id="hourly-queries-comparison-chart-holder">
+                                    <div id="hourly-queries-comparison-chart" class="CSSAnimationChart"></div>
                                 </div>
                             </div>
                         </div>
