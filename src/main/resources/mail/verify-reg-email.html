@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title></title>
+</head>
+<body>
+    <img src="http://beta.haystaxs.org:9980/haystaxsui/public/img/hs-logo.png" style="height: 36px; width: 160px"/><br/><br/>
+
+    Hello <span th:text="${userName}"></span>,<br/><br/>
+
+    Thank you for registering with Haystaxs.<br/><br/>
+
+    Please click <a th:href="@{http://__${baseUrl}__/verifyreg/__${userId}__/__${verifyCode}__}">this</a> link to verify your email address.<br/><br/>
+
+    The Haystaxs Team :)
+</body>
+</html>

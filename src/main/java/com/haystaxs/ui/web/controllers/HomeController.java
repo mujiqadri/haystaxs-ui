@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -73,6 +74,8 @@ public class HomeController {
     private QueryLogService queryLogService;
     @Autowired
     private HaystaxsLibService haystaxsLibServiceWrapper;
+    @Autowired
+    private ClusterRepository clusterRepository;
     //endregion
 
     //region ### Controller Level Model Attributes ###
@@ -100,11 +103,31 @@ public class HomeController {
     private String getNormalizedUserName() {
         return miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
     }
+
+    @ModelAttribute("allUserClusters")
+    private List<Cluster> getAllUserClusters() {
+        return(clusterRepository.getAllClusters(getUserId()));
+    }
+
+    private int getValidClusterId(int clusterId) {
+        int properClusterId = clusterId;
+
+        if(clusterId == 0 || !clusterRepository.clusterBelongsToUser(getUserId(), clusterId)) {
+            properClusterId = clusterRepository.getMaxClusterId(getUserId());
+        }
+
+        return properClusterId;
+    }
     //endregion
 
     //region ### Dashboard Action ###
-    @RequestMapping({"/dashboard", "/"})
-    public String dashBoard(Model model) {
+    @RequestMapping("/dashboard/{clusterId}")
+    public String dashBoard(@PathVariable("clusterId") int clusterId, Model model) {
+        int validClusterId = getValidClusterId(clusterId);
+        if(clusterId != validClusterId) {
+            return "redirect:/dashboard/" + validClusterId;
+        }
+
         model.addAttribute("title", "Dashboard");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
@@ -131,7 +154,7 @@ public class HomeController {
         } catch (Exception ex) {
         }
 
-        return ("dashboard");
+        return "dashboard";
     }
 
     @RequestMapping("/dashboard/ql/chartdata")

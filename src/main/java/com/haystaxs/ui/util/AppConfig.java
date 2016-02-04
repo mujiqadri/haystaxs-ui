@@ -24,6 +24,12 @@ public class AppConfig {
     private boolean saveToFtp;
     @Value("#{appProps['repository.haystackSchema']}")
     private String hsSchemaName;
+    @Value("#{appProps['email.defaultFromEmailAddress']}")
+    private String defaultFromEmailAddress;
+    @Value("#{appProps['webapp.baseUrl']}")
+    private String webAppBaseUrl;
+    @Value("#{appProps['webapp.isDeployedOnCluster']}")
+    private boolean isDeployedOnCluster;
 
     public String getGpsdSaveDirectory() {
         return gpsdSaveDirectory;
@@ -59,5 +65,17 @@ public class AppConfig {
 
     public String getHsSchemaName() {
         return hsSchemaName;
+    }
+
+    public String getDefaultFromEmailAddress() {
+        return defaultFromEmailAddress;
+    }
+
+    public String getWebAppBaseUrl() {
+        return webAppBaseUrl;
+    }
+
+    public boolean isDeployedOnCluster() {
+        return isDeployedOnCluster;
     }
 }

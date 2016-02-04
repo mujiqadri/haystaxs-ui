@@ -760,13 +760,10 @@ $(function () {
     $('#hourly-queries-sqlwindowop').on('change', hourlyQueriesSqlWindowOp_Change);
     $('#hourly-queries-comparison-sqlwindowop').on('change', hourlyQueriesComparisonSqlWindowOp_Change);
 
-    initQueryLogDurationChart();
-
+    /*initQueryLogDurationChart();
     initQueryLogCountChart();
-
     initHourlyQueriesChart();
-
-    initHourlyComparisonQueriesChart();
+    initHourlyComparisonQueriesChart();*/
 });
 
 function generateChartData() {

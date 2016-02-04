@@ -22,4 +22,6 @@
     <import resource="applicationContext-security.xml" />
     <!-- Email configuration -->
     <import resource="applicationContext-mail.xml" />
+    <!-- Thymelead configuration -->
+    <import resource="applicationContext-thymeleaf.xml" />
 </beans>

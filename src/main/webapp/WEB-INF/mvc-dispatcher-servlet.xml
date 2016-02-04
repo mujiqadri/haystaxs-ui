@@ -5,7 +5,7 @@
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:cache="http://www.springframework.org/schema/cache"
        xsi:schemaLocation="http://www.springframework.org/schema/mvc
-                            http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                            http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
                             http://www.springframework.org/schema/beans
                             http://www.springframework.org/schema/beans/spring-beans.xsd
                             http://www.springframework.org/schema/context
@@ -31,7 +31,7 @@
     <!-- **************************************************************** -->
     <!--  SPRING ANNOTATION PROCESSING                                    -->
     <!-- **************************************************************** -->
-    <mvc:annotation-driven />
+    <mvc:annotation-driven ignoreDefaultModelOnRedirect="true" />
     <mvc:interceptors>
         <bean class="org.thymeleaf.spring.support.ThymeleafLayoutInterceptor"></bean>
     </mvc:interceptors>
@@ -42,37 +42,6 @@
     <!-- **************************************************************** -->
     <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
         <property name="basename" value="Messages"/>
-    </bean>
-
-    <!-- **************************************************************** -->
-    <!--  THYMELEAF-SPECIFIC ARTIFACTS                                    -->
-    <!--  TemplateResolver <- TemplateEngine <- ViewResolver              -->
-    <!-- **************************************************************** -->
-
-    <bean id="templateResolver"
-          class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
-        <property name="prefix" value="/WEB-INF/templates/"/>
-        <property name="suffix" value=".html"/>
-        <!--<property name="templateMode" value="LEGACYHTML5"/>-->
-        <property name="templateMode" value="HTML5"/>
-        <!-- Template cache is true by default. Set to false if you want -->
-        <!-- templates to be automatically updated when modified.        -->
-        <property name="cacheable" value="false"/>
-    </bean>
-
-    <bean id="templateEngine"
-          class="org.thymeleaf.spring4.SpringTemplateEngine">
-        <property name="templateResolver" ref="templateResolver"/>
-
-        <property name="additionalDialects">
-            <set>
-                <bean class="org.thymeleaf.support.customattributes.HaystaxsDialect" />
-            </set>
-        </property>
-    </bean>
-
-    <bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
-        <property name="templateEngine" ref="templateEngine"/>
     </bean>
 
     <!-- FOR JSPS -->

@@ -16,7 +16,7 @@ var Layout = function () {
     // Handles header
     var handleHeader = function () {        
         // handle search box expand/collapse        
-        $('.page-header').on('click', '.search-form', function (e) {
+        /*$('.page-header').on('click', '.search-form', function (e) {
             $(this).addClass("open");
             $(this).find('.form-control').focus();
 
@@ -24,7 +24,7 @@ var Layout = function () {
                 $(this).closest('.search-form').removeClass("open");
                 $(this).unbind("blur");
             });
-        });
+        });*/
 
         // handle hor menu search form on enter press
         $('.page-header').on('keypress', '.hor-menu .search-form .form-control', function (e) {

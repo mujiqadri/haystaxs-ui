@@ -43,7 +43,7 @@ public class UserRepository extends  RepositoryBase{
         return(noOfRows > 0 ? true : false);
     }
 
-    public int createNew(HsUser hsUser) {
+    public HsUser createNew(HsUser hsUser) {
         /*
             -- To get a UUID alternative, works in newer versions of postgres
             SELECT md5(random()::text || clock_timestamp()::text)::uuid
@@ -59,7 +59,10 @@ public class UserRepository extends  RepositoryBase{
         jdbcTemplate.update(sql, new Object[] {newUserId, hsUser.getFirstName(), hsUser.getLastName(), hsUser.getEmailAddress(), hsUser.getPassword(), hsUser.getOrganization(),
         regVerificationCode, miscUtil.getNormalizedUserName(hsUser.getEmailAddress())});
 
-        return newUserId;
+        hsUser.setRegVerificationCode(regVerificationCode);
+        hsUser.setUserId(newUserId);
+
+        return hsUser;
     }
 
     public void selectTest() {

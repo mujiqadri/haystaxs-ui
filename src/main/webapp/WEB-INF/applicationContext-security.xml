@@ -14,7 +14,7 @@
 
     <http auto-config="true">
         <!-- Login pages -->
-        <form-login login-page="/login" default-target-url="/dashboard" always-use-default-target="false"
+        <form-login login-page="/login" default-target-url="/dashboard/0" always-use-default-target="true"
                     authentication-failure-handler-ref="afh"/>
         <logout logout-success-url="/login?logout"/>
         <!-- Security zones -->
@@ -22,7 +22,7 @@
         <intercept-url pattern="/login" access="isAnonymous()"/>
         <intercept-url pattern="/register" access="isAnonymous()"/>
         <intercept-url pattern="/regdone" access="isAnonymous()"/>
-        <intercept-url pattern="/verifyreg" access="isAnonymous()"/>
+        <intercept-url pattern="/verifyreg/**" access="isAnonymous()"/>
         <!--<intercept-url pattern="/visualizer/**" />-->
         <!--<intercept-url pattern="/login" access="isAnonymous() or hasRole('USER')" />-->
 

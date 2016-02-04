@@ -64,6 +64,7 @@ var RegisterUser = function() {
             },
 
             submitHandler: function(form) {
+                $('#register-submit-btn').prop('disabled', true);
                 form.submit();
             }
         });
@@ -75,6 +76,10 @@ var RegisterUser = function() {
                 }
                 return false;
             }
+        });
+
+        $('#register-submit-btn').on('click', function(e){
+
         });
     };
 
