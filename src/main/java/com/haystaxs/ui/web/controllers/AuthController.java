@@ -47,10 +47,6 @@ public class AuthController {
     @Layout(value = "", enabled = false)
     @RequestMapping(value = "/register", method = RequestMethod.GET)
     public String register(Model model) {
-        if(appConfig.isDeployedOnCluster()) {
-            return "login";
-        }
-
         model.addAttribute("candidateUser", new HsUser());
         return "registerUser";
     }
@@ -58,10 +54,6 @@ public class AuthController {
     @Layout(value = "", enabled = false)
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public String register(HsUser hsUser, Locale locale, Model model) throws Exception {
-        if(appConfig.isDeployedOnCluster()) {
-            return "login";
-        }
-
         HsUser newHsUser = null;
 
         try {
@@ -77,18 +69,22 @@ public class AuthController {
             throw ex;
         }
 
-        try {
-            Context context = new Context();
-            context.setVariable("userName", newHsUser.getFirstName());
-            context.setVariable("userId", newHsUser.getUserId());
-            context.setVariable("verifyCode", newHsUser.getRegVerificationCode());
-            context.setVariable("baseUrl", appConfig.getWebAppBaseUrl());
+        if(!appConfig.isDeployedOnCluster()) {
+            try {
+                Context context = new Context();
+                context.setVariable("userName", newHsUser.getFirstName());
+                context.setVariable("userId", newHsUser.getUserId());
+                context.setVariable("verifyCode", newHsUser.getRegVerificationCode());
+                context.setVariable("baseUrl", appConfig.getWebAppBaseUrl());
 
-            emailUtil.sendHtmlEmail(newHsUser.getEmailAddress(), "Haystaxs - Verify Registration",
-                    appConfig.getDefaultFromEmailAddress(), context, "verify-reg-email");
-        } catch(Exception ex) {
-            // TODO: Log this in internal errrors table
-            logger.error(String.format("Error sending verification email to user with userId = %d", newHsUser.getUserId()));
+                emailUtil.sendHtmlEmail(newHsUser.getEmailAddress(), "Haystaxs - Verify Registration",
+                        appConfig.getDefaultFromEmailAddress(), context, "verify-reg-email");
+            } catch (Exception ex) {
+                // TODO: Log this in internal errrors table
+                logger.error(String.format("Error sending verification email to user with userId = %d", newHsUser.getUserId()));
+            }
+        } else {
+            userRepository.verifyRegistration(newHsUser.getUserId(), newHsUser.getRegVerificationCode());
         }
 
         return "registerUserSuccess";
