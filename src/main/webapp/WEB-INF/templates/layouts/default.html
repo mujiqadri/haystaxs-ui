@@ -413,7 +413,7 @@
                     <option th:each="cluster : ${allUserClusters}" th:value="${cluster.clusterId}" th:text="${cluster.clusterName}"></option>
                 </select>
                 <a class="btn btn-primary fa fa-plus tooltips" data-toggle="tooltip" data-placement="top" title="Add Cluster"
-                        th:href="@{/cluster/add}"></a>
+                        th:href="@{/cluster/add}" th:if="${isDeployedOnCluster}"></a>
             </form>
             <!-- END HEADER SEARCH BOX -->
             <!-- BEGIN MEGA MENU -->

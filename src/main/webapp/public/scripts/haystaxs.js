@@ -102,10 +102,31 @@ function applyFilters() {
 $(function () {
     UIElements.initialize();
 
+    initializeFullScreenOptions();
+
+    $('#info-panel-container').dialog({
+        closeOnEscape: false,
+        dialogClass: 'above-all-else',
+        maxWidth: 500,
+        width: 500,
+        height: 700,
+        maxHeight: 700,
+        position: { my: "left top", at: "right top", of: $('#visualizer-panel-container') },
+        resizable: false
+    }).dialogExtend({
+        "closable" : false,
+        "collapsable" : true
+    });
+
+    loadViaAjax('/workload/json/' + $('#workload-id').val(), null, "json", null, null, null, function(result) {
+        dataModel = new Haystaxs.DataModel(result);
+        dataLoadSuccessful();
+    });
+});
+
+function initializeFullScreenOptions() {
     var clusterVisualPortlet = $('#cluster-visual-portlet-body');
-
     Visualizer.width = clusterVisualPortlet.width() - 10;
-
     $('body').on('click', '.portlet > .portlet-title .fullscreen', function(e) {
         if(dataModel) {
             Visualizer.width = clusterVisualPortlet.width() - 10;
@@ -117,12 +138,7 @@ $(function () {
             Visualizer.updateLayout(dataModel);
         }
     });
-
-    loadViaAjax('/workload/json/' + $('#workload-id').val(), null, "json", null, null, null, function(result) {
-        dataModel = new Haystaxs.DataModel(result);
-        dataLoadSuccessful();
-    });
-});
+}
 
 /// GLOBAL VARIABLES ///
 var dataModel = undefined;

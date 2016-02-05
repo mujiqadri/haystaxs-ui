@@ -363,8 +363,8 @@ var UIElements = {
 
         element.popover({
             html: true,
-            placement: "bottom",
-            container: "body",
+            placement: "left",
+            container: "#info-panel-container",
             content: (function () {
                 var str = '<table class="table table-condensed table-hover table-striped">';
                 str += '<thead>';

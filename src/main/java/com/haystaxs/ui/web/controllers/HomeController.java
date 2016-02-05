@@ -93,6 +93,16 @@ public class HomeController {
     private boolean showBreadCrumbs() {
         return false;
     }
+
+    @ModelAttribute("allUserClusters")
+    private List<Cluster> getAllUserClusters() {
+        return(clusterRepository.getAllClusters(getUserId()));
+    }
+
+    @ModelAttribute("isDeployedOnCluster")
+    private boolean isDeployedOnCluster() {
+        return(appConfig.isDeployedOnCluster());
+    }
     //endregion
 
     //region ### Controller Level Helper Methods ###
@@ -104,16 +114,15 @@ public class HomeController {
         return miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
     }
 
-    @ModelAttribute("allUserClusters")
-    private List<Cluster> getAllUserClusters() {
-        return(clusterRepository.getAllClusters(getUserId()));
-    }
-
     private int getValidClusterId(int clusterId) {
         int properClusterId = clusterId;
 
         if(clusterId == 0 || !clusterRepository.clusterBelongsToUser(getUserId(), clusterId)) {
-            properClusterId = clusterRepository.getMaxClusterId(getUserId());
+            try {
+                properClusterId = clusterRepository.getMaxClusterId(getUserId());
+            } catch(Exception ex) {
+                properClusterId = 0;
+            }
         }
 
         return properClusterId;
@@ -124,7 +133,10 @@ public class HomeController {
     @RequestMapping("/dashboard/{clusterId}")
     public String dashBoard(@PathVariable("clusterId") int clusterId, Model model) {
         int validClusterId = getValidClusterId(clusterId);
-        if(clusterId != validClusterId) {
+        if(validClusterId == 0) {
+            return "redirect:/cluster/add";
+        }
+        else if(clusterId != validClusterId) {
             return "redirect:/dashboard/" + validClusterId;
         }
 
@@ -216,6 +228,15 @@ public class HomeController {
         return (result);
     }
 
+    //endregion
+
+    //region ### Cluster Actions ###
+    @RequestMapping("/cluster/add")
+    public String addCluster(Model model) {
+        model.addAttribute("title", "Add Cluster");
+
+        return "add_cluster";
+    }
     //endregion
 
     //region ### GPSD Actions ###
