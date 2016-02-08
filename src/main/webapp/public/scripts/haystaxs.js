@@ -104,6 +104,15 @@ $(function () {
 
     initializeFullScreenOptions();
 
+    initializeToolWindow();
+
+    loadViaAjax('/workload/json/' + $('#workload-id').val(), null, "json", null, null, null, function(result) {
+        dataModel = new Haystaxs.DataModel(result);
+        dataLoadSuccessful();
+    });
+});
+
+function initializeToolWindow() {
     $('#info-panel-container').dialog({
         closeOnEscape: false,
         dialogClass: 'above-all-else',
@@ -117,12 +126,7 @@ $(function () {
         "closable" : false,
         "collapsable" : true
     });
-
-    loadViaAjax('/workload/json/' + $('#workload-id').val(), null, "json", null, null, null, function(result) {
-        dataModel = new Haystaxs.DataModel(result);
-        dataLoadSuccessful();
-    });
-});
+}
 
 function initializeFullScreenOptions() {
     var clusterVisualPortlet = $('#cluster-visual-portlet-body');

@@ -346,6 +346,7 @@ var UIElements = {
     },
 
     refresh: function () {
+        debugger;
         UIElements.clearAllGrids();
 
         UIElements.initTableSelectDropdown();
