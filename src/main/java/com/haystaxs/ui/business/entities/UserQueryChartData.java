@@ -1,9 +1,11 @@
 package com.haystaxs.ui.business.entities;
 
+import java.io.Serializable;
+
 /**
  * Created by adnan on 12/20/15.
  */
-public class UserQueryChartData {
+public class UserQueryChartData  implements Serializable {
     private String date;
     private int totalDuration;
     private int totalCount;

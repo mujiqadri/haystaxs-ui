@@ -21,46 +21,49 @@ import java.util.List;
  * Created by Adnan on 10/21/2015.
  */
 @Repository
-public class UserDatabaseRepository extends RepositoryBase {
-    final static Logger logger = LoggerFactory.getLogger(UserDatabaseRepository.class);
+public class UserQueriesRepository extends RepositoryBase {
+    final static Logger logger = LoggerFactory.getLogger(UserQueriesRepository.class);
 
-    public UserDatabaseRepository() {
+    public UserQueriesRepository() {
         logger.trace(logger.getName() + " instantiated.");
     }
 
-    public List<UserQuery> getTopQueries(String normalizedUserName, String forDate) {
+    public List<UserQuery> getTopQueries(String userSchemaName, String forDate, int clusterId) {
         String sql = String.format("SELECT  logdatabase, loguser, logtimemin as queryStartTime, logtimemax as queryEndTime, extract(epoch from logduration) as durationSeconds,sql\n" +
                 "FROM %s.queries\n" +
                 "where to_char(logsessiontime, 'DD-MON-YYYY') = ?\n" +
-                "order by 5 desc limit 10", normalizedUserName);
+                " and gpsd_id = ?\n" +
+                "order by 5 desc limit 10", userSchemaName);
 
-        List<UserQuery> resultSet = jdbcTemplate.query(sql, new Object[]{forDate.toUpperCase()}, new BeanPropertyRowMapper<UserQuery>(UserQuery.class));
+        List<UserQuery> resultSet = jdbcTemplate.query(sql, new Object[]{forDate.toUpperCase(), clusterId}, new BeanPropertyRowMapper<UserQuery>(UserQuery.class));
 
         return resultSet;
     }
 
-    @Cacheable(value = "dataCache")
-    public List<QueryType> getQueryCountByCategory(String normalizedUserName, String forDate) {
+    @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
+    public List<QueryType> getQueryCountByCategory(String userSchemaName, String forDate, int clusterId) {
         String sql = String.format("SELECT  qrytype as queryType, count(*) as count, sum(extract(epoch from logduration)) as totalDuration\n" +
                 "FROM %s.queries\n" +
                 "where to_char(logsessiontime, 'DD-MON-YYYY') = ?\n" +
+                " and gpsd_id = ?" +
                 "group by  qrytype\n" +
-                "order by 2 desc", normalizedUserName);
+                "order by 2 desc", userSchemaName);
 
-        List<QueryType> resultSet = jdbcTemplate.query(sql, new Object[]{forDate.toUpperCase()}, new BeanPropertyRowMapper<QueryType>(QueryType.class));
+        List<QueryType> resultSet = jdbcTemplate.query(sql, new Object[]{forDate.toUpperCase(), clusterId}, new BeanPropertyRowMapper<QueryType>(QueryType.class));
 
         return resultSet;
     }
 
-    public List<UserQuery> getQueries(String normalizedUserName, String startDate, String endDate,
+    public List<UserQuery> getQueries(String userSchemaName, int clusterId, String startDate, String endDate,
                                       String startTime, String endTime,
                                       String dbNameLike, String userNameLike, String durationGreaterThan,
                                       String sqlLike,
                                       String queryType,
                                       int pageSize, int pageNo,
                                       String orderBy) {
-        String whereClause = " where ";
         ArrayList<Object> params = new ArrayList<Object>();
+
+        String whereClause = String.format(" where gpsd_id = %d ", clusterId);
 
         if (startTime == null || startTime.isEmpty()) {
             startTime = "00:00:00";
@@ -69,7 +72,7 @@ public class UserDatabaseRepository extends RepositoryBase {
             endTime = "23:59:59";
         }
 
-        whereClause += String.format(" logsessiontime::TIMESTAMP >= '%s %s'::timestamp", startDate, startTime);
+        whereClause += String.format(" AND logsessiontime::TIMESTAMP >= '%s %s'::timestamp", startDate, startTime);
         whereClause += String.format(" AND logsessiontime::TIMESTAMP <= '%s %s'::timestamp", endDate, endTime);
 
         if (dbNameLike != null && !dbNameLike.isEmpty()) {
@@ -94,7 +97,7 @@ public class UserDatabaseRepository extends RepositoryBase {
 
         String sql = String.format("SELECT logdatabase, loguser, logtimemin as queryStartTime, " +
                 " logtimemax as queryEndTime, extract(epoch from logduration) as durationSeconds, sql, qryType, count(0) OVER () as totalRows " +
-                " FROM %s.queries ", normalizedUserName) +
+                " FROM %s.queries ", userSchemaName) +
                 whereClause +
                 " ORDER BY " + orderBy +
                 String.format(" limit %d OFFSET %d ", pageSize, (pageNo - 1) * pageSize);
@@ -104,15 +107,17 @@ public class UserDatabaseRepository extends RepositoryBase {
         return resultSet;
     }
 
-    public List<String> getQueryTypes(String normalizedUserName, String forDate) {
+    public List<String> getQueryTypes(String userSchemaName, String forDate) {
         String sql = String.format("select DISTINCT qrytype from %s.queries " +
-                " where to_char(logsessiontime, 'DD-MON-YYYY') = ? ", normalizedUserName);
+                " where to_char(logsessiontime, 'DD-MON-YYYY') = ? ", userSchemaName);
 
         List<String> resultSet = jdbcTemplate.queryForList(sql, new Object[]{forDate.toUpperCase()}, String.class);
 
         return resultSet;
     }
 
+    // TODO: Ok this should come from the query_metadata table which should be cluster based ;).
+    // NOTE: Muji gonna kill me :)
     public List<String> getAllQueryTypes() {
         return(Arrays.asList(
         "UPDATE",
@@ -133,12 +138,14 @@ public class UserDatabaseRepository extends RepositoryBase {
         "TRANSACTION-OPERATION"));
     }
 
-    public QueryLogMinMaxDateTimes getQueryLogMinMaxDates(String normalizedUsername) {
+    @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
+    public QueryLogMinMaxDateTimes getQueryLogMinMaxDates(String userSchemaName, int clusterId) {
         String sql = String.format("select min(logsessiontime)::date, max(logsessiontime)::date, " +
-                        "min(logsessiontime)::time, max(logsessiontime)::time  from %s.queries",
-                normalizedUsername);
+                        "min(logsessiontime)::time, max(logsessiontime)::time  from %s.queries " +
+                        " where gpsd_id = ?",
+                userSchemaName);
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, new Object[] {clusterId});
         rowSet.next();
 
         QueryLogMinMaxDateTimes result = new QueryLogMinMaxDateTimes();
@@ -150,14 +157,14 @@ public class UserDatabaseRepository extends RepositoryBase {
         return result;
     }
 
-    //@Cacheable(value = "dataCache")
-    public List<UserQueryChartData> getQueryStatsForChart(String normalizedUserName, String fromDate, String toDate,
+    @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
+    public List<UserQueryChartData> getQueryStatsForChart(String userSchemaName, int clusterId, String fromDate, String toDate,
                                                           String dbName, String userName) {
-        String whereClause = " ";
+        String whereClause = String.format(" WHERE gpsd_id = %d ", clusterId);
         boolean prependAnd = false;
 
         if(fromDate != null && toDate != null && !fromDate.isEmpty()  && !toDate.isEmpty()) {
-            whereClause += " WHERE logsessiontime::date >= '" + fromDate + "' ";
+            whereClause += " AND logsessiontime::date >= '" + fromDate + "' ";
             whereClause += " AND logsessiontime::date <= '" + toDate + "' ";
             prependAnd = true;
         }
@@ -252,17 +259,17 @@ public class UserDatabaseRepository extends RepositoryBase {
                 "     ) AS X\n" +
                 "where DATE IS NOT NULL\n" +
                 "group by rollup(date)\n" +
-                "order by date;\n", normalizedUserName, whereClause);
+                "order by date;\n", userSchemaName, whereClause);
 
         List<UserQueryChartData> result = jdbcTemplate.query(sql, new TimelineQueryChartDataMapper());
 
         return result;
     }
 
-    //@Cacheable(value = "dataCache")
-    public List<UserQueryChartData> getHourlyQueryStatsForChart(String normalizedUserName, String fromDate, String toDate,
+    @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
+    public List<UserQueryChartData> getHourlyQueryStatsForChart(String userSchemaName, int clusterId, String fromDate, String toDate,
                                                                 String dbName, String userName, String windowOp) {
-        String whereClause = " ";
+        String whereClause = String.format(" AND gpsd_id = %d", clusterId);
 
         if(windowOp == null || windowOp.isEmpty()) {
             windowOp = "avg";
@@ -333,23 +340,25 @@ public class UserDatabaseRepository extends RepositoryBase {
                 ") AS B\n" +
                 " where date IS NOT NULL\n" +
                 "group by rollup(date)\n" +
-                "order by date", normalizedUserName, whereClause, windowOp);
+                "order by date", userSchemaName, whereClause, windowOp);
 
         List<UserQueryChartData> result = jdbcTemplate.query(sql, new HourlyQueryChartDataMapper());
 
         return result;
     }
 
-    public List<String> getDbNames(String normalizedUserName) {
-        String sql = String.format("select value from %s.query_metadata where type = 'dbname' order by 1", normalizedUserName);
+    @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
+    public List<String> getDbNames(String userSchemaName) {
+        String sql = String.format("select value from %s.query_metadata where type = 'dbname' order by 1", userSchemaName);
 
         List<String> resultSet = jdbcTemplate.queryForList(sql, String.class);
 
         return resultSet;
     }
 
-    public List<String> getUserNames(String normalizedUserName) {
-        String sql = String.format("select value from %s.query_metadata where type = 'username' order by 1", normalizedUserName);
+    @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
+    public List<String> getUserNames(String userSchemaName, int test) {
+        String sql = String.format("select value from %s.query_metadata where type = 'username' order by 1", userSchemaName);
 
         List<String> resultSet = jdbcTemplate.queryForList(sql, String.class);
 

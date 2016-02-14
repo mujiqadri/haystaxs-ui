@@ -4,17 +4,17 @@
          monitoring="autodetect"
          dynamicConfig="true">
 
-    <!--<diskStore path="java.io.tmpdir"/>-->
+    <diskStore path="java.io.tmpdir"/>
 
     <cache name="dataCache"
            maxEntriesLocalHeap="250"
            maxEntriesLocalDisk="25"
            eternal="false"
-           timeToIdleSeconds="600"
-           timeToLiveSeconds="600"
+           timeToIdleSeconds="30"
+           timeToLiveSeconds="30"
            memoryStoreEvictionPolicy="LFU">
 
-        <persistence strategy="none"/>
+        <persistence strategy="localTempSwap"/>
     </cache>
 
 </ehcache>

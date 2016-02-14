@@ -6,6 +6,7 @@ import com.haystaxs.ui.business.entities.repositories.*;
 import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDateTimes;
 import com.haystaxs.ui.business.services.HaystaxsLibService;
 import com.haystaxs.ui.business.services.QueryLogService;
+import com.haystaxs.ui.support.HsSessionAttributes;
 import com.haystaxs.ui.support.JsonResponse;
 import com.haystaxs.ui.support.PaginationInfo;
 import com.haystaxs.ui.support.UploadedFileInfo;
@@ -16,23 +17,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.RequestContext;
 import org.thymeleaf.spring.support.Layout;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import javax.mail.Session;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -44,6 +47,7 @@ import java.util.*;
  * Created by Adnan on 10/16/2015.
  */
 @Controller
+//@SessionAttributes(HsSessionAttributes.ACTIVE_CLUSTER_ID)
 public class HomeController {
     final static Logger logger = LoggerFactory.getLogger(HomeController.class);
 
@@ -61,7 +65,7 @@ public class HomeController {
     @Autowired
     private WorkloadRepository workloadRepository;
     @Autowired
-    private UserDatabaseRepository userDatabaseRepository;
+    private UserQueriesRepository userDatabaseRepository;
     @Autowired
     private FileUtil fileUtil;
     //    @Autowired
@@ -76,6 +80,8 @@ public class HomeController {
     private HaystaxsLibService haystaxsLibServiceWrapper;
     @Autowired
     private ClusterRepository clusterRepository;
+    @Autowired
+    private HttpSession httpSession;
     //endregion
 
     //region ### Controller Level Model Attributes ###
@@ -95,13 +101,30 @@ public class HomeController {
     }
 
     @ModelAttribute("allUserClusters")
-    private List<Cluster> getAllUserClusters() {
-        return(clusterRepository.getAllClusters(getUserId()));
+    private List<Gpsd> getAllUserClusters() {
+        return (clusterRepository.getAllClusters(getUserId()));
     }
 
     @ModelAttribute("isDeployedOnCluster")
     private boolean isDeployedOnCluster() {
-        return(appConfig.isDeployedOnCluster());
+        return (appConfig.isDeployedOnCluster());
+    }
+
+    @ModelAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID)
+    private int getActiveClusterId() {
+        Integer result = 0;
+
+        try {
+            result = (Integer) httpSession.getAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID);
+        } catch (Exception ex) {
+        }
+
+        return (result == null ? 0 : result);
+    }
+
+    @ModelAttribute("isClusterAdmin")
+    private boolean isClusterAdmin() {
+        return getPrincipal().getUserId() == 1;
     }
     //endregion
 
@@ -110,60 +133,56 @@ public class HomeController {
         return getPrincipal().getUserId();
     }
 
-    private String getNormalizedUserName() {
-        return miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
+    private String getUserSchemaName() {
+        if(!isDeployedOnCluster()) {
+            return miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
+        } else {
+            return miscUtil.getNormalizedUserName(appConfig.getClusterAdminEmailAddress());
+        }
     }
 
-    private int getValidClusterId(int clusterId) {
-        int properClusterId = clusterId;
+/*
+    private int getActiveClusterId(Model model) {
+        return (Integer) ((ModelMap)model).get(HsSessionAttributes.ACTIVE_CLUSTER_ID);
+    }
+*/
 
-        if(clusterId == 0 || !clusterRepository.clusterBelongsToUser(getUserId(), clusterId)) {
-            try {
-                properClusterId = clusterRepository.getMaxClusterId(getUserId());
-            } catch(Exception ex) {
-                properClusterId = 0;
+    private String getClusterName(int clusterId) throws Exception {
+        for(Gpsd cluster : getAllUserClusters()) {
+            if(cluster.getGpsdId() == clusterId) {
+                return cluster.getFriendlyName();
             }
         }
 
-        return properClusterId;
+        throw new Exception("No Such Cluster Found !");
     }
     //endregion
 
     //region ### Dashboard Action ###
-    @RequestMapping("/dashboard/{clusterId}")
-    public String dashBoard(@PathVariable("clusterId") int clusterId, Model model) {
-        int validClusterId = getValidClusterId(clusterId);
-        if(validClusterId == 0) {
-            return "redirect:/cluster/add";
-        }
-        else if(clusterId != validClusterId) {
-            return "redirect:/dashboard/" + validClusterId;
-        }
-
+    @RequestMapping("/dashboard")
+    public String dashBoard(Model model, HttpServletRequest request) {
         model.addAttribute("title", "Dashboard");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
 
-        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getNormalizedUserName());
+        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getUserSchemaName(),
+                getActiveClusterId());
 
-        /*if (forDate != null && !forDate.isEmpty()) {
-            model.addAttribute("minDate", forDate);
-            model.addAttribute("maxDate", forDate);
-        } else*/
-        {
+        if (queryLogMinMaxDates.getMinDate() != null && queryLogMinMaxDates.getMaxDate() != null) {
+            model.addAttribute("queryLogsProcessed", true);
+
             model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
             model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
             model.addAttribute("minTime", simpleTimeFormat.format(queryLogMinMaxDates.getMinTime()));
             model.addAttribute("maxTime", simpleTimeFormat.format(queryLogMinMaxDates.getMaxTime()));
-        }
-        // For QueryTypes Filter Dropdown..
-        //model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
-        //model.addAttribute("queryTypes", userDatabaseRepository.getAllQueryTypes());
-        try {
-            model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getNormalizedUserName()));
-            model.addAttribute("userNames", userDatabaseRepository.getUserNames(getNormalizedUserName()));
-        } catch (Exception ex) {
+
+            try {
+                model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getUserSchemaName()));
+                model.addAttribute("userNames", userDatabaseRepository.getUserNames(getUserSchemaName(), 1));
+            } catch (Exception ex) {
+                logger.error(ex.getMessage());
+            }
         }
 
         return "dashboard";
@@ -174,9 +193,11 @@ public class HomeController {
     public List<UserQueryChartData> dashboardQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
                                                                @RequestParam(value = "toDate", required = false) String toDate,
                                                                @RequestParam(value = "dbName", required = false) String dbName,
-                                                               @RequestParam(value = "userName", required = false) String userName) {
+                                                               @RequestParam(value = "userName", required = false) String userName,
+                                                               Model model) {
 
-        List<UserQueryChartData> result = userDatabaseRepository.getQueryStatsForChart(getNormalizedUserName(), fromDate, toDate,
+        List<UserQueryChartData> result = userDatabaseRepository.getQueryStatsForChart(getUserSchemaName(),
+                getActiveClusterId(), fromDate, toDate,
                 dbName, userName);
 
         return (result);
@@ -188,9 +209,10 @@ public class HomeController {
                                                             @RequestParam(value = "toDate", required = false) String toDate,
                                                             @RequestParam(value = "dbName", required = false) String dbName,
                                                             @RequestParam(value = "userName", required = false) String userName,
-                                                            @RequestParam("sqlWindowOp") String windowOp) {
-        List<UserQueryChartData> result = userDatabaseRepository.getHourlyQueryStatsForChart(getNormalizedUserName(), fromDate, toDate,
-                dbName, userName, windowOp);
+                                                            @RequestParam("sqlWindowOp") String windowOp,
+                                                            Model model) {
+        List<UserQueryChartData> result = userDatabaseRepository.getHourlyQueryStatsForChart(getUserSchemaName(),
+                getActiveClusterId(), fromDate, toDate, dbName, userName, windowOp);
 
         // The resulting list may contain less or none rows, so the below is a workaround as the chart needs full data
         if (result.size() < 25) {
@@ -216,8 +238,8 @@ public class HomeController {
             }
 
             // Fill up all the other empty indexes with zero values
-            for(int i = 0; i < 24; i++) {
-                if(finalResult[i] == null) {
+            for (int i = 0; i < 24; i++) {
+                if (finalResult[i] == null) {
                     finalResult[i] = new UserQueryChartData(Integer.toString(i));
                 }
             }
@@ -232,25 +254,89 @@ public class HomeController {
 
     //region ### Cluster Actions ###
     @RequestMapping("/cluster/add")
-    public String addCluster(Model model) {
+    public String addCluster(Gpsd cluster, Model model) {
         model.addAttribute("title", "Add Cluster");
+        model.addAttribute("cluster", cluster);
 
         return "add_cluster";
     }
-    //endregion
 
-    //region ### GPSD Actions ###
-    @RequestMapping("gpsd/main")
-    public String gpsdMain(Model model) {
-        // Used by the Custom Thymeleaf Attribute "hs:asis"
-        model.addAttribute("appRealPath", servletContext.getRealPath("/"));
+    @RequestMapping(value = "/cluster/add", method = RequestMethod.POST)
+    public String addClusterPost(Gpsd cluster, Model model, HttpSession session) {
+        model.addAttribute("title", "Add Cluster");
+        model.addAttribute("cluster", cluster);
+
+        try {
+            if(haystaxsLibServiceWrapper.tryConnectToCluster(cluster)) {
+                int newClusterId = gpsdRepository.addCluster(cluster, true);
+                session.setAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID, newClusterId);
+            }
+        } catch(Exception ex) {
+            logger.error(ex.getMessage());
+            return "add_cluster";
+        }
+
+        return "redirect:/cluster/main";
+    }
+
+    @RequestMapping("cluster/main")
+    public String clusterMain(Model model) {
+        model.addAttribute("title", "Cluster Main");
 
         return "gpsd_main";
     }
 
+    @Layout(enabled = false, value = "")
+    @RequestMapping("/cluster/list")
+    public String clusterList(Model model) {
+        List<Gpsd> gpsdees = gpsdRepository.getAll(getUserId());
+        model.addAttribute("gpsdees", gpsdees);
+
+        return "fragments/gpsd_list";
+    }
+
+    @RequestMapping("/cluster/exploredb/{gpsdId}")
+    public String exploreDb(@PathVariable("gpsdId") int gpsdId, Model model) {
+        model.addAttribute("gpsd_id", gpsdId);
+        return "db_explorer";
+    }
+
+    // NOTE: Called as an Ajax request from ExploreDB page
+    @RequestMapping("/cluster/exploredb/json")
+    @ResponseBody
+    public Tables exploreDbJson(@RequestParam("gpsd_id") int gpsdId) {
+        return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer(gpsdId);
+    }
+
+    @RequestMapping("/cluster/delete/{id}")
+    public String deleteGpsd(@PathVariable("id") int gpsdId, Model model) {
+        // Delete the gpsd entry
+        // Remove the physical file
+        // Tell BG Process to delete the backend Database created based on this GPSD
+        throw new NotImplementedException();
+    }
+
+    @RequestMapping("/cluster/refresh")
+    @ResponseBody
+    public String refreshClusterData() {
+        haystaxsLibServiceWrapper.refeshCluster(getActiveClusterId());
+        return "success";
+    }
+    //endregion
+
+    //region ### GPSD Actions ###
+    @RequestMapping("gpsd/upload")
+    public String gpsdUpload(Model model) {
+        model.addAttribute("title", "GPSD Upload");
+        // Used by the Custom Thymeleaf Attribute "hs:asis"
+        model.addAttribute("appRealPath", servletContext.getRealPath("/"));
+
+        return "gpsd_upload";
+    }
+
     @RequestMapping(value = "/gpsd/upload", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
-    public Map gpsdUpload(@RequestParam(value = "gpsd-file") MultipartFile gpsdFile) {
+    public Map gpsdUpload(@RequestParam(value = "gpsd-file") MultipartFile gpsdFile, HttpServletRequest request) {
         List<UploadedFileInfo> uploadedFileInfos = new ArrayList<UploadedFileInfo>();
         Map<String, Object> result = new HashMap<String, Object>();
 
@@ -264,23 +350,41 @@ public class HomeController {
 
         UploadedFileInfo uploadedFileInfo = new UploadedFileInfo();
         String originalFileName = gpsdFile.getOriginalFilename();
-        int newGpsdId = gpsdRepository.createNew(getUserId(), originalFileName);
-        String normalizedUserName = getNormalizedUserName();
-        String gpsdFileDirectory = appConfig.getGpsdSaveDirectory() + File.separator + normalizedUserName + File.separator + "gpsd" + File.separator + newGpsdId;
+        int newGpsdId = gpsdRepository.createNew(getUserId(), originalFileName, true);
+        String normalizedUserName = getUserSchemaName();
+        String gpsdFileDirectory = appConfig.getGpsdSaveDirectory() + File.separator + normalizedUserName +
+                File.separator + "gpsd" + File.separator + newGpsdId;
         String gpsdFilePath = gpsdFileDirectory + File.separator + originalFileName;
 
         logger.trace("Saving GPSD file to " + gpsdFilePath);
 
         try {
+            // gpsdFile = the Multipart file uploaded
+            // gpsdFileDirectory = /uploads/emailaddress_at_gmail_dot_com/gpsd/{newGpsdId}
+            // originalFileName = fileName extracted from uploaded gpsdFile
             fileUtil.saveMultipartFileToPath(gpsdFile, gpsdFileDirectory, originalFileName);
 
-            logger.trace("About to invoke Async method createGPSD.");
-            haystaxsLibServiceWrapper.createGPSD(newGpsdId, normalizedUserName, gpsdFilePath);
-            // TODO: Assuming GPSD has been created successfully, do an entry in user inbox (should be done by Muji ?)
-            logger.trace("createGPSD invoked as a separate thread.");
+            List<String> actualGpsdFileNames = fileUtil.unGZipTarArchive(gpsdFileDirectory + File.separator +
+                    originalFileName, gpsdFileDirectory);
+
+            if (actualGpsdFileNames.size() > 1 || actualGpsdFileNames.size() == 0) {
+                throw new Exception("zip file contains either 0 OR more than 1 sql file(s)");
+            } else {
+                String actualGpsdFileName = actualGpsdFileNames.get(0);
+
+                logger.trace("About to invoke Async method createGPSD.");
+
+                haystaxsLibServiceWrapper.createGPSD(newGpsdId, normalizedUserName, gpsdFileDirectory +
+                        File.separator + actualGpsdFileName);
+                // TODO: Assuming GPSD has been created successfully, do an entry in user inbox (should be done by Muji ?)
+
+                // NOTE: Assuming this will now be the default cluster..
+                request.getSession().setAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID, newGpsdId);
+            }
         } catch (Exception e) {
-            logger.error("Error whle saving GPSD file on server. Exception: ", e.getMessage());
-            // TODO: Log internal error. Should we also rollback the DB Entry ??
+            logger.error("Error while saving GPSD file on server. Exception: ", e.getMessage());
+            // Rollback the DB Entry..
+            gpsdRepository.delete(newGpsdId);
             uploadedFileInfo.setError(e.getMessage());
         }
         uploadedFileInfo.setName(originalFileName);
@@ -297,7 +401,7 @@ public class HomeController {
     public String gpsdFile(@PathVariable("gpsdId") int gpsdId) {
         Gpsd gpsd = gpsdRepository.getSingle(gpsdId, getUserId());
 
-        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator +
+        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getUserSchemaName() + File.separator +
                 "gpsd" + File.separator + gpsdId + File.separator + gpsd.getFilename();
 
         String result;
@@ -315,7 +419,7 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<byte[]> downloadGpsdFile(@PathVariable("gpsdId") int gpsdId, HttpServletResponse resp) {
         Gpsd gpsd = gpsdRepository.getSingle(gpsdId, getUserId());
-        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator +
+        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getUserSchemaName() + File.separator +
                 "gpsd" + File.separator + gpsdId + File.separator + gpsd.getFilename();
         final HttpHeaders headers = new HttpHeaders();
 
@@ -372,54 +476,23 @@ public class HomeController {
         headers.setContentType(MediaType.TEXT_PLAIN);
         return new ResponseEntity<byte[]>(msg.getBytes(), headers, HttpStatus.OK);
     }
-
-    @Layout(enabled = false, value = "")
-    @RequestMapping("/gpsd/list")
-    public String userGpsds(Model model) {
-        List<Gpsd> gpsdees = gpsdRepository.getAll(getUserId());
-        model.addAttribute("gpsdees", gpsdees);
-
-        return "fragments/gpsd_list";
-    }
-
-    @RequestMapping("/gpsd/exploredb/{gpsdId}")
-    public String exploreDb(@PathVariable("gpsdId") int gpsdId, Model model) {
-        model.addAttribute("gpsd_id", gpsdId);
-        return "db_explorer";
-    }
-
-    @RequestMapping("/gpsd/exploredb/json")
-    @ResponseBody
-    public Tables exploreDbJson(@RequestParam("gpsd_id") int gpsdId) {
-        return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer(gpsdId);
-    }
-
-    @RequestMapping("/gpsd/delete/{id}")
-    public String deleteGpsd(@PathVariable("id") int gpsdId, Model model) {
-        // Delete the gpsd entry
-        // Remove the physical file
-        // Tell BG Process to delete the backend Database created based on this GPSD
-        throw new NotImplementedException();
-    }
     //endregion
 
     //region ### QueryLog Actions ###
     @RequestMapping("/querylog/main")
-    public String userQueryLogs(Model model) {
+    public String queryLogsMain(Model model) {
         model.addAttribute("title", "Query Logs");
-        // Used by the Custom Thymeleaf Attribute "hs:asis"
-        model.addAttribute("appRealPath", servletContext.getRealPath("/"));
 
         return "querylog_main";
     }
 
     @Layout(enabled = false, value = "")
     @RequestMapping("/querylog/list")
-    public String userQueryLogsList(Model model,
-                                    @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
-                                    @RequestParam(value = "pgSize", defaultValue = "10") int pageSize,
-                                    @RequestParam(value = "fromDate", required = false) String fromDate,
-                                    @RequestParam(value = "toDate", required = false) String toDate) throws Exception {
+    public String queryLogsList(Model model,
+                                @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
+                                @RequestParam(value = "pgSize", defaultValue = "10") int pageSize,
+                                @RequestParam(value = "fromDate", required = false) String fromDate,
+                                @RequestParam(value = "toDate", required = false) String toDate) throws Exception {
         // Should be a class level static variable
         SimpleDateFormat hsDateFormatter = new SimpleDateFormat("dd-MMM-yyyy");
 
@@ -437,7 +510,7 @@ public class HomeController {
             throw ex;
         }
 
-        List<QueryLogDate> queryLogDates = queryLogRespository.getQueryLogDates(getUserId(), fromDt, toDt, pageNo, pageSize);
+        List<QueryLogDate> queryLogDates = queryLogRespository.getQueryLogDates(getActiveClusterId(), fromDt, toDt, pageNo, pageSize);
         //http://www.javacodegeeks.com/2013/03/implement-bootstrap-pagination-with-spring-data-and-thymeleaf.html
         model.addAttribute("queryLogDates", queryLogDates);
 
@@ -450,13 +523,24 @@ public class HomeController {
         return "fragments/querylog_list";
     }
 
+    @RequestMapping("/querylog/upload")
+    public String queryLogsUpload(Model model) throws Exception {
+        model.addAttribute("title", "Upload Query Logs");
+        // Used by the Custom Thymeleaf Attribute "hs:asis"
+        model.addAttribute("appRealPath", servletContext.getRealPath("/"));
+
+        model.addAttribute("activeClusterName", getClusterName(getActiveClusterId()));
+
+        return "querylog_upload";
+    }
+
     @RequestMapping(value = "/querylog/upload", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
-    public Map uploadQueryLog(@RequestParam("querylog-files[]") MultipartFile[] queryLogFiles) throws Exception {
+    public Map queryLogsUpload(@RequestParam("querylog-files[]") MultipartFile[] queryLogFiles, Model model) throws Exception {
         logger.trace("No. of files uploaded = " + queryLogFiles.length);
 
         int newQueryLogId = 0;
-        String normalizedUserName = getNormalizedUserName();
+        String normalizedUserName = getUserSchemaName();
         String queryLogsBaseDir = appConfig.getQueryLogSaveDirectory() + File.separator + normalizedUserName + File.separator + "querylogs" + File.separator;
         List<UploadedFileInfo> uploadedFileInfos = new ArrayList<UploadedFileInfo>();
         Map<Integer, String> extractedQueryLogFiles = new HashMap<Integer, String>();
@@ -479,10 +563,10 @@ public class HomeController {
             if (!uploadedBeforeResult.equals("")) {
                 uploadedFileInfo.setError(uploadedBeforeResult);
             } else {
-                newQueryLogId = queryLogRespository.createNew(getUserId(), originalFileName, checksum);
-                String fileBaseDir = queryLogsBaseDir + newQueryLogId;
-
                 try {
+                    newQueryLogId = queryLogRespository.createNew(getUserId(), originalFileName, checksum, getActiveClusterId());
+                    String fileBaseDir = queryLogsBaseDir + newQueryLogId;
+
                     fileUtil.saveMultipartFileToPath(queryLogFile, fileBaseDir, originalFileName);
 
                     //fileUtil.unZip(fileBaseDir + File.separator + originalFileName, fileBaseDir);
@@ -503,7 +587,7 @@ public class HomeController {
         }
 
         // TODO: Once analyzed put entries in user inbox (Muji or me ?)
-        haystaxsLibServiceWrapper.analyzeQueryLogs(extractedQueryLogFiles);
+        haystaxsLibServiceWrapper.processQueryLogs(extractedQueryLogFiles, getActiveClusterId());
 
         files.put("files", uploadedFileInfos);
         return files;
@@ -512,7 +596,8 @@ public class HomeController {
     @Layout(value = "", enabled = false)
     @RequestMapping("/querylog/topqueries/{date}")
     public String topQueries(@PathVariable("date") String forDate, Model model) {
-        model.addAttribute("userQueries", userDatabaseRepository.getTopQueries(getNormalizedUserName(), forDate));
+        model.addAttribute("userQueries", userDatabaseRepository.getTopQueries(getUserSchemaName(), forDate,
+                getActiveClusterId()));
 
         return "fragments/top_user_queries_list";
     }
@@ -520,7 +605,8 @@ public class HomeController {
     @Layout(value = "", enabled = false)
     @RequestMapping("/querylog/querycategories/{date}")
     public String queryCountByCategories(@PathVariable("date") String forDate, Model model) {
-        model.addAttribute("userQueries", userDatabaseRepository.getQueryCountByCategory(getNormalizedUserName(), forDate));
+        model.addAttribute("userQueries", userDatabaseRepository.getQueryCountByCategory(getUserSchemaName(),
+                forDate, getActiveClusterId()));
 
         return "fragments/user_queries_by_cat_list";
     }
@@ -533,24 +619,29 @@ public class HomeController {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
 
-        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getNormalizedUserName());
+        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getUserSchemaName(),
+                getActiveClusterId());
 
-        if (forDate != null && !forDate.isEmpty()) {
-            model.addAttribute("minDate", forDate);
-            model.addAttribute("maxDate", forDate);
-        } else {
-            model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
-            model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
-            model.addAttribute("minTime", simpleTimeFormat.format(queryLogMinMaxDates.getMinTime()));
-            model.addAttribute("maxTime", simpleTimeFormat.format(queryLogMinMaxDates.getMaxTime()));
-        }
-        // For QueryTypes Filter Dropdown..
-        //model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getNormalizedUserName(), forDate));
-        model.addAttribute("queryTypes", userDatabaseRepository.getAllQueryTypes());
-        try {
-            model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getNormalizedUserName()));
-            model.addAttribute("userNames", userDatabaseRepository.getUserNames(getNormalizedUserName()));
-        } catch (Exception ex) {
+        if(queryLogMinMaxDates.getMinDate() != null && queryLogMinMaxDates.getMaxDate() != null) {
+            model.addAttribute("queryLogsProcessed", true);
+
+            if (forDate != null && !forDate.isEmpty()) {
+                model.addAttribute("minDate", forDate);
+                model.addAttribute("maxDate", forDate);
+            } else {
+                model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
+                model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
+                model.addAttribute("minTime", simpleTimeFormat.format(queryLogMinMaxDates.getMinTime()));
+                model.addAttribute("maxTime", simpleTimeFormat.format(queryLogMinMaxDates.getMaxTime()));
+            }
+            // For QueryTypes Filter Dropdown..
+            //model.addAttribute("queryTypes", userDatabaseRepository.getQueryTypes(getUserSchemaName(), forDate));
+            model.addAttribute("queryTypes", userDatabaseRepository.getAllQueryTypes());
+            try {
+                model.addAttribute("dbNames", userDatabaseRepository.getDbNames(getUserSchemaName()));
+                model.addAttribute("userNames", userDatabaseRepository.getUserNames(getUserSchemaName(), 2));
+            } catch (Exception ex) {
+            }
         }
 
         return "querylog_analysis";
@@ -573,7 +664,8 @@ public class HomeController {
                                         @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
                                         @RequestParam(value = "orderBy", defaultValue = "queryStartTime ASC") String orderBy,
                                         Model model) {
-        List<UserQuery> userQueries = userDatabaseRepository.getQueries(getNormalizedUserName(), startDate, endDate,
+        List<UserQuery> userQueries = userDatabaseRepository.getQueries(getUserSchemaName(), getActiveClusterId(),
+                startDate, endDate,
                 startTime, endTime, dbNameLike, userNameLike, duration, sqlLike, queryType, pageSize, pageNo, orderBy);
         // TODO: Check if list is empty
 
@@ -600,14 +692,19 @@ public class HomeController {
 
         List<String> distinctGpsds = gpsdRepository.getAllDistinct(getUserId());
 
-        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getNormalizedUserName());
+        QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getUserSchemaName(),
+                getActiveClusterId());
 
-        // TODO: Define this formatter at the class level
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        if(queryLogMinMaxDates.getMinDate() != null && queryLogMinMaxDates.getMaxDate() != null) {
+            model.addAttribute("queryLogsProcessed", true);
 
-        model.addAttribute("distinctGpsds", distinctGpsds);
-        model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
-        model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
+            // TODO: Define this formatter at the class level
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+
+            model.addAttribute("distinctGpsds", distinctGpsds);
+            model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
+            model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
+        }
 
         return "workload_create";
     }
@@ -641,7 +738,7 @@ public class HomeController {
 
         int newWorkloadId = workloadRepository.createNew(getUserId(), workload);
 
-        haystaxsLibServiceWrapper.processWorkload(newWorkloadId, getNormalizedUserName());
+        haystaxsLibServiceWrapper.processWorkload(newWorkloadId, getUserSchemaName());
 
         return new JsonResponse(JsonResponse.SUCCESS, "Workload Submitted", Integer.toString(newWorkloadId));
     }
@@ -657,7 +754,7 @@ public class HomeController {
     @RequestMapping(value = "/workload/json/{id}", method = RequestMethod.GET)
     @ResponseBody
     public String workloadJson(@PathVariable("id") int workloadId) {
-        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getNormalizedUserName() + File.separator +
+        String fullPath = appConfig.getGpsdSaveDirectory() + File.separator + getUserSchemaName() + File.separator +
                 "workloads" + File.separator + workloadId + ".json";
 
         String result;
@@ -671,7 +768,7 @@ public class HomeController {
         return result;
     }
 
-    @RequestMapping("/workloads/list")
+    @RequestMapping("/workload/list")
     public String visualizeWorkloads(Model model) {
         model.addAttribute("title", "Processed Workloads");
         List<Workload> workloads = workloadRepository.getLastnWorkloads(getUserId(), 10);
@@ -679,7 +776,6 @@ public class HomeController {
 
         return "visualize_workloads";
     }
-    //endregion
 
     @RequestMapping("/visualizer/{wlId}")
     public String showInVisualizer(@PathVariable("wlId") int workloadId, Model model) {
@@ -688,6 +784,23 @@ public class HomeController {
 
         return "visualizer";
     }
+    //endregion
+
+    //region ### Miscellaneous ###
+    @RequestMapping("/misc/createuserschema")
+    @ResponseBody
+    public String createUserSchema() {
+        haystaxsLibServiceWrapper.createUserQueriesSchema(getUserSchemaName());
+        return "Done";
+    }
+
+    @RequestMapping("/misc/changeactivecluster")
+    @ResponseBody
+    public String changeActiveCluster(@RequestParam("clusterId") int clusterId) {
+        httpSession.setAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID, clusterId);
+        return "success";
+    }
+    //endregion
 
     /*@ExceptionHandler(Throwable.class)
     public String handleException(Throwable t) {

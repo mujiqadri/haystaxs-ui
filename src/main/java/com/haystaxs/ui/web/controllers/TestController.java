@@ -1,10 +1,12 @@
 package com.haystaxs.ui.web.controllers;
 
 import com.haystack.domain.Tables;
-import com.haystaxs.ui.business.entities.repositories.UserDatabaseRepository;
+import com.haystaxs.ui.business.entities.Gpsd;
+import com.haystaxs.ui.business.entities.HsUser;
+import com.haystaxs.ui.business.entities.repositories.ClusterRepository;
+import com.haystaxs.ui.business.entities.repositories.UserQueriesRepository;
 import com.haystaxs.ui.business.entities.repositories.UserRepository;
 import com.haystaxs.ui.business.services.HaystaxsLibService;
-import com.haystaxs.ui.support.JsonResponse;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MailUtil;
 import com.haystaxs.ui.util.MiscUtil;
@@ -12,13 +14,14 @@ import com.haystaxs.ui.util.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by Adnan on 10/21/2015.
@@ -41,9 +44,11 @@ public class TestController {
     @Autowired
     private FileUtil fileUtil;
     @Autowired
-    private UserDatabaseRepository userDatabaseRepository;
+    private UserQueriesRepository userDatabaseRepository;
     @Autowired
-    private HaystaxsLibService haystaxsLibServiceWrapper;
+    private HaystaxsLibService haystaxsLibService;
+    @Autowired
+    private ClusterRepository clusterRepository;
 
 /*
     @ModelAttribute("principal")
@@ -55,7 +60,6 @@ public class TestController {
     @RequestMapping("/test/test1")
     @ResponseBody
     public String test1() {
-        userRepository.selectTest();
         return("chal gia bhan ka lora");
     }
 
@@ -144,11 +148,11 @@ public class TestController {
         return "blank_template_page";
     }
 
-    @Cacheable(value = "dataCache", key = "#root.methodName.concat('_').concat(#id)")
+    //@Cacheable(value = "jdkCache")//, key = "#root.methodName.concat('_').concat(#id)")
     @RequestMapping("/test/caching/{id}")
     @ResponseBody
-    public JsonResponse testCaching(@PathVariable("id") String id) {
-        return new JsonResponse("Working", "What the fuck");
+    public List<Gpsd> testCaching(@PathVariable("id") String id) {
+        return clusterRepository.getAllClusters(2);
     }
 
     /*@RequestMapping("/visualizer/{wlId}")
@@ -165,18 +169,34 @@ public class TestController {
     @RequestMapping("/test/gpsdjson")
     @ResponseBody
     public String gpsdJson(@RequestParam("id") int id) {
-        return haystaxsLibServiceWrapper.getGpsdJson(id);
+        return haystaxsLibService.getGpsdJson(id);
     }
 
     @RequestMapping("/test/exploredb")
     public String exploreDb() {
-        //return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer();
+        //return haystaxsLibService.getTablesInfoForDbExplorer();
         return "db_explorer";
     }
 
     @RequestMapping("/test/exploredb/json")
     @ResponseBody
     public Tables exploreDbJson() {
-        return haystaxsLibServiceWrapper.getTablesInfoForDbExplorer(2);
+        return haystaxsLibService.getTablesInfoForDbExplorer(2);
+    }
+
+    @RequestMapping("/test/clearcache")
+    @ResponseBody
+    @CacheEvict(value = "dataCache", allEntries = true)
+    public String evictAllDataCache() {
+        return "DataCache Cleared";
+    }
+
+    @RequestMapping("/test/createuserschema")
+    @ResponseBody
+    public String createUserQuesriesSchema(@RequestParam("userId") int userId) {
+        HsUser hsUser = userRepository.getById(userId);
+        haystaxsLibService.createUserQueriesSchema(miscUtil.getNormalizedUserName(hsUser.getEmailAddress()));
+
+        return "Done.";
     }
 }

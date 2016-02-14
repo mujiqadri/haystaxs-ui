@@ -60,7 +60,7 @@
                 <!-- END PAGE BREADCRUMBS -->
                 <!-- BEGIN PAGE CONTENT INNER -->
                 <div class="page-content-inner" th:fragment="main-content">
-                    <div class="row">
+                    <div th:if="${queryLogsProcessed}" class="row">
                         <div class="col-lg-8 col-lg-offset-2">
                             <div class="portlet box yellow-lemon">
                                 <div class="portlet-title">
@@ -114,6 +114,11 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div th:if="not ${queryLogsProcessed}" class="note note-warning">
+                        No query logs have been processed yet. <span th:if="not ${isDeployedOnCluster}"> Please upload query logs to proceed further...</span>
+                        <span th:if="${isDeployedOnCluster}"> Please wait till the query logs are processed OR press the <b>Refresh</b> button.
+                            You will be notified once the processing is completed.</span>
                     </div>
                 </div>
                 <!-- END PAGE CONTENT INNER -->

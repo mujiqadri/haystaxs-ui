@@ -2,6 +2,7 @@ package com.haystaxs.ui.business.entities;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +10,7 @@ import java.util.Collection;
 /**
  * Created by Adnan on 10/16/2015.
  */
-public class HsUser {
+public class HsUser  implements Serializable {
     private Integer userId = null;
     private String firstName = null;
     private String lastName = null;
@@ -22,6 +23,7 @@ public class HsUser {
     private boolean regVerified = false;
     private String password;
     private String userName;
+    private boolean isAdmin;
 
     public HsUser() {
     }
@@ -120,5 +122,13 @@ public class HsUser {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }

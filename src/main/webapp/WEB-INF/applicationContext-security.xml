@@ -14,8 +14,8 @@
 
     <http auto-config="true">
         <!-- Login pages -->
-        <form-login login-page="/login" default-target-url="/dashboard/0" always-use-default-target="true"
-                    authentication-failure-handler-ref="afh"/>
+        <form-login login-page="/login" authentication-failure-handler-ref="afh"
+                    authentication-success-handler-ref="ash"/>
         <logout logout-success-url="/login?logout"/>
         <!-- Security zones -->
         <intercept-url pattern="/favicon.ico" access="isAnonymous()" />
@@ -35,6 +35,7 @@
         <beans:property name="hideUserNotFoundExceptions" value="false"/>
     </beans:bean>
     <beans:bean id="afh" class="com.haystaxs.ui.util.HsAuthFailureHandler"/>
+    <beans:bean id="ash" class="com.haystaxs.ui.util.HsAuthSuccessHandler"/>
 
     <authentication-manager alias="authenticationManager">
         <!-- Authentication using a memory hsUser list -->

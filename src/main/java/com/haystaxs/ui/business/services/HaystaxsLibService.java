@@ -3,16 +3,17 @@ package com.haystaxs.ui.business.services;
 import com.haystack.domain.Tables;
 import com.haystack.service.CatalogService;
 import com.haystack.service.ClusterService;
+import com.haystack.service.database.Cluster;
+import com.haystack.service.database.Greenplum;
 import com.haystack.util.ConfigProperties;
+import com.haystaxs.ui.business.entities.Gpsd;
 import com.haystaxs.ui.business.entities.repositories.WorkloadRepository;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
-import com.sun.javafx.collections.MappingChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -33,8 +34,12 @@ public class HaystaxsLibService {
     @Autowired
     private AppConfig appConfig;
 
-    @Async
+    //@Async
     public void createGPSD(int gpsdId, String normalizedUserName, String gpsdFilePath) {
+        if(!appConfig.invokeBackend()) {
+            return;
+        }
+
         logger.trace(String.format("createGPSD Started. %d %s %s", gpsdId, normalizedUserName, gpsdFilePath));
         try {
             ConfigProperties configProperties = new ConfigProperties();
@@ -53,20 +58,28 @@ public class HaystaxsLibService {
     }
 
     @Async
-    public void analyzeQueryLogs(Map<Integer, String> queryLogFiles) {
+    public void processQueryLogs(Map<Integer, String> queryLogFiles, int clusterId) {
+        if(!appConfig.invokeBackend()) {
+            return;
+        }
+
         for (Integer key : queryLogFiles.keySet()) {
-            createQueryLog(key, queryLogFiles.get(key));
+            createQueryLog(key, queryLogFiles.get(key), clusterId);
         }
     }
 
-    private void createQueryLog(int queryLogId, String queryLogBaseDir) {
+    private void createQueryLog(int queryLogId, String queryLogBaseDir, int clusterId) {
+        if(!appConfig.invokeBackend()) {
+            return;
+        }
+
         logger.trace(String.format("createQueryLog Started. %d %s", queryLogId, queryLogBaseDir));
         try {
             ConfigProperties configProperties = new ConfigProperties();
             configProperties.loadProperties();
 
             CatalogService cs = new CatalogService(configProperties);
-            boolean hadErrors = cs.processQueryLog(queryLogId, queryLogBaseDir);
+            boolean hadErrors = cs.processQueryLog(queryLogId, clusterId, queryLogBaseDir);
 
             if(hadErrors) {
                 logger.debug(String.format("CatalogService.processQueryLog(%d, %s) ran with some errors !", queryLogId, queryLogBaseDir));
@@ -79,6 +92,10 @@ public class HaystaxsLibService {
 
     @Async
     public void processWorkload(int workloadId, String normalizedUserName) {
+        if(!appConfig.invokeBackend()) {
+            return;
+        }
+
         logger.trace(String.format("processWorkload Started. %d", workloadId));
 
         String modelJson = "";
@@ -134,7 +151,54 @@ public class HaystaxsLibService {
             configProperties.loadProperties();
 
             ClusterService cs = new ClusterService(configProperties);
-            result = cs.getTablefromGPDBStats(gpsdId);
+            result = cs.getTables(gpsdId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+        }
+
+        return result;
+    }
+
+    public void createUserQueriesSchema(String normalizedUserName) {
+        if(!appConfig.invokeBackend()) {
+            return;
+        }
+
+        try {
+            Cluster cluster = new Greenplum();
+            cluster.createUserSchemaTables(normalizedUserName);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+        }
+    }
+
+    public boolean tryConnectToCluster(Gpsd clusterInfo) throws Exception {
+        if(!appConfig.invokeBackend()) {
+            return true;
+        }
+
+        ConfigProperties configProperties = new ConfigProperties();
+        configProperties.loadProperties();
+
+        ClusterService cs = new ClusterService(configProperties);
+        return cs.tryConnect(clusterInfo.getHost(), clusterInfo.getDbName(), clusterInfo.getUserName(),
+                clusterInfo.getPassword(), clusterInfo.getPort(), clusterInfo.getDbType());
+    }
+
+    @Async
+    public boolean refeshCluster(int clusterId) {
+        if(!appConfig.invokeBackend()) {
+            return true;
+        }
+
+        boolean result = true;
+
+        try {
+            ConfigProperties configProperties = new ConfigProperties();
+            configProperties.loadProperties();
+
+            ClusterService cs = new ClusterService(configProperties);
+            result = cs.refresh(clusterId);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }

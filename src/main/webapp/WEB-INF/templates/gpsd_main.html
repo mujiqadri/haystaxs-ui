@@ -46,7 +46,7 @@
             <div class="container">
                 <!-- BEGIN PAGE TITLE -->
                 <div class="page-title" th:fragment="page-title">
-                    <h1>GPSD Main</h1>
+                    <h1>Cluster Main</h1>
                 </div>
                 <!-- END PAGE TITLE -->
             </div>
@@ -70,85 +70,12 @@
                 <div class="page-content-inner" th:fragment="main-content">
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="portlet box yellow-lemon">
-                                <div class="portlet-title">
-                                    <div class="caption">
-                                        <i class="fa fa-upload"></i><span>Upload GPSD</span>
-                                    </div>
-                                    <div class="caption-2">
-                                        <i class="fa fa-question-circle popovers" style="font-size: 1.4em"
-                                           data-container="body" data-trigger="hover"
-                                           data-content="You can only upload a .sql or a compressed (.zip) GPSD file. Only 1 file can be uploaded. Once uploaded
-                                           the processing might take sometime. You will be notified in your inbox once the processing is completed and the GPSD will become available
-                                           in the list"
-                                           title="Help">
-                                        </i>
-                                    </div>
-                                    <div class="tools">
-                                        <a href="javascript:;" class="expand" data-original-title="" title=""> </a>
-                                    </div>
-                                </div>
-                                <div class="portlet-body display-hide">
-                                    <!-- The file upload form used as target for the file upload widget -->
-                                    <form id="fileupload" th:action="@{/gpsd/upload}" method="POST" enctype="multipart/form-data">
-                                        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-                                        <div class="row fileupload-buttonbar">
-                                            <div class="col-lg-7">
-                                                <!-- The fileinput-button span is used to style the file input field as button -->
-                                        <span class="btn btn-success fileinput-button">
-                                            <i class="glyphicon glyphicon-plus"></i>
-                                            <span>Add file...</span>
-                                            <input type="file" name="gpsd-file"/>
-                                        </span>
-                                                <button type="submit" class="btn btn-primary start">
-                                                    <i class="glyphicon glyphicon-upload"></i>
-                                                    <span>Start upload</span>
-                                                </button>
-                                                <button type="reset" class="btn btn-warning cancel">
-                                                    <i class="glyphicon glyphicon-ban-circle"></i>
-                                                    <span>Cancel upload</span>
-                                                </button>
-                                                <!--<button type="button" class="btn btn-danger delete">
-                                                    <i class="glyphicon glyphicon-trash"></i>
-                                                    <span>Delete</span>
-                                                </button>
-                                                <input type="checkbox" class="toggle"/>-->
-                                                <!-- The global file processing state -->
-                                                <span class="fileupload-process"></span>
-                                            </div>
-                                            <!-- The global progress state -->
-                                            <div class="col-lg-5 fileupload-progress fade">
-                                                <!-- The global progress bar -->
-                                                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-                                                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
-                                                </div>
-                                                <!-- The extended global progress state -->
-                                                <div class="progress-extended">&nbsp;</div>
-                                            </div>
-                                        </div>
-                                        <!-- The table listing the files available for upload/download -->
-                                        <table role="presentation" class="table table-striped">
-                                            <tbody class="files"></tbody>
-                                        </table>
-                                    </form>
-                                    <!-- The template to display files available for upload -->
-                                    <script id="template-upload" type="text/x-tmpl" hs:asis="/assets/pages/xtmpl/uploadTemplate2.txt">
-                                    </script>
-                                    <!-- The template to display files available for download -->
-                                    <script id="template-download" type="text/x-tmpl" hs:asis="/assets/pages/xtmpl/downloadTemplate2.txt">
-                                    </script>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-12">
                             <!-- BEGIN GPSD LIST PORTLET-->
                             <div class="portlet light portlet-fit">
                                 <div class="portlet-title">
                                     <div class="caption">
                                         <i class="fa fa-database"></i>
-                                        <span class="caption-subject font-dark bold uppercase">GPSDs</span>
+                                        <span class="caption-subject font-dark bold uppercase">Clusters</span>
                                     </div>
                                     <!--<div class="tools" style="padding-right: 10px">
                                         <a href="javascript:;" data-load="true" th:attr="data-url=@{/gpsd/list}" class="reload" data-original-title="" title=""> </a>
@@ -160,20 +87,6 @@
                             <!-- END GPSD LIST PORTLET-->
                         </div>
                     </div>
-                    <!-- CONTEXT CONTENT PORTLET BEGIN -->
-                    <div class="portlet box red hidden" id="context-content-portlet">
-                        <div class="portlet-title">
-                            <div class="caption">
-                                <i class="fa fa-gift"></i>
-                            </div>
-                            <div class="tools">
-                                <a href="" class="close-portlet" data-original-title="" title=""> </a>
-                            </div>
-                        </div>
-                        <div class="portlet-body" style="display: block;">
-                        </div>
-                    </div>
-                    <!-- CONTEXT CONTENT PORTLET END -->
                 </div>
                 <!-- END PAGE CONTENT INNER -->
             </div>

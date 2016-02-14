@@ -3,11 +3,13 @@
         <thead>
         <tr>
             <th width="5%">#</th>
+            <th width="10%">Friendly Name</th>
             <th width="10%">DB Name</th>
             <th width="25%">DB Version</th>
-            <th width="10%"># Of Lines</th>
+            <th width="5%"># Of Lines</th>
             <th width="10%">Submitted On</th>
             <th width="10%">Status</th>
+            <th width="5%">Is Default</th>
             <th width="10%">Details</th>
             <th width="10%">Action</th>
         </tr>
@@ -15,13 +17,15 @@
         <tbody>
         <tr th:each="gpsd,iterStatus : ${gpsdees}">
             <td th:text="${iterStatus.count}"></td>
+            <td th:text="${gpsd.friendlyName}"></td>
             <td th:text="${gpsd.dbName}"></td>
             <td th:text="${gpsd.gpsdVersion}"></td>
             <td th:text="${gpsd.noOfLines}"></td>
-            <td th:text="${#dates.format(gpsd.fileSubmittedOn, 'dd-MMM-yyyy hh:mm a')}"></td>
+            <td th:if="${gpsd.fileSubmittedOn}" th:text="${#dates.format(gpsd.fileSubmittedOn, 'dd-MMM-yyyy hh:mm a')}"></td>
+            <td th:if="${gpsd.createdOn}" th:text="${#dates.format(gpsd.createdOn, 'dd-MMM-yyyy hh:mm a')}"></td>
             <td th:text="${gpsd.status}"></td>
-            <!--<td><a href="javascript:;" class="vf" th:attr="data-id=${gpsd.gpsdId}">View File</a></td>-->
-            <td><a th:href="@{/gpsd/exploredb/} + ${gpsd.gpsdId}">Explore DB</a></td>
+            <td style="text-align: center"><span th:class="${gpsd.isDefault} ? 'fa fa-check' : 'fa fa-times'"></span></td>
+            <td><a th:href="@{/cluster/exploredb/} + ${gpsd.gpsdId}">Explore DB</a></td>
             <td><button class="btn btn-danger delete-gpsd" th:attr="data-id=${gpsd.gpsdId}">Delete</button></td>
         </tr>
         </tbody>

@@ -83,7 +83,7 @@
                 <!-- END PAGE BREADCRUMBS -->
                 <!-- BEGIN PAGE CONTENT INNER -->
                 <div class="page-content-inner" th:fragment="main-content">
-                    <div class="row">
+                    <div th:if="${queryLogsProcessed}" class="row">
                         <div class="col-lg-12" style="padding-bottom: 10px">
                             <form class="form-inline" role="form">
                                 <div class="row" style="margin-bottom: 10px">
@@ -164,6 +164,11 @@
                                 </div>
                             </form>
                         </div>
+                    </div>
+                    <div th:if="not ${queryLogsProcessed}" class="note note-warning">
+                        No query logs have been processed yet. <span th:if="not ${isDeployedOnCluster}"> Please upload query logs to proceed further...</span>
+                        <span th:if="${isDeployedOnCluster}"> Please wait till the query logs are processed OR press the <b>Refresh</b> button.
+                            You will be notified once the processing is completed.</span>
                     </div>
                     <div id="queries-list" th:include="fragments/query_analysis_list"></div>
                 </div>

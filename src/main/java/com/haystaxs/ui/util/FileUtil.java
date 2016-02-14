@@ -81,7 +81,9 @@ public class FileUtil {
     }
 
     // TODO: Should we force the user to upload QueryLogs without any subdirectories in the TAR File ?
-    public void unGZipTarArchive(String tarGzipFile, String outputFolder) {
+    public List<String> unGZipTarArchive(String tarGzipFile, String outputFolder) {
+        List<String> result = new ArrayList<String>();
+
         try {
             File directory = new File(outputFolder);
 
@@ -90,14 +92,13 @@ public class FileUtil {
                     new GZIPInputStream(
                             new FileInputStream(tarGzipFile)));
 
-            List<String> result = new ArrayList<String>();
-
             TarArchiveEntry entry = tarArchiveInputStream.getNextTarEntry();
 
             while (entry != null) {
                 if (entry.isDirectory()) {
-                    entry = tarArchiveInputStream.getNextTarEntry();
-                    continue;
+                    throw(new Exception("Zip/Tar file must not have any subdirectories"));
+                    //entry = tarArchiveInputStream.getNextTarEntry();
+                    //continue;
                 }
                 File curfile = new File(directory, entry.getName());
                 File parent = curfile.getParentFile();
@@ -114,6 +115,8 @@ public class FileUtil {
         } catch (Exception ex) {
             logger.error("Cannot UnArchive file.", ex);
         }
+
+        return result;
     }
 
     public void saveToFile(byte[] bytes, String baseDir, String fileName) throws IOException {

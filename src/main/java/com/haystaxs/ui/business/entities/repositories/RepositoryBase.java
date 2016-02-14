@@ -17,6 +17,9 @@ public class RepositoryBase {
     protected DataSource dataSource;
     protected JdbcTemplate jdbcTemplate;
 
+    protected static final String CACHE_NAME = "dataCache";
+    protected static final String CACHE_KEY_GENERATOR_STRING = "#root.targetClass.getSimpleName().concat('.').concat(methodName.concat('(').concat(#root.args).concat(')'))";
+
     @Autowired
     private AppConfig appConfig;
 

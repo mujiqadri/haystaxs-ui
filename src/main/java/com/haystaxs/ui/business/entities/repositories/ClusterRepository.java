@@ -1,10 +1,9 @@
 package com.haystaxs.ui.business.entities.repositories;
 
-import com.haystaxs.ui.business.entities.Cluster;
 import com.haystaxs.ui.business.entities.Gpsd;
-import com.haystaxs.ui.business.entities.repositories.rowmappers.GpsdRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -21,41 +20,21 @@ public class ClusterRepository extends RepositoryBase {
         logger.trace(logger.getName() + " instantiated.");
     }
 
-    public int createNewCluster(int userId, Cluster cluster) {
-        String sql = String.format("select nextval('%s.seq_clusters')", getHsSchemaName());
-        int newClusterId = jdbcTemplate.queryForObject(sql, Integer.class);
+    // TODO: Need a good eviction strategy
+    //@Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
+    public List<Gpsd> getAllClusters(int userId) {
 
-        sql = String.format("INSERT INTO %s.cluster (cluster_id, host, cluster_name, password, username, " +
-                "schema_refresh_schedule, query_refresh_schedule, created_on, cluster_type, user_id) " +
-                "VALUES (?,?,?,?,?,?,?, LOCALTIMESTAMP,?,?)", getHsSchemaName());
+        String sql = String.format("select g.* from %s.gpsd g join %1$s.gpsd_users gu " +
+                "on g.gpsd_id = gu.gpsd_id where gu.user_id = 1 or gu.user_id = ? ORDER BY g.friendly_name;",
+                getHsSchemaName());
 
-        jdbcTemplate.update(sql, new Object[]{ newClusterId, cluster.getHost(), cluster.getClusterName(),
-                cluster.getPassword(), cluster.getUserName(), cluster.getSchemaRefreshSchedule(),
-                cluster.getQueryRefreshSchedule(), cluster.getClusterType(),
-                userId });
-
-        return newClusterId;
-    }
-
-    public List<Cluster> getAllClusters(int userId) {
-        String sql = String.format("SELECT * FROM %s.cluster WHERE user_id = ? ORDER BY cluster_name DESC", getHsSchemaName());
-
-        List<Cluster> resultSet = jdbcTemplate.query(sql, new Object[]{ userId }, new BeanPropertyRowMapper<Cluster>(Cluster.class));
+        List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[]{userId}, new BeanPropertyRowMapper<Gpsd>(Gpsd.class));
 
         return resultSet;
     }
 
-    public boolean clusterBelongsToUser(int userId, int clusterId) {
-        String sql = String.format("SELECT count(0) FROM %s.cluster WHERE user_id = ? AND cluster_id = ?",
-                getHsSchemaName());
-
-        int result = jdbcTemplate.queryForObject(sql, new Object[] {userId, clusterId}, Integer.class);
-
-        return (result > 0 ? true : false);
-    }
-
-    public int getMaxClusterId(int userId) {
-        String sql = String.format("SELECT MAX(cluster_id) FROM %s.cluster WHERE user_id = ?",
+    public int getDefaultClusterId(int userId) {
+        String sql = String.format("SELECT gpsd_id FROM %s.gpsd_users where user_id = ? AND is_default = TRUE",
                 getHsSchemaName());
 
         int result = jdbcTemplate.queryForObject(sql, new Object[] {userId}, Integer.class);

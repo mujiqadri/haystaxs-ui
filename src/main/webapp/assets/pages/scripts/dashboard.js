@@ -10,31 +10,33 @@ function initQueryLogDurationChart(data) {
 
     loadViaAjax('/dashboard/ql/chartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
-        var sequencer = rawChartData[rawChartData.length-1];
-        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length-1));
+        var sequencer = rawChartData[rawChartData.length - 1];
+        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length - 1));
         unBlockUI($('#querylog-duration-chart-holder'));
     });
 
-    var getGraphsArray = function(sequencer, topN) {
+    var getGraphsArray = function (sequencer, topN) {
         var graphs = [];
         var durations = [];
 
-        for(var type in sequencer) {
-            if(type.endsWith('Duration') && type !== 'totalDuration') {
+        for (var type in sequencer) {
+            if (type.endsWith('Duration') && type !== 'totalDuration') {
                 var o = {};
                 o[type] = sequencer[type];
                 durations.push(o)
             }
         }
 
-        var durationsSorted = durations.sort(function(a, b) { return(b[Object.keys(b)[0]] - a[Object.keys(a)[0]]); });
+        var durationsSorted = durations.sort(function (a, b) {
+            return (b[Object.keys(b)[0]] - a[Object.keys(a)[0]]);
+        });
 
-        for(var index in durationsSorted) {
+        for (var index in durationsSorted) {
             var qryTypeCount = durationsSorted[index][Object.keys(durationsSorted[index])[0]];
-            if(qryTypeCount === 0) {
+            if (qryTypeCount === 0) {
                 continue;
             }
-            if(topN && topN == index) {
+            if (topN && topN == index) {
                 break;
             }
 
@@ -59,31 +61,47 @@ function initQueryLogDurationChart(data) {
             graphs.push(g);
         }
 
-        return(graphs);
+        return (graphs);
     }
 
-    var getQueryTypeProperties = function(qryType) {
+    var getQueryTypeProperties = function (qryType) {
         switch (qryType) {
-            case "selectDuration": return({ title: "Select" });
-            case "analyzeDuration": return({ title: "Analyze" });
-            case "commitDuration": return({ title: "Commit" });
-            case "createExternalTableDuration": return({ title: "Create Ext Tbl" });
-            case "createTableDuration": return({ title: "Create Tbl" });
-            case "deleteDuration": return({ title: "Delete" });
-            case "dropTableDuration": return({ title: "Drop Tbl" });
-            case "exclusiveLockDuration": return({ title: "Ex Lock" });
-            case "insertDuration": return({ title: "Insert" });
-            case "internalDuration": return({ title: "Internal" });
-            case "othersDuration": return({ title: "Other" });
-            case "showConfigurationDuration": return({ title: "Show Config" });
-            case "showDuration": return({ title: "Show" });
-            case "transactionOperationDuration": return({ title: "Tx Op" });
-            case "truncateTableDuration": return({ title: "Truncate Tbl" });
-            case "updateDuration": return({ title: "Update" });
+            case "selectDuration":
+                return ({title: "Select"});
+            case "analyzeDuration":
+                return ({title: "Analyze"});
+            case "commitDuration":
+                return ({title: "Commit"});
+            case "createExternalTableDuration":
+                return ({title: "Create Ext Tbl"});
+            case "createTableDuration":
+                return ({title: "Create Tbl"});
+            case "deleteDuration":
+                return ({title: "Delete"});
+            case "dropTableDuration":
+                return ({title: "Drop Tbl"});
+            case "exclusiveLockDuration":
+                return ({title: "Ex Lock"});
+            case "insertDuration":
+                return ({title: "Insert"});
+            case "internalDuration":
+                return ({title: "Internal"});
+            case "othersDuration":
+                return ({title: "Other"});
+            case "showConfigurationDuration":
+                return ({title: "Show Config"});
+            case "showDuration":
+                return ({title: "Show"});
+            case "transactionOperationDuration":
+                return ({title: "Tx Op"});
+            case "truncateTableDuration":
+                return ({title: "Truncate Tbl"});
+            case "updateDuration":
+                return ({title: "Update"});
         }
     }
 
-    var makeChart = function(graphs, chartData) {
+    var makeChart = function (graphs, chartData) {
         var chart = AmCharts.makeChart("querylog-duration-chart", {
             type: "serial",
             fontSize: 12,
@@ -127,33 +145,33 @@ function initQueryLogDurationChart(data) {
             }],
 
             graphs: graphs/*[{
-                id: "g1",
-                valueField: "selectDuration",
-                title: "Select",
-                type: "line",
-                fillAlphas: 0.75,
-                valueAxis: "va1",
-                legendValueText: "[[value]]",
-                lineColor: "#44B4D5"
-            }, {
-                id: "g2",
-                valueField: "dropTableDuration",
-                title: "Drop Tbl",
-                type: "line",
-                fillAlphas: 0.75,
-                valueAxis: "va1",
-                legendValueText: "[[value]]",
-                lineColor: "#AE70ED"
-            }, {
-                id: "g3",
-                valueField: "createExternalTableDuration",
-                title: "Ext Tbl",
-                type: "line",
-                fillAlphas: 0.75,
-                valueAxis: "va1",
-                legendValueText: "[[value]]",
-                lineColor: "#FF3542"
-            }]*/,
+             id: "g1",
+             valueField: "selectDuration",
+             title: "Select",
+             type: "line",
+             fillAlphas: 0.75,
+             valueAxis: "va1",
+             legendValueText: "[[value]]",
+             lineColor: "#44B4D5"
+             }, {
+             id: "g2",
+             valueField: "dropTableDuration",
+             title: "Drop Tbl",
+             type: "line",
+             fillAlphas: 0.75,
+             valueAxis: "va1",
+             legendValueText: "[[value]]",
+             lineColor: "#AE70ED"
+             }, {
+             id: "g3",
+             valueField: "createExternalTableDuration",
+             title: "Ext Tbl",
+             type: "line",
+             fillAlphas: 0.75,
+             valueAxis: "va1",
+             legendValueText: "[[value]]",
+             lineColor: "#FF3542"
+             }]*/,
 
             chartCursor: {
                 //zoomable: true,
@@ -185,31 +203,33 @@ function initQueryLogCountChart(data) {
 
     loadViaAjax('/dashboard/ql/chartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
-        var sequencer = rawChartData[rawChartData.length-1];
-        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length-1));
+        var sequencer = rawChartData[rawChartData.length - 1];
+        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length - 1));
         unBlockUI($('#querylog-count-chart-holder'));
     });
 
-    var getGraphsArray = function(sequencer, topN) {
+    var getGraphsArray = function (sequencer, topN) {
         var graphs = [];
         var counts = [];
 
-        for(var type in sequencer) {
-            if(type.endsWith('Count') && type !== 'totalCount') {
+        for (var type in sequencer) {
+            if (type.endsWith('Count') && type !== 'totalCount') {
                 var o = {};
                 o[type] = sequencer[type];
                 counts.push(o)
             }
         }
 
-        var countsSorted = counts.sort(function(a, b) { return(b[Object.keys(b)[0]] - a[Object.keys(a)[0]]); });
+        var countsSorted = counts.sort(function (a, b) {
+            return (b[Object.keys(b)[0]] - a[Object.keys(a)[0]]);
+        });
 
-        for(var index in countsSorted) {
+        for (var index in countsSorted) {
             var qryTypeCount = countsSorted[index][Object.keys(countsSorted[index])[0]];
-            if(qryTypeCount === 0) {
+            if (qryTypeCount === 0) {
                 continue;
             }
-            if(topN && topN == index) {
+            if (topN && topN == index) {
                 break;
             }
 
@@ -234,31 +254,47 @@ function initQueryLogCountChart(data) {
             graphs.push(g);
         }
 
-        return(graphs);
+        return (graphs);
     }
 
-    var getQueryTypeProperties = function(qryType) {
+    var getQueryTypeProperties = function (qryType) {
         switch (qryType) {
-            case "selectCount": return({ title: "Select" });
-            case "analyzeCount": return({ title: "Analyze" });
-            case "commitCount": return({ title: "Commit" });
-            case "createExternalTableCount": return({ title: "Create Ext Tbl" });
-            case "createTableCount": return({ title: "Create Tbl" });
-            case "deleteCount": return({ title: "Delete" });
-            case "dropTableCount": return({ title: "Drop Tbl" });
-            case "exclusiveLockCount": return({ title: "Ex Lock" });
-            case "insertCount": return({ title: "Insert" });
-            case "internalCount": return({ title: "Internal" });
-            case "othersCount": return({ title: "Other" });
-            case "showConfigurationCount": return({ title: "Show Config" });
-            case "showCount": return({ title: "Show" });
-            case "transactionOperationCount": return({ title: "Tx Op" });
-            case "truncateTableCount": return({ title: "Truncate Tbl" });
-            case "updateCount": return({ title: "Update" });
+            case "selectCount":
+                return ({title: "Select"});
+            case "analyzeCount":
+                return ({title: "Analyze"});
+            case "commitCount":
+                return ({title: "Commit"});
+            case "createExternalTableCount":
+                return ({title: "Create Ext Tbl"});
+            case "createTableCount":
+                return ({title: "Create Tbl"});
+            case "deleteCount":
+                return ({title: "Delete"});
+            case "dropTableCount":
+                return ({title: "Drop Tbl"});
+            case "exclusiveLockCount":
+                return ({title: "Ex Lock"});
+            case "insertCount":
+                return ({title: "Insert"});
+            case "internalCount":
+                return ({title: "Internal"});
+            case "othersCount":
+                return ({title: "Other"});
+            case "showConfigurationCount":
+                return ({title: "Show Config"});
+            case "showCount":
+                return ({title: "Show"});
+            case "transactionOperationCount":
+                return ({title: "Tx Op"});
+            case "truncateTableCount":
+                return ({title: "Truncate Tbl"});
+            case "updateCount":
+                return ({title: "Update"});
         }
     }
 
-    var makeChart = function(graphs, chartData) {
+    var makeChart = function (graphs, chartData) {
         var chart = AmCharts.makeChart("querylog-count-chart", {
             type: "serial",
             fontSize: 12,
@@ -266,9 +302,9 @@ function initQueryLogCountChart(data) {
             dataDateFormat: "DD-MM-YYYY",
             dataProvider: chartData,
             /*dataLoader: {
-                "url": App.webAppPath + "/dashboard/ql/chartdata",
-                "format": "json"
-            },*/
+             "url": App.webAppPath + "/dashboard/ql/chartdata",
+             "format": "json"
+             },*/
 
             categoryField: "date",
             categoryAxis: {
@@ -331,37 +367,39 @@ function initHourlyQueriesChart(data) {
     blockUI($('#hourly-queries-chart-holder'));
 
     data = data || {};
-    if(!data["sqlWindowOp"]) {
+    if (!data["sqlWindowOp"]) {
         data["sqlWindowOp"] = "avg";
     }
 
     loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
-        var sequencer = rawChartData[rawChartData.length-1];
-        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length-1));
+        var sequencer = rawChartData[rawChartData.length - 1];
+        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length - 1));
         unBlockUI($('#hourly-queries-chart-holder'));
     });
 
-    var getGraphsArray = function(sequencer, topN) {
+    var getGraphsArray = function (sequencer, topN) {
         var graphs = [];
         var durations = [];
 
-        for(var type in sequencer) {
-            if(type.endsWith('Duration') && type !== 'totalDuration') {
+        for (var type in sequencer) {
+            if (type.endsWith('Duration') && type !== 'totalDuration') {
                 var o = {};
                 o[type] = sequencer[type];
                 durations.push(o)
             }
         }
 
-        var durationsSorted = durations.sort(function(a, b) { return(b[Object.keys(b)[0]] - a[Object.keys(a)[0]]); });
+        var durationsSorted = durations.sort(function (a, b) {
+            return (b[Object.keys(b)[0]] - a[Object.keys(a)[0]]);
+        });
 
-        for(var index in durationsSorted) {
+        for (var index in durationsSorted) {
             var qryTypeCount = durationsSorted[index][Object.keys(durationsSorted[index])[0]];
-            if(qryTypeCount === 0) {
+            if (qryTypeCount === 0) {
                 continue;
             }
-            if(topN && topN == index) {
+            if (topN && topN == index) {
                 break;
             }
 
@@ -387,37 +425,53 @@ function initHourlyQueriesChart(data) {
         }
 
         /*graphs.push({
-            valueField: "totalDuration",
-            //title: qryTypeProperties["title"],
-            type: "line",
-            fillAlphas: 0,
-            valueAxis: "va1",
-            //legendValueText: "[[value]]",
-            lineColor: "black",
-            //newStack: true
-        });*/
+         valueField: "totalDuration",
+         //title: qryTypeProperties["title"],
+         type: "line",
+         fillAlphas: 0,
+         valueAxis: "va1",
+         //legendValueText: "[[value]]",
+         lineColor: "black",
+         //newStack: true
+         });*/
 
-        return(graphs);
+        return (graphs);
     }
 
-    var getQueryTypeProperties = function(qryType) {
+    var getQueryTypeProperties = function (qryType) {
         switch (qryType) {
-            case "selectDuration": return({ title: "Select" });
-            case "analyzeDuration": return({ title: "Analyze" });
-            case "commitDuration": return({ title: "Commit" });
-            case "createExternalTableDuration": return({ title: "Create Ext Tbl" });
-            case "createTableDuration": return({ title: "Create Tbl" });
-            case "deleteDuration": return({ title: "Delete" });
-            case "dropTableDuration": return({ title: "Drop Tbl" });
-            case "exclusiveLockDuration": return({ title: "Ex Lock" });
-            case "insertDuration": return({ title: "Insert" });
-            case "internalDuration": return({ title: "Internal" });
-            case "othersDuration": return({ title: "Other" });
-            case "showConfigurationDuration": return({ title: "Show Config" });
-            case "showDuration": return({ title: "Show" });
-            case "transactionOperationDuration": return({ title: "Tx Op" });
-            case "truncateTableDuration": return({ title: "Truncate Tbl" });
-            case "updateDuration": return({ title: "Update" });
+            case "selectDuration":
+                return ({title: "Select"});
+            case "analyzeDuration":
+                return ({title: "Analyze"});
+            case "commitDuration":
+                return ({title: "Commit"});
+            case "createExternalTableDuration":
+                return ({title: "Create Ext Tbl"});
+            case "createTableDuration":
+                return ({title: "Create Tbl"});
+            case "deleteDuration":
+                return ({title: "Delete"});
+            case "dropTableDuration":
+                return ({title: "Drop Tbl"});
+            case "exclusiveLockDuration":
+                return ({title: "Ex Lock"});
+            case "insertDuration":
+                return ({title: "Insert"});
+            case "internalDuration":
+                return ({title: "Internal"});
+            case "othersDuration":
+                return ({title: "Other"});
+            case "showConfigurationDuration":
+                return ({title: "Show Config"});
+            case "showDuration":
+                return ({title: "Show"});
+            case "transactionOperationDuration":
+                return ({title: "Tx Op"});
+            case "truncateTableDuration":
+                return ({title: "Truncate Tbl"});
+            case "updateDuration":
+                return ({title: "Update"});
         }
     }
 
@@ -454,7 +508,7 @@ function initHourlyQueriesChart(data) {
         }
     ];
 
-    var makeChart = function(graphs, chartData) {
+    var makeChart = function (graphs, chartData) {
         var chart = AmCharts.makeChart("hourly-queries-chart", {
             type: "serial",
             fontSize: 12,
@@ -536,7 +590,7 @@ function initHourlyComparisonQueriesChart(data) {
     blockUI($('#hourly-queries-comparison-chart-holder'));
 
     data = data || {};
-    if(!data["sqlWindowOp"]) {
+    if (!data["sqlWindowOp"]) {
         data["sqlWindowOp"] = "avg";
     }
 
@@ -559,7 +613,7 @@ function initHourlyComparisonQueriesChart(data) {
         var comparisonExists = true;
         var mdmMax = new moment(maxDateWithTimeZone);
         var mdmMin;
-        switch(timespanSelectedValue) {
+        switch (timespanSelectedValue) {
             case "ALL":
                 comparisonExists = false;
                 break;
@@ -594,10 +648,10 @@ function initHourlyComparisonQueriesChart(data) {
                 mdmMin.subtract(12, 'M');
                 break;
         }
-        if(comparisonExists) {
+        if (comparisonExists) {
             data = dataForAjax(mdmMin.format("DD-MMM-YYYY"), mdmMax.format("DD-MMM-YYYY"), data);
             loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result_2) {
-                for(index in rawChartData) {
+                for (index in rawChartData) {
                     rawChartData[index]["totalDurationPrev"] = result_2[index]["totalDuration"];
                 }
 
@@ -611,17 +665,17 @@ function initHourlyComparisonQueriesChart(data) {
                     lineColor: "blue"
                 });
 
-                makeChart(graphs, rawChartData.slice(0, rawChartData.length-1));
+                makeChart(graphs, rawChartData.slice(0, rawChartData.length - 1));
                 unBlockUI($('#hourly-queries-comparison-chart-holder'));
             });
         } else {
-            makeChart(graphs, rawChartData.slice(0, rawChartData.length-1));
+            makeChart(graphs, rawChartData.slice(0, rawChartData.length - 1));
             unBlockUI($('#hourly-queries-comparison-chart-holder'));
 
         }
     });
 
-    var makeChart = function(graphs, chartData) {
+    var makeChart = function (graphs, chartData) {
         var chart = AmCharts.makeChart("hourly-queries-comparison-chart", {
             type: "serial",
             fontSize: 12,
@@ -720,53 +774,7 @@ function hourlyQueriesComparisonSqlWindowOp_Change() {
     initHourlyComparisonQueriesChart(data);
 }
 
-$(function () {
-    minDateWithTimeZone = new Date($('#start-date').val() + " 00:00");
-    maxDateWithTimeZone = new Date($('#end-date').val() + " 23:59");
-
-    $('#filter-chart-data').on('click', function(e) {
-        e.preventDefault();
-
-        var data = dataForAjax();
-
-        initQueryLogDurationChart(data);
-        initQueryLogCountChart(data);
-        initHourlyQueriesChart(data);
-        initHourlyComparisonQueriesChart(data);
-    });
-    $('#timespan').on('change', function(e) {
-        var selectedValue = $(this).val();
-        var startDate = $('#start-date');
-        var endDate = $('#end-date');
-
-        var mdm = new moment(maxDateWithTimeZone);
-
-        if(selectedValue === "ALL") {
-            startDate.val(moment(minDateWithTimeZone).format("DD-MMM-YYYY"));
-            endDate.val(moment(maxDateWithTimeZone).format("DD-MMM-YYYY"));
-        } else {
-            switch(selectedValue) {
-                case "12hr": mdm.subtract(12, 'h'); break;
-                case "1w": mdm.subtract(1, "w"); break;
-                case "2w": mdm.subtract(2, "w"); break;
-                case "1m": mdm.subtract(1, "M"); break;
-                case "3m": mdm.subtract(3, "M"); break;
-                case "12m": mdm.subtract(12, "M"); break;
-            }
-
-            startDate.val(mdm.format('DD-MMM-YYYY'));
-        }
-    });
-    $('#hourly-queries-sqlwindowop').on('change', hourlyQueriesSqlWindowOp_Change);
-    $('#hourly-queries-comparison-sqlwindowop').on('change', hourlyQueriesComparisonSqlWindowOp_Change);
-
-    /*initQueryLogDurationChart();
-    initQueryLogCountChart();
-    initHourlyQueriesChart();
-    initHourlyComparisonQueriesChart();*/
-});
-
-function generateChartData() {
+function generateSampleChartData() {
     var chartData = [];
     // current date
     var firstDate = new Date();
@@ -788,3 +796,64 @@ function generateChartData() {
     }
     return chartData;
 }
+
+$(function () {
+    if ($('#query-logs-processed').val() === 'true') {
+        minDateWithTimeZone = new Date($('#start-date').val() + " 00:00");
+        maxDateWithTimeZone = new Date($('#end-date').val() + " 23:59");
+
+        $('#filter-chart-data').on('click', function (e) {
+            e.preventDefault();
+
+            var data = dataForAjax();
+
+            initQueryLogDurationChart(data);
+            initQueryLogCountChart(data);
+            initHourlyQueriesChart(data);
+            initHourlyComparisonQueriesChart(data);
+        });
+        $('#timespan').on('change', function (e) {
+            var selectedValue = $(this).val();
+            var startDate = $('#start-date');
+            var endDate = $('#end-date');
+
+            var mdm = new moment(maxDateWithTimeZone);
+
+            if (selectedValue === "ALL") {
+                startDate.val(moment(minDateWithTimeZone).format("DD-MMM-YYYY"));
+                endDate.val(moment(maxDateWithTimeZone).format("DD-MMM-YYYY"));
+            } else {
+                switch (selectedValue) {
+                    case "12hr":
+                        mdm.subtract(12, 'h');
+                        break;
+                    case "1w":
+                        mdm.subtract(1, "w");
+                        break;
+                    case "2w":
+                        mdm.subtract(2, "w");
+                        break;
+                    case "1m":
+                        mdm.subtract(1, "M");
+                        break;
+                    case "3m":
+                        mdm.subtract(3, "M");
+                        break;
+                    case "12m":
+                        mdm.subtract(12, "M");
+                        break;
+                }
+
+                startDate.val(mdm.format('DD-MMM-YYYY'));
+            }
+        });
+        $('#hourly-queries-sqlwindowop').on('change', hourlyQueriesSqlWindowOp_Change);
+        $('#hourly-queries-comparison-sqlwindowop').on('change', hourlyQueriesComparisonSqlWindowOp_Change);
+
+        initQueryLogDurationChart();
+        initQueryLogCountChart();
+        initHourlyQueriesChart();
+        initHourlyComparisonQueriesChart();
+    }
+});
+

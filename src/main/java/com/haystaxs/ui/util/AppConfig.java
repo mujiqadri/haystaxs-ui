@@ -30,6 +30,10 @@ public class AppConfig {
     private String webAppBaseUrl;
     @Value("#{appProps['webapp.isDeployedOnCluster']}")
     private boolean isDeployedOnCluster;
+    @Value("#{appProps['backend.invoke']}")
+    private boolean invokeBackend;
+    @Value("#{appProps['email.clusterAdmin']}")
+    private String clusterAdminEmailAddress;
 
     public String getGpsdSaveDirectory() {
         return gpsdSaveDirectory;
@@ -77,5 +81,13 @@ public class AppConfig {
 
     public boolean isDeployedOnCluster() {
         return isDeployedOnCluster;
+    }
+
+    public boolean invokeBackend() {
+        return invokeBackend;
+    }
+
+    public String getClusterAdminEmailAddress() {
+        return clusterAdminEmailAddress;
     }
 }

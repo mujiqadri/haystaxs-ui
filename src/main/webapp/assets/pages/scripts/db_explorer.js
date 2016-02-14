@@ -64,7 +64,7 @@ $(function () {
     var data = {};
     data["gpsd_id"] = $('#current-gpsd-id').val();
 
-    loadViaAjax('/test/exploredb/json', data, 'json', null, null, null, function (result) {
+    loadViaAjax('/cluster/exploredb/json', data, 'json', null, null, null, function (result) {
         var jsonForDataModel = {};
 
         for (var k in result["tableHashMap"]) {

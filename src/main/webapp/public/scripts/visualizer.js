@@ -5,7 +5,7 @@ var Visualizer = {
     /// GLOBALS ///
     //height = 755, width = 1360;
     width: 948,
-    height: 500,
+    height: 545,
     nodeMinRadius: 20,
     nodeMaxRadius: 75,
     nodePadding: 5,

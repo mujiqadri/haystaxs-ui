@@ -1,12 +1,13 @@
 package com.haystaxs.ui.business.entities;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
 
 /**
  * Created by adnan on 11/25/15.
  */
-public class UserQuery {
+public class UserQuery  implements Serializable {
     private String logDatabase;
     private String logUser;
     private Timestamp queryStartTime;

@@ -34,6 +34,14 @@
     <mvc:annotation-driven ignoreDefaultModelOnRedirect="true" />
     <mvc:interceptors>
         <bean class="org.thymeleaf.spring.support.ThymeleafLayoutInterceptor"></bean>
+        <mvc:interceptor>
+            <mvc:mapping path="/dashboard"/>
+            <mvc:mapping path="/cluster/main"/>
+            <mvc:mapping path="/querylog/**"/>
+            <mvc:mapping path="/workload/**"/>
+            <mvc:mapping path="/visualizer/**"/>
+            <bean class="com.haystaxs.ui.web.interceptors.CheckClusterAvailableInterceptor"/>
+        </mvc:interceptor>
     </mvc:interceptors>
 
     <!-- **************************************************************** -->
@@ -61,21 +69,22 @@
     <!-- **************************************************************** -->
     <!--  SPRING DATA CACHING                                             -->
     <!-- **************************************************************** -->
-    <!--<cache:annotation-driven/>
-    <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+    <cache:annotation-driven/>
+
+    <!--<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
         <property name="caches">
             <set>
-                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="jdkCache"/>
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="dataCache"/>
             </set>
         </property>
     </bean>-->
 
-    <!--<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
         <property name="cacheManager" ref="ehcache"/>
     </bean>
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
         <property name="configLocation" value="classpath:ehcache.xml"/>
-        <property name="shared" value="true"/>
-    </bean>-->
+        <!--<property name="shared" value="true"/>-->
+    </bean>
 
 </beans>

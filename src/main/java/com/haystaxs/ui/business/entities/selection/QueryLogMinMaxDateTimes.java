@@ -2,6 +2,7 @@ package com.haystaxs.ui.business.entities.selection;
 
 import org.apache.commons.net.ntp.TimeStamp;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -9,7 +10,7 @@ import java.sql.Timestamp;
 /**
  * Created by adnan on 1/15/16.
  */
-public class QueryLogMinMaxDateTimes {
+public class QueryLogMinMaxDateTimes  implements Serializable {
     public Date minDate;
     public Date maxDate;
     public Time minTime;

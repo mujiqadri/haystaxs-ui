@@ -131,11 +131,12 @@ function initializeToolWindow() {
 function initializeFullScreenOptions() {
     var clusterVisualPortlet = $('#cluster-visual-portlet-body');
     Visualizer.width = clusterVisualPortlet.width() - 10;
+
     $('body').on('click', '.portlet > .portlet-title .fullscreen', function(e) {
         if(dataModel) {
             Visualizer.width = clusterVisualPortlet.width() - 10;
             if($(this).hasClass('on')) {
-                Visualizer.height = clusterVisualPortlet.height() - 10;
+                Visualizer.height = clusterVisualPortlet.height() - 55;
             } else {
                 Visualizer.height = visualizerOriginalHeight;
             }
@@ -147,4 +148,4 @@ function initializeFullScreenOptions() {
 /// GLOBAL VARIABLES ///
 var dataModel = undefined;
 
-var visualizerOriginalHeight = 500;
+var visualizerOriginalHeight = 545;

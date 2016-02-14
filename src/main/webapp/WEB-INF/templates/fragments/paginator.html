@@ -1,4 +1,4 @@
-<div th:if="${pi.totalNoOfPages} > 0" th:fragment="paginator(showPages)" xmlns:th="http://www.w3.org/1999/xhtml">
+<div th:if="${pi} and ${pi.totalNoOfPages} > 0" th:fragment="paginator(showPages)" xmlns:th="http://www.w3.org/1999/xhtml">
     <ul class="pagination pagination-lg">
         <li>
             <a href="javascript:;" th:attr="data-pgno=1">
