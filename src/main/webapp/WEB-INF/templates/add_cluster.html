@@ -82,6 +82,7 @@
                                     </div>
                                 </div>
                                 <div class="portlet-body form" id="portlet-body-1">
+                                    <div class="note note-danger" th:if="${error}" th:text="${error}"></div>
                                     <form th:action="@{/cluster/add}" method="post" class="form-horizontal" th:object="${cluster}"
                                           id="add-cluster-form">
                                         <div class="form-body">

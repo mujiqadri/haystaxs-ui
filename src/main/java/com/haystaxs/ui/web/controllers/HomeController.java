@@ -270,9 +270,13 @@ public class HomeController {
             if(haystaxsLibServiceWrapper.tryConnectToCluster(cluster)) {
                 int newClusterId = gpsdRepository.addCluster(cluster, true);
                 session.setAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID, newClusterId);
+            } else {
+                model.addAttribute("error", "Error connecting to cluster");
+                return "add_cluster";
             }
         } catch(Exception ex) {
             logger.error(ex.getMessage());
+            model.addAttribute("error", ex.getMessage());
             return "add_cluster";
         }
 
