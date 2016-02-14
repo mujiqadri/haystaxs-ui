@@ -19,4 +19,8 @@ $(function () {
             }
         });
     });
+
+    $('#refresh-cluster-data').on('click', function(e) {
+       loadViaAjax('/cluster/refresh');
+    });
 });
