@@ -2,6 +2,7 @@ package com.haystaxs.ui.util;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
@@ -162,6 +163,14 @@ public class FileUtil {
             } else {
                 throw new IOException(String.format("FTP directory creation failed for %s", dirs[i]));
             }
+        }
+    }
+
+    public void deleteRecursively(String path) {
+        try {
+            FileUtils.deleteDirectory(new File(path));
+        } catch (Exception ex) {
+            logger.error("Cannot delete path {}", path);
         }
     }
 }

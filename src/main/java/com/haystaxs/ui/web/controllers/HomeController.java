@@ -102,7 +102,13 @@ public class HomeController {
 
     @ModelAttribute("allUserClusters")
     private List<Gpsd> getAllUserClusters() {
-        return (clusterRepository.getAllClusters(getUserId()));
+        List<Gpsd> result = clusterRepository.getAllClusters(getUserId());
+
+        if(result.size() == 0) {
+            httpSession.removeAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID);
+        }
+
+        return result;
     }
 
     @ModelAttribute("isDeployedOnCluster")
@@ -313,11 +319,18 @@ public class HomeController {
     }
 
     @RequestMapping("/cluster/delete/{id}")
+    @ResponseBody
     public String deleteGpsd(@PathVariable("id") int gpsdId, Model model) {
-        // Delete the gpsd entry
-        // Remove the physical file
-        // Tell BG Process to delete the backend Database created based on this GPSD
-        throw new NotImplementedException();
+        gpsdRepository.delete(gpsdId, getUserId(), getUserSchemaName());
+
+        if(!isDeployedOnCluster()) {
+            fileUtil.deleteRecursively(String.format("%s/%s/gpsd/%d", appConfig.getGpsdSaveDirectory(), getUserSchemaName(),
+                    gpsdId));
+        }
+
+        // TODO: Tell BG Process to delete the backend Database created based on this GPSD
+
+        return "success";
     }
 
     @RequestMapping("/cluster/refresh")
@@ -388,7 +401,7 @@ public class HomeController {
         } catch (Exception e) {
             logger.error("Error while saving GPSD file on server. Exception: ", e.getMessage());
             // Rollback the DB Entry..
-            gpsdRepository.delete(newGpsdId);
+            gpsdRepository.delete(newGpsdId, getUserId(), getUserSchemaName());
             uploadedFileInfo.setError(e.getMessage());
         }
         uploadedFileInfo.setName(originalFileName);

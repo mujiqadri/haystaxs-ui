@@ -29,7 +29,7 @@ public class UserRepository extends RepositoryBase {
         String sql = String.format("select * from %s.users where email_address = '%s'", getHsSchemaName(), email);
 
         try {
-            return (HsUser) jdbcTemplate.queryForObject(sql, new HsUserRowMapper());
+            return (HsUser) jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<HsUser>(HsUser.class));
         } catch (EmptyResultDataAccessException ex) {
             return null;
         }

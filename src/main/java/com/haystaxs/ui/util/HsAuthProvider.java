@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -21,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import javax.servlet.ServletException;
 import java.util.ArrayList;
 
 /**
@@ -33,6 +32,8 @@ public class HsAuthProvider extends AbstractUserDetailsAuthenticationProvider {
     //@Qualifier("userDetailsServiceImpl")
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AppConfig appConfig;
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) throws AuthenticationException {
@@ -55,6 +56,8 @@ public class HsAuthProvider extends AbstractUserDetailsAuthenticationProvider {
         } else if(!hsUser.isRegVerified()) {
             logger.info(String.format("Authentication failed. Registration not yet verified for %s.", emailAddress));
             throw new AccountNotVerifiedException("Please verify yourself first.");
+        } else if(appConfig.isDeployedOnCluster() && hsUser.getUserId() != 1 && hsUser.isAdmin()) {
+            throw new InternalAuthenticationServiceException("The application is configured to be deployed on a cluster, this user is cannot be an admin.");
         }
 
         // TODO: Update last_login

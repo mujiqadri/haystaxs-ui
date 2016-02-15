@@ -110,11 +110,37 @@ public class GpsdRepository extends RepositoryBase {
         return newClusterId;
     }
 
-    public void delete(int gpsdId) {
-        String sql = String.format("DELETE FROM %s.gpsd_users WHERE gpsd_id = ?", getHsSchemaName());
-        jdbcTemplate.update(sql, gpsdId);
+    public void delete(int gpsdId, int userId, String userSchemaName) {
+        try {
+            String sql = String.format("SELECT is_default FROM %s.gpsd_users where gpsd_id = ?",
+                    getHsSchemaName());
+            Boolean isDefault = jdbcTemplate.queryForObject(sql, new Object[] { gpsdId }, Boolean.class);
 
-        sql = String.format("DELETE FROM %s.gpsd WHERE gpsd_id = ?", getHsSchemaName());
-        jdbcTemplate.update(sql, gpsdId);
+            sql = String.format("DELETE FROM %s.gpsd_users WHERE gpsd_id = ?", getHsSchemaName());
+            jdbcTemplate.update(sql, gpsdId);
+
+            sql = String.format("DELETE FROM %s.gpsd_stats WHERE gpsd_id = ?", getHsSchemaName());
+            jdbcTemplate.update(sql, gpsdId);
+
+            sql = String.format("DELETE FROM %s.gpsd WHERE gpsd_id = ?", getHsSchemaName());
+            jdbcTemplate.update(sql, gpsdId);
+
+            sql = String.format("DELETE FROM %s.queries WHERE gpsd_id = ?", userSchemaName);
+            jdbcTemplate.update(sql, gpsdId);
+
+            // If this was the default cluster, change the default cluster to the last one, if this
+            // was the only cluster then he should automatically be taken to Add cluster / Upload GPSD screen
+            if(isDefault) {
+                sql = String.format("SELECT MAX(gpsd_id) FROM %s.gpsd_users WHERE user_id = ?", getHsSchemaName());
+                Integer maxGpsdId = jdbcTemplate.queryForObject(sql, new Object[] {userId}, Integer.class);
+
+                if(maxGpsdId != null) {
+                    sql = String.format("UPDATE %s.gpsd_users SET is_default = TRUE WHERE gpsd_id = ?", getHsSchemaName());
+                    jdbcTemplate.update(sql, maxGpsdId);
+                }
+            }
+        } catch (Exception ex) {
+            logger.error("Could not delete all possible GPSD entries for gpsd_id={}. Ex Msg: ", gpsdId, ex.getMessage());
+        }
     }
 }

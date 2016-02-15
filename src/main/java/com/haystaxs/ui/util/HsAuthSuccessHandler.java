@@ -28,6 +28,7 @@ public class HsAuthSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                         Authentication authentication) throws IOException, ServletException {
         HsUser hsUser = (HsUser) authentication.getPrincipal();
+
         try {
             int defaultClusterId = clusterRepository.getDefaultClusterId(hsUser.getUserId());
             httpServletRequest.getSession().setAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID, defaultClusterId);
