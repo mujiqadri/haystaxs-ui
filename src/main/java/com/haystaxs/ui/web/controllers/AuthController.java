@@ -58,7 +58,7 @@ public class AuthController {
             throw new Exception("Operation not allowed");
         }
         model.addAttribute("candidateUser", new HsUser());
-        return "registerUser";
+        return "register_user";
     }
 
     @Layout(value = "", enabled = false)
@@ -97,7 +97,7 @@ public class AuthController {
             logger.error(String.format("Error sending verification email to user with userId = %d", newHsUser.getUserId()));
         }
 
-        return "registerUserSuccess";
+        return "register_user_success";
     }
 
     @Layout(value = "", enabled = false)
@@ -114,7 +114,7 @@ public class AuthController {
 
         model.addAttribute("userVerified", userVerified);
 
-        return "verifyRegistrationResult";
+        return "verify_registration_result";
     }
 
     /*@ExceptionHandler(MissingServletRequestParameterException.class)

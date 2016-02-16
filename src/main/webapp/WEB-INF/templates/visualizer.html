@@ -1,436 +1,447 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- BEGIN GLOBAL MANDATORY STYLES -->
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/global/plugins/font-awesome/css/font-awesome.min.css}" href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}" href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
-          rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}" href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}" href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css}" href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
-          rel="stylesheet" type="text/css"/>
-    <!-- END GLOBAL MANDATORY STYLES -->
-    <!-- BEGIN THEME GLOBAL STYLES -->
-    <link th:href="@{/assets/global/css/components-md.min.css}" href="/assets/global/css/components-md.min.css" rel="stylesheet" id="style_components" type="text/css"/>
-    <link th:href="@{/assets/global/css/plugins-md.min.css}" href="/assets/global/css/plugins-md.min.css" rel="stylesheet" type="text/css"/>
-    <!-- END THEME GLOBAL STYLES -->
-    <!-- BEGIN THEME LAYOUT STYLES -->
-    <link th:href="@{/assets/layouts/layout3/css/layout.min.css}" href="/assets/layouts/layout3/css/layout.min.css" rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/layouts/layout3/css/themes/default.min.css}" href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet" type="text/css"
-          id="style_color"/>
-    <link th:href="@{/assets/layouts/layout3/css/custom.css}" href="/assets/layouts/layout3/css/custom.css  " rel="stylesheet" type="text/css"/>
-    <!-- END THEME LAYOUT STYLES -->
-    <th:block th:fragment="page-level-styles">
-        <!-- jQuery UI -->
-        <link th:href="@{/assets/global/plugins/jquery-ui-1.11.4.dialog-only/jquery-ui.min.css}"
-              href="/assets/global/plugins/jquery-ui-1.11.4.dialog-only/jquery-ui.min.css" rel="stylesheet"/>
-        <!-- Select2 CSS -->
-        <link th:href="@{/assets/global/plugins/select2/css/select2.min.css}" href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet"/>
-        <link th:href="@{/assets/global/plugins/select2/css/select2-bootstrap.min.css}" href="/assets/global/plugins/select2/css/select2-bootstrap.min.css"
-              rel="stylesheet"/>
-        <!-- Custom CSS -->
-        <link th:href="@{/public/css/haystackui.css}" href="/public/css/haystackui.css" rel="stylesheet"/>
-        <!-- BootGrid -->
-        <link th:href="@{/public/vendor/jquery.bootgrid.css}" href="/public/vendor/jquery.bootgrid.css" rel="stylesheet" type="text/css"/>
+	<!-- BEGIN GLOBAL MANDATORY STYLES -->
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet" type="text/css"/>
+	<link th:href="@{/assets/global/plugins/font-awesome/css/font-awesome.min.css}" href="/assets/global/plugins/font-awesome/css/font-awesome.min.css"
+	      rel="stylesheet"
+	      type="text/css"/>
+	<link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}"
+	      href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
+	      rel="stylesheet"
+	      type="text/css"/>
+	<link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}" href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet"
+	      type="text/css"/>
+	<link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}" href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet"
+	      type="text/css"/>
+	<link th:href="@{/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css}"
+	      href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
+	      rel="stylesheet" type="text/css"/>
+	<!-- END GLOBAL MANDATORY STYLES -->
+	<!-- BEGIN THEME GLOBAL STYLES -->
+	<link th:href="@{/assets/global/css/components-md.min.css}" href="/assets/global/css/components-md.min.css" rel="stylesheet" id="style_components"
+	      type="text/css"/>
+	<link th:href="@{/assets/global/css/plugins-md.min.css}" href="/assets/global/css/plugins-md.min.css" rel="stylesheet" type="text/css"/>
+	<!-- END THEME GLOBAL STYLES -->
+	<!-- BEGIN THEME LAYOUT STYLES -->
+	<link th:href="@{/assets/layouts/layout3/css/layout.min.css}" href="/assets/layouts/layout3/css/layout.min.css" rel="stylesheet" type="text/css"/>
+	<link th:href="@{/assets/layouts/layout3/css/themes/default.min.css}" href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet"
+	      type="text/css"
+	      id="style_color"/>
+	<link th:href="@{/assets/layouts/layout3/css/custom.css}" href="/assets/layouts/layout3/css/custom.css  " rel="stylesheet" type="text/css"/>
+	<!-- END THEME LAYOUT STYLES -->
+	<th:block th:fragment="page-level-styles">
+		<!-- jQuery UI -->
+		<link th:href="@{/assets/global/plugins/jquery-ui-1.11.4.dialog-only/jquery-ui.min.css}"
+		      href="/assets/global/plugins/jquery-ui-1.11.4.dialog-only/jquery-ui.min.css" rel="stylesheet"/>
+		<!-- Select2 CSS -->
+		<link th:href="@{/assets/global/plugins/select2/css/select2.min.css}" href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet"/>
+		<link th:href="@{/assets/global/plugins/select2/css/select2-bootstrap.min.css}" href="/assets/global/plugins/select2/css/select2-bootstrap.min.css"
+		      rel="stylesheet"/>
+		<!-- Custom CSS -->
+		<link th:href="@{/public/css/haystackui.css}" href="/public/css/haystackui.css" rel="stylesheet"/>
+		<!-- BootGrid -->
+		<link th:href="@{/public/vendor/jquery.bootgrid.css}" href="/public/vendor/jquery.bootgrid.css" rel="stylesheet" type="text/css"/>
 
-        <style type="text/css">
-            .nodeShape {
-            }
+		<style type="text/css">
+			.nodeShape {
+			}
 
-            .link {
-            }
+			.link {
+			}
 
-            .nodeText {
+			.nodeText {
 
-            }
+			}
 
-            .nodeIcon {
+			.nodeIcon {
 
-            }
+			}
 
-            .no-close .ui-dialog-titlebar-close {
-                display: none;
-            }
-            .above-all-else {
-                z-index: 15000;
-            }
+			.no-close .ui-dialog-titlebar-close {
+				display: none;
+			}
 
-            .select2-close-mask{
-                z-index: 16000;
-            }
-            .select2-dropdown{
-                z-index: 16000;
-            }
-        </style>
-    </th:block>
+			.above-all-else {
+				z-index: 15000;
+			}
+
+			.select2-close-mask {
+				z-index: 16000;
+			}
+
+			.select2-dropdown {
+				z-index: 16000;
+			}
+		</style>
+	</th:block>
 </head>
 <body class="page-container-bg-solid page-boxed page-md">
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
-    <!-- BEGIN CONTENT -->
-    <div class="page-content-wrapper">
-        <!-- BEGIN CONTENT BODY -->
-        <!-- BEGIN PAGE HEAD-->
-        <div class="page-head">
-            <div class="container">
-                <!-- BEGIN PAGE TITLE -->
-                <div class="page-title" th:fragment="page-title">
-                    <h1>Visualizer</h1>
-                </div>
-                <!-- END PAGE TITLE -->
-            </div>
-        </div>
-        <!-- END PAGE HEAD-->
-        <!-- BEGIN PAGE CONTENT BODY -->
-        <div class="page-content">
-            <div class="container">
-                <!-- BEGIN PAGE BREADCRUMBS -->
-                <ul class="page-breadcrumb breadcrumb" th:fragment="breadcrumbs">
-                    <li>
-                        <a href="index.html">Home</a>
-                        <i class="fa fa-circle"></i>
-                    </li>
-                    <li>
-                        <span>Layouts</span>
-                    </li>
-                </ul>
-                <!-- END PAGE BREADCRUMBS -->
-                <!-- BEGIN PAGE CONTENT INNER -->
-                <div class="page-content-inner" th:fragment="main-content">
-                    <div class="row">
-                        <div class="col-lg-9" id="visualizer-panel-container">
-                            <div class="portlet box yellow-lemon">
-                                <div class="portlet-title">
-                                    <div class="caption">
-                                        <i class="fa fa-video-camera"></i><span>Cluster Visual</span> <span id="showing-table-count"></span>
-                                    </div>
-                                    <div class="tools">
-                                        <a href="" class="fullscreen" data-original-title="" title=""> </a>
-                                    </div>
-                                </div>
-                                <div class="portlet-body" id="cluster-visual-portlet-body">
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <!-- VISUALIZATION FILTERS -->
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading" data-toggle="collapse" data-target="#visualizer-filters-panel" title="">
-                                                    <span class="bold">Visualization Filters</span>
-                                                    <span class="fa fa-minus pull-right"></span>
-                                                </div>
-                                                <div class="panel-body collapse" id="visualizer-filters-panel">
-                                                    <div class="row">
-                                                        <div class="col-lg-12">
-                                                            <form class="form-inline">
-                                                                <input type="text" class="hidden" id="workload-id" th:value="${workloadId}"/>
-                                                                <!--<div class="form-group">
-                                                                    <label id="selected-filename"
-                                                                           style="cursor: pointer; max-width: 165px; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0px"
-                                                                           data-toggle="tooltip"
-                                                                           title="">Choose file...</label>
-                                                                    <input type="file" id="input-file" style="display: none"/>
-                                                                </div>-->
-                                                                <div class="form-group">
-                                                                    <select id="schema-select" class="form-control">
-                                                                        <option value="HS_ALL_SCHEMAS">ALL_SCHEMAS</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <input id="tables-to-display" type="number" class="form-control input-width-small" data-toggle="tooltip"
-                                                                           title="No. of tables to display"/>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <!--<label class="control-label" data-toggle="tooltip" title="and greater than"> &gt; &nbsp; </label>-->
-                                                                    <input id="display-based-on-filter" type="number" class="form-control input-width-medium" value="0"
-                                                                           data-toggle="tooltip" title="score greater than"/>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <button id="apply-filters" type="button" class="btn btn-info">Apply</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <!-- VISUALIZATION OPTIONS -->
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading" data-toggle="collapse" data-target="#visualizer-options-panel" title="">
-                                                    <span class="bold">Visualization Options</span>
-                                                    <span class="fa fa-minus pull-right"></span>
-                                                </div>
-                                                <div class="panel-body collapse" id="visualizer-options-panel">
-                                                    <div class="row">
-                                                        <div class="col-lg-12">
-                                                            <form class="form-inline">
-                                                                <div class="form-group">
-                                                                    <label class="control-label" style="padding-top: 9px; padding-bottom: 8px;">Display Nodes by: </label>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label class="radio-inline">
-                                                                        <input type="radio" name="display-according-to" value="score" checked="checked" id="r1"/>Score
-                                                                    </label>
-                                                                    <label class="radio-inline">
-                                                                        <input type="radio" name="display-according-to" value="size" id="r2"/>Size
-                                                                    </label>
-                                                                    <label class="radio-inline">
-                                                                        <input type="radio" name="display-according-to" value="time" id="r3"/>Time
-                                                                    </label>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div id="canvas-holder"></div>
-                                </div>
-                            </div>
-                            <!-- CLUSTER VISUAL -->
-                            <!--<div class="panel panel-default">
-                                <div class="panel-heading">
-                                    &lt;!&ndash;<a href="#" id="toggle-info-pane-size" class="fa fa-arrow-left fa-2x pull-right" style="text-decoration: none; font-size: 1.5em"></a>
-                                    Cluster Visual <span id="showing-table-count"></span>&ndash;&gt;
-                                </div>
-                                <div class="panel-body">
-                                    &lt;!&ndash;<div id="canvas-holder"></div>&ndash;&gt;
-                                </div>
-                            </div>-->
-                        </div>
-                        <div id="info-panel-container">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="panel panel-default">
-                                        <!-- TABLE INFO TABS -->
-                                        <div class="panel-heading">
-                                            <span class="bold">Table Info for: <label id="selected-table-label"></label></span>
-                                        </div>
-                                        <div class="panel-body">
-                                            <div class="form-inline" style="margin-bottom: 10px">
-                                                <div class="form-group">
-                                                    <select id="table-select" class="form-control" style="width: 100px;"></select>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <ul class="nav nav-tabs" role="tablist" id="table-info-tabs">
-                                                    <li role="presentation" class="active">
-                                                        <a href="#summary-tab" role="tab" data-hs-name="summary"
-                                                           data-toggle="tab">Summary</a></li>
-                                                    <li role="presentation">
-                                                        <a href="#columns-tab" role="tab" data-hs-name="columns"
-                                                           data-toggle="tab">Columns</a>
-                                                    </li>
-                                                    <li role="presentation">
-                                                        <a href="#joins-tab" role="tab" data-hs-name="joins"
-                                                           data-toggle="tab">Joins</a>
-                                                    </li>
-                                                    <li role="presentation">
-                                                        <a href="#partitions-tab" role="tab" data-hs-name="partitions"
-                                                           data-toggle="tab">Partitions</a>
-                                                    </li>
-                                                </ul>
-                                                <div class="tab-content">
-                                                    <!-- SUMMARY GRID -->
-                                                    <div role="tabpanel" class="tab-pane active" id="summary-tab">
-                                                        <table id="summary-grid"
-                                                               class="table table-condensed table-hover table-striped">
-                                                            <thead>
-                                                            <tr>
-                                                                <th data-column-id="name">Name</th>
-                                                                <th data-column-id="value">Value</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <!-- COLUMNS GRID -->
-                                                    <div role="tabpanel" class="tab-pane" id="columns-tab">
-                                                        <!--<form class="form-inline">
-                                                            <div class="checkbox">
-                                                                <label>
-                                                                    <input type="checkbox" id="show-all-columns"
-                                                                           onchange="onShowAllColumnsChecked()"> <span>Show all columns</span>
-                                                                </label>
-                                                            </div>
-                                                            &lt;!&ndash;<label class="control-label" id="num-of-cols-showing"></label>&ndash;&gt;
-                                                            <span id="num-of-cols-showing"></span>
-                                                        </form>-->
-                                                        <table id="columns-grid"
-                                                               class="table table-condensed table-hover table-striped">
-                                                            <thead>
-                                                            <tr>
-                                                                <!-- One way to customize column width...
-                                                                    <th data-column-id="name" data-formatter="name" data-header-css-class="cbg-header-name">Name</th>
-                                                                -->
-                                                                <th data-column-id="name" data-formatter="name" data-width="50%">Name</th>
-                                                                <th data-column-id="usage-freq" data-order="desc">Score</th>
-                                                                <th data-column-id="where-usage" data-formatter="whereInfo">Where Usage</th>
-                                                                <!--<th data-column-id="more-info" data-formatter="additionalInfo"></th>-->
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <!-- JOINS GRID -->
-                                                    <div role="tabpanel" class="tab-pane" id="joins-tab">
-                                                        <table id="joins-grid"
-                                                               class="table table-condensed table-hover table-striped">
-                                                            <thead>
-                                                            <tr>
-                                                                <th data-column-id="left-table" data-formatter="tableSummary">L. Table</th>
-                                                                <th data-column-id="right-table" data-formatter="tableSummary">R. Table</th>
-                                                                <th data-column-id="join-usage-score" data-order="desc">Score</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <!-- PARTITIONS GRID -->
-                                                    <div role="tabpanel" class="tab-pane" id="partitions-tab">
-                                                        <table id="partitions-grid"
-                                                               class="table table-condensed table-hover table-striped">
-                                                            <thead>
-                                                            <tr>
-                                                                <th data-column-id="partition-name" data-formatter="tableSummary">Name</th>
-                                                                <th data-column-id="range-start" data-formatter="tableSummary">Range Start</th>
-                                                                <th data-column-id="range-end" data-formatter="tableSummary">Range End</th>
-                                                                <th data-column-id="list-values" data-order="desc">List Values</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <!-- DK GRID -->
-                                    <div class="panel panel-default" id="dk-info-panel">
-                                        <div class="panel-heading">
-                                            Distribution Keys
-                                        </div>
-                                        <div class="panel-body">
-                                            <table id="dk-info-grid"
-                                                   class="table table-condensed table-hover table-striped">
-                                                <thead>
-                                                <tr>
-                                                    <th data-column-id="name">Name</th>
-                                                    <th data-column-id="usage-freq">Usage Freq</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <!-- COLUMN ADDITIONAL INFO GRID -->
-                                    <!--<div class="panel panel-default" id="column-additional-info-panel" style="display: none">
-                                        <div class="panel-heading">
-                                            Column details for: <label id="selected-column-label"></label>
-                                        </div>
-                                        <div class="panel-body">
-                                            <table id="column-additional-info-grid"
-                                                   class="table table-condensed table-hover table-striped">
-                                                <thead>
-                                                <tr>
-                                                    <th data-column-id="where-clause">Where Clause</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>-->
-                                    <!-- JOIN ADDITIONAL GRID -->
-                                    <div class="panel panel-default" id="join-additional-info-panel" style="display: none">
-                                        <div class="panel-heading">
-                                            Additional Info for join
-                                        </div>
-                                        <div class="panel-body">
-                                            <table id="join-additional-info-grid"
-                                                   class="table table-condensed table-hover table-striped">
-                                                <thead>
-                                                <tr>
-                                                    <th data-column-id="left-column">L. Column</th>
-                                                    <th data-column-id="right-column">R. Column</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <!-- PARTITION ADDITIONAL GRID -->
-                                    <div class="panel panel-default" id="partition-additional-info-panel" style="display: none">
-                                        <div class="panel-heading">
-                                            Additional Info for Partition
-                                        </div>
-                                        <div class="panel-body">
-                                            <table id="partition-additional-info-grid"
-                                                   class="table table-condensed table-hover table-striped">
-                                                <thead>
-                                                <tr>
-                                                    <th data-column-id="key-column" data-width="25%">Field</th>
-                                                    <th data-column-id="value-column">Value</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- END PAGE CONTENT INNER -->
-            </div>
-        </div>
-        <!-- END PAGE CONTENT BODY -->
-        <!-- END CONTENT BODY -->
-    </div>
-    <!-- END CONTENT -->
+	<!-- BEGIN CONTENT -->
+	<div class="page-content-wrapper">
+		<!-- BEGIN CONTENT BODY -->
+		<!-- BEGIN PAGE HEAD-->
+		<div class="page-head">
+			<div class="container">
+				<!-- BEGIN PAGE TITLE -->
+				<div class="page-title" th:fragment="page-title">
+					<h1>Visualizer</h1>
+				</div>
+				<!-- END PAGE TITLE -->
+			</div>
+		</div>
+		<!-- END PAGE HEAD-->
+		<!-- BEGIN PAGE CONTENT BODY -->
+		<div class="page-content">
+			<div class="container">
+				<!-- BEGIN PAGE BREADCRUMBS -->
+				<ul class="page-breadcrumb breadcrumb" th:fragment="breadcrumbs">
+					<li>
+						<a href="index.html">Home</a>
+						<i class="fa fa-circle"></i>
+					</li>
+					<li>
+						<span>Layouts</span>
+					</li>
+				</ul>
+				<!-- END PAGE BREADCRUMBS -->
+				<!-- BEGIN PAGE CONTENT INNER -->
+				<div class="page-content-inner" th:fragment="main-content">
+					<div class="row">
+						<div class="col-lg-9" id="visualizer-panel-container">
+							<div class="portlet box yellow-lemon">
+								<div class="portlet-title">
+									<div class="caption">
+										<i class="fa fa-video-camera"></i><span>Cluster Visual</span> <span id="showing-table-count"></span>
+									</div>
+									<div class="tools">
+										<a href="" class="fullscreen" data-original-title="" title=""> </a>
+									</div>
+								</div>
+								<div class="portlet-body" id="cluster-visual-portlet-body">
+									<div class="row">
+										<div class="col-lg-6">
+											<!-- VISUALIZATION FILTERS -->
+											<div class="panel panel-default">
+												<div class="panel-heading" data-toggle="collapse" data-target="#visualizer-filters-panel" title="">
+													<span class="bold">Visualization Filters</span>
+													<span class="fa fa-minus pull-right"></span>
+												</div>
+												<div class="panel-body collapse" id="visualizer-filters-panel">
+													<div class="row">
+														<div class="col-lg-12">
+															<form class="form-inline">
+																<input type="text" class="hidden" id="workload-id" th:value="${workloadId}"/>
+																<!--<div class="form-group">
+																	<label id="selected-filename"
+																		   style="cursor: pointer; max-width: 165px; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0px"
+																		   data-toggle="tooltip"
+																		   title="">Choose file...</label>
+																	<input type="file" id="input-file" style="display: none"/>
+																</div>-->
+																<div class="form-group">
+																	<select id="schema-select" class="form-control">
+																		<option value="HS_ALL_SCHEMAS">ALL_SCHEMAS</option>
+																	</select>
+																</div>
+																<div class="form-group">
+																	<input id="tables-to-display" type="number" class="form-control input-width-small"
+																	       data-toggle="tooltip"
+																	       title="No. of tables to display"/>
+																</div>
+																<div class="form-group">
+																	<!--<label class="control-label" data-toggle="tooltip" title="and greater than"> &gt; &nbsp; </label>-->
+																	<input id="display-based-on-filter" type="number" class="form-control input-width-medium"
+																	       value="0"
+																	       data-toggle="tooltip" title="score greater than"/>
+																</div>
+																<div class="form-group">
+																	<button id="apply-filters" type="button" class="btn btn-info">Apply</button>
+																</div>
+															</form>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<!-- VISUALIZATION OPTIONS -->
+											<div class="panel panel-default">
+												<div class="panel-heading" data-toggle="collapse" data-target="#visualizer-options-panel" title="">
+													<span class="bold">Visualization Options</span>
+													<span class="fa fa-minus pull-right"></span>
+												</div>
+												<div class="panel-body collapse" id="visualizer-options-panel">
+													<div class="row">
+														<div class="col-lg-12">
+															<form class="form-inline">
+																<div class="form-group">
+																	<label class="control-label" style="padding-top: 9px; padding-bottom: 8px;">Display Nodes
+																		by: </label>
+																</div>
+																<div class="form-group">
+																	<label class="radio-inline">
+																		<input type="radio" name="display-according-to" value="score" checked="checked"
+																		       id="r1"/>Score
+																	</label>
+																	<label class="radio-inline">
+																		<input type="radio" name="display-according-to" value="size" id="r2"/>Size
+																	</label>
+																	<label class="radio-inline">
+																		<input type="radio" name="display-according-to" value="time" id="r3"/>Time
+																	</label>
+																</div>
+															</form>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div id="canvas-holder"></div>
+								</div>
+							</div>
+							<!-- CLUSTER VISUAL -->
+							<!--<div class="panel panel-default">
+								<div class="panel-heading">
+									&lt;!&ndash;<a href="#" id="toggle-info-pane-size" class="fa fa-arrow-left fa-2x pull-right" style="text-decoration: none; font-size: 1.5em"></a>
+									Cluster Visual <span id="showing-table-count"></span>&ndash;&gt;
+								</div>
+								<div class="panel-body">
+									&lt;!&ndash;<div id="canvas-holder"></div>&ndash;&gt;
+								</div>
+							</div>-->
+						</div>
+						<div id="info-panel-container">
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="panel panel-default">
+										<!-- TABLE INFO TABS -->
+										<div class="panel-heading">
+											<span class="bold">Table Info for: <label id="selected-table-label"></label></span>
+										</div>
+										<div class="panel-body">
+											<div class="form-inline" style="margin-bottom: 10px">
+												<div class="form-group">
+													<select id="table-select" class="form-control" style="width: 100px;"></select>
+												</div>
+											</div>
+											<div>
+												<ul class="nav nav-tabs" role="tablist" id="table-info-tabs">
+													<li role="presentation" class="active">
+														<a href="#summary-tab" role="tab" data-hs-name="summary"
+														   data-toggle="tab">Summary</a></li>
+													<li role="presentation">
+														<a href="#columns-tab" role="tab" data-hs-name="columns"
+														   data-toggle="tab">Columns</a>
+													</li>
+													<li role="presentation">
+														<a href="#joins-tab" role="tab" data-hs-name="joins"
+														   data-toggle="tab">Joins</a>
+													</li>
+													<li role="presentation">
+														<a href="#partitions-tab" role="tab" data-hs-name="partitions"
+														   data-toggle="tab">Partitions</a>
+													</li>
+												</ul>
+												<div class="tab-content">
+													<!-- SUMMARY GRID -->
+													<div role="tabpanel" class="tab-pane active" id="summary-tab">
+														<table id="summary-grid"
+														       class="table table-condensed table-hover table-striped">
+															<thead>
+															<tr>
+																<th data-column-id="name">Name</th>
+																<th data-column-id="value">Value</th>
+															</tr>
+															</thead>
+															<tbody>
+															</tbody>
+														</table>
+													</div>
+													<!-- COLUMNS GRID -->
+													<div role="tabpanel" class="tab-pane" id="columns-tab">
+														<!--<form class="form-inline">
+															<div class="checkbox">
+																<label>
+																	<input type="checkbox" id="show-all-columns"
+																		   onchange="onShowAllColumnsChecked()"> <span>Show all columns</span>
+																</label>
+															</div>
+															&lt;!&ndash;<label class="control-label" id="num-of-cols-showing"></label>&ndash;&gt;
+															<span id="num-of-cols-showing"></span>
+														</form>-->
+														<table id="columns-grid"
+														       class="table table-condensed table-hover table-striped">
+															<thead>
+															<tr>
+																<!-- One way to customize column width...
+																	<th data-column-id="name" data-formatter="name" data-header-css-class="cbg-header-name">Name</th>
+																-->
+																<th data-column-id="name" data-formatter="name" data-width="50%">Name</th>
+																<th data-column-id="usage-freq" data-order="desc">Score</th>
+																<th data-column-id="where-usage" data-formatter="whereInfo">Where Usage</th>
+																<!--<th data-column-id="more-info" data-formatter="additionalInfo"></th>-->
+															</tr>
+															</thead>
+															<tbody>
+															</tbody>
+														</table>
+													</div>
+													<!-- JOINS GRID -->
+													<div role="tabpanel" class="tab-pane" id="joins-tab">
+														<table id="joins-grid"
+														       class="table table-condensed table-hover table-striped">
+															<thead>
+															<tr>
+																<th data-column-id="left-table" data-formatter="tableSummary">L. Table</th>
+																<th data-column-id="right-table" data-formatter="tableSummary">R. Table</th>
+																<th data-column-id="join-usage-score" data-order="desc">Score</th>
+															</tr>
+															</thead>
+															<tbody>
+															</tbody>
+														</table>
+													</div>
+													<!-- PARTITIONS GRID -->
+													<div role="tabpanel" class="tab-pane" id="partitions-tab">
+														<table id="partitions-grid"
+														       class="table table-condensed table-hover table-striped">
+															<thead>
+															<tr>
+																<th data-column-id="partition-name" data-formatter="tableSummary">Name</th>
+																<th data-column-id="range-start" data-formatter="tableSummary">Range Start</th>
+																<th data-column-id="range-end" data-formatter="tableSummary">Range End</th>
+																<th data-column-id="list-values" data-order="desc">List Values</th>
+															</tr>
+															</thead>
+															<tbody>
+															</tbody>
+														</table>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- DK GRID -->
+									<div class="panel panel-default" id="dk-info-panel">
+										<div class="panel-heading">
+											Distribution Keys
+										</div>
+										<div class="panel-body">
+											<table id="dk-info-grid"
+											       class="table table-condensed table-hover table-striped">
+												<thead>
+												<tr>
+													<th data-column-id="name">Name</th>
+													<th data-column-id="usage-freq">Usage Freq</th>
+												</tr>
+												</thead>
+												<tbody>
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<!-- COLUMN ADDITIONAL INFO GRID -->
+									<!--<div class="panel panel-default" id="column-additional-info-panel" style="display: none">
+										<div class="panel-heading">
+											Column details for: <label id="selected-column-label"></label>
+										</div>
+										<div class="panel-body">
+											<table id="column-additional-info-grid"
+												   class="table table-condensed table-hover table-striped">
+												<thead>
+												<tr>
+													<th data-column-id="where-clause">Where Clause</th>
+												</tr>
+												</thead>
+												<tbody>
+												</tbody>
+											</table>
+										</div>
+									</div>-->
+									<!-- JOIN ADDITIONAL GRID -->
+									<div class="panel panel-default" id="join-additional-info-panel" style="display: none">
+										<div class="panel-heading">
+											Additional Info for join
+										</div>
+										<div class="panel-body">
+											<table id="join-additional-info-grid"
+											       class="table table-condensed table-hover table-striped">
+												<thead>
+												<tr>
+													<th data-column-id="left-column">L. Column</th>
+													<th data-column-id="right-column">R. Column</th>
+												</tr>
+												</thead>
+												<tbody>
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<!-- PARTITION ADDITIONAL GRID -->
+									<div class="panel panel-default" id="partition-additional-info-panel" style="display: none">
+										<div class="panel-heading">
+											Additional Info for Partition
+										</div>
+										<div class="panel-body">
+											<table id="partition-additional-info-grid"
+											       class="table table-condensed table-hover table-striped">
+												<thead>
+												<tr>
+													<th data-column-id="key-column" data-width="25%">Field</th>
+													<th data-column-id="value-column">Value</th>
+												</tr>
+												</thead>
+												<tbody>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- END PAGE CONTENT INNER -->
+			</div>
+		</div>
+		<!-- END PAGE CONTENT BODY -->
+		<!-- END CONTENT BODY -->
+	</div>
+	<!-- END CONTENT -->
 </div>
 <!-- END CONTAINER -->
 <th:block th:fragment="page-level-scripts">
-    <!-- jQuery UI -->
-    <script th:src="@{/assets/global/plugins/jquery-ui-1.11.4.dialog-only/jquery-ui.min.js}" type="text/javascript"></script>
-    <!-- https://github.com/ROMB/jquery-dialogextend -->
-    <script th:src="@{/assets/global/plugins/jquery.dialogextend.js}" type="text/javascript"></script>
-    <!-- Select2 Autocomplete plugin -->
-    <script th:src="@{/assets/global/plugins/select2/js/select2.min.js}" src="/assets/global/plugins/select2/js/select2.min.js"></script>
-    <!-- SPRINTF for JS -->
-    <script th:src="@{/public/bower_components/sprintf/src/sprintf.js}" src="/public/bower_components/sprintf/src/sprintf.js"></script>
-    <!-- Underscore JS -->
-    <script th:src="@{/public/bower_components/underscore/underscore-min.js}" src="/public/bower_components/underscore/underscore-min.js"></script>
-    <!-- D3 Core JavaScript -->
-    <script th:src="@{/public/bower_components/d3/d3.js}" src="/public/bower_components/d3/d3.js" charset="utf-8"></script>
-    <!--BootGrid -->
-    <script th:src="@{/public/vendor/jquery.bootgrid.js}" src="/public/vendor/jquery.bootgrid.js"></script>
+	<!-- jQuery UI -->
+	<script th:src="@{/assets/global/plugins/jquery-ui-1.11.4.dialog-only/jquery-ui.min.js}" type="text/javascript"></script>
+	<!-- https://github.com/ROMB/jquery-dialogextend -->
+	<script th:src="@{/assets/global/plugins/jquery.dialogextend.js}" type="text/javascript"></script>
+	<!-- Select2 Autocomplete plugin -->
+	<script th:src="@{/assets/global/plugins/select2/js/select2.min.js}" src="/assets/global/plugins/select2/js/select2.min.js"></script>
+	<!-- SPRINTF for JS -->
+	<script th:src="@{/public/bower_components/sprintf/src/sprintf.js}" src="/public/bower_components/sprintf/src/sprintf.js"></script>
+	<!-- Underscore JS -->
+	<script th:src="@{/public/bower_components/underscore/underscore-min.js}" src="/public/bower_components/underscore/underscore-min.js"></script>
+	<!-- D3 Core JavaScript -->
+	<script th:src="@{/public/bower_components/d3/d3.js}" src="/public/bower_components/d3/d3.js" charset="utf-8"></script>
+	<!--BootGrid -->
+	<script th:src="@{/public/vendor/jquery.bootgrid.js}" src="/public/vendor/jquery.bootgrid.js"></script>
 
-    <!--<script src="../node_modules/console-log-div/console-log-div.js"></script>-->
+	<!--<script src="../node_modules/console-log-div/console-log-div.js"></script>-->
 
-    <!-- Custom JavaScript -->
-    <script th:src="@{/public/scripts/utility.js}" src="/public/scripts/utility.js"></script>
-    <script th:src="@{/public/scripts/dataModel.js}" src="/public/scripts/dataModel.js"></script>
-    <script th:src="@{/public/scripts/visualizer.js}" src="/public/scripts/visualizer.js"></script>
-    <script th:src="@{/public/scripts/uiElements.js}" src="/public/scripts/uiElements.js"></script>
-    <script th:src="@{/public/scripts/haystaxs.js}" src="/public/scripts/haystaxs.js"></script>
+	<!-- Custom JavaScript -->
+	<script th:src="@{/public/scripts/utility.js}" src="/public/scripts/utility.js"></script>
+	<script th:src="@{/public/scripts/dataModel.js}" src="/public/scripts/dataModel.js"></script>
+	<script th:src="@{/public/scripts/visualizer.js}" src="/public/scripts/visualizer.js"></script>
+	<script th:src="@{/public/scripts/uiElements.js}" src="/public/scripts/uiElements.js"></script>
+	<script th:src="@{/public/scripts/haystaxs.js}" src="/public/scripts/haystaxs.js"></script>
 </th:block>
 </body>
 </html>

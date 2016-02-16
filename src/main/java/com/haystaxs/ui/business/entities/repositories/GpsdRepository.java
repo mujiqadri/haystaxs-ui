@@ -24,10 +24,14 @@ public class GpsdRepository extends RepositoryBase {
         logger.trace(logger.getName() + " instantiated.");
     }
 
-    public List<Gpsd> getAll(int userId) {
-        String sql = String.format("select g.*, gu.is_default from %s.gpsd g join %1$s.gpsd_users gu " +
-                        "on g.gpsd_id = gu.gpsd_id where gu.user_id = 1 or gu.user_id = ? ORDER BY g.gpsd_id DESC;",
-                getHsSchemaName());
+    public List<Gpsd> getAll(int userId, boolean isDeployedOnCluster) {
+        String sql = "select g.*, gu.is_default from %s.gpsd g join %1$s.gpsd_users gu on g.gpsd_id = gu.gpsd_id where ";
+        if(isDeployedOnCluster) {
+            sql += " gu.user_id = 1 or ";
+        }
+        sql += " gu.user_id = ? ORDER BY g.gpsd_id DESC;";
+
+        sql = String.format(sql, getHsSchemaName());
 
         List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[]{userId}, new BeanPropertyRowMapper<Gpsd>(Gpsd.class));
 

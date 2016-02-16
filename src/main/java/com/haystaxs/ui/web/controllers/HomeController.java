@@ -102,7 +102,7 @@ public class HomeController {
 
     @ModelAttribute("allUserClusters")
     private List<Gpsd> getAllUserClusters() {
-        List<Gpsd> result = clusterRepository.getAllClusters(getUserId());
+        List<Gpsd> result = clusterRepository.getAllClusters(getUserId(), isDeployedOnCluster());
 
         if(result.size() == 0) {
             httpSession.removeAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID);
@@ -299,7 +299,7 @@ public class HomeController {
     @Layout(enabled = false, value = "")
     @RequestMapping("/cluster/list")
     public String clusterList(Model model) {
-        List<Gpsd> gpsdees = gpsdRepository.getAll(getUserId());
+        List<Gpsd> gpsdees = gpsdRepository.getAll(getUserId(), isDeployedOnCluster());
         model.addAttribute("gpsdees", gpsdees);
 
         return "fragments/gpsd_list";

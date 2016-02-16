@@ -379,6 +379,7 @@ function initHourlyQueriesChart(data) {
     });
 
     var getGraphsArray = function (sequencer, topN) {
+        debugger;
         var graphs = [];
         var durations = [];
 

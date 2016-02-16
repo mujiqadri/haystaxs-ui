@@ -22,11 +22,15 @@ public class ClusterRepository extends RepositoryBase {
 
     // TODO: Need a good eviction strategy
     //@Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
-    public List<Gpsd> getAllClusters(int userId) {
+    public List<Gpsd> getAllClusters(int userId, boolean isDeployedOnCluster) {
 
-        String sql = String.format("select g.* from %s.gpsd g join %1$s.gpsd_users gu " +
-                "on g.gpsd_id = gu.gpsd_id where gu.user_id = 1 or gu.user_id = ? ORDER BY g.friendly_name;",
-                getHsSchemaName());
+        String sql = "select g.* from %s.gpsd g join %1$s.gpsd_users gu  on g.gpsd_id = gu.gpsd_id where ";
+        if(isDeployedOnCluster) {
+                sql += " gu.user_id = 1 or ";
+        }
+        sql += " gu.user_id = ? ORDER BY g.friendly_name;";
+
+        sql = String.format(sql, getHsSchemaName());
 
         List<Gpsd> resultSet = jdbcTemplate.query(sql, new Object[]{userId}, new BeanPropertyRowMapper<Gpsd>(Gpsd.class));
 

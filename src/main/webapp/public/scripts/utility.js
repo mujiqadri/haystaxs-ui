@@ -36,6 +36,7 @@ function nsGen(namespace) {
     }, window);
 }
 
+// Doing this is DANGEROUS as it starts showing up in for in loops
 Array.prototype.contains = function(f) {
     for(var i=0; i<this.length; i++) {
         if(f(this[i]))

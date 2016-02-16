@@ -1,110 +1,96 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- BEGIN GLOBAL MANDATORY STYLES -->
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/font-awesome/css/font-awesome.min.css}"
-          href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}"
-          href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}"
-          href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}"
-          href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css}"
-          href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
-          rel="stylesheet" type="text/css"/>
-    <!-- END GLOBAL MANDATORY STYLES -->
-    <!-- BEGIN THEME GLOBAL STYLES -->
-    <link th:href="@{/assets/global/css/components-md.min.css}" href="/assets/global/css/components-md.min.css"
-          rel="stylesheet" id="style_components" type="text/css"/>
-    <link th:href="@{/assets/global/css/plugins-md.min.css}" href="/assets/global/css/plugins-md.min.css"
-          rel="stylesheet" type="text/css"/>
-    <!-- END THEME GLOBAL STYLES -->
-    <!-- BEGIN THEME LAYOUT STYLES -->
-    <link th:href="@{/assets/layouts/layout3/css/layout.min.css}" href="/assets/layouts/layout3/css/layout.min.css"
-          rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/layouts/layout3/css/themes/default.min.css}"
-          href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet" type="text/css"
-          id="style_color"/>
-    <link th:href="@{/assets/layouts/layout3/css/custom.css}" href="/assets/layouts/layout3/css/custom.css  "
-          rel="stylesheet" type="text/css"/>
-    <!-- END THEME LAYOUT STYLES -->
-    <th:block th:fragment="page-level-styles">
-        <!-- BEGIN PAGE LEVEL PLUGINS -->
-        <link th:href="@{/assets/global/plugins/jstree/dist/themes/default/style.min.css}" rel="stylesheet" type="text/css"/>
-        <!-- END PAGE LEVEL PLUGINS -->
-    </th:block>
+	<!-- BEGIN GLOBAL MANDATORY STYLES -->
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css"/>
+	<!-- END GLOBAL MANDATORY STYLES -->
+	<!-- BEGIN THEME GLOBAL STYLES -->
+	<link href="/assets/global/css/components-rounded.css" rel="stylesheet" id="style_components" type="text/css"/>
+	<link href="/assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
+	<!-- END THEME GLOBAL STYLES -->
+	<!-- BEGIN THEME LAYOUT STYLES -->
+	<link href="/assets/layouts/layout3/css/layout.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/layouts/layout3/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color"/>
+	<link href="/assets/layouts/layout3/css/custom.css  " rel="stylesheet" type="text/css"/>
+	<!-- END THEME LAYOUT STYLES -->
+	<th:block th:fragment="page-level-styles">
+		<!-- BEGIN PAGE LEVEL PLUGINS -->
+		<link th:href="@{/assets/global/plugins/jstree/dist/themes/default/style.min.css}" rel="stylesheet" type="text/css"/>
+		<!-- END PAGE LEVEL PLUGINS -->
+	</th:block>
 </head>
 <body class="page-container-bg-solid page-boxed page-md">
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
-    <!-- BEGIN CONTENT -->
-    <div class="page-content-wrapper">
-        <!-- BEGIN CONTENT BODY -->
-        <!-- BEGIN PAGE HEAD-->
-        <div class="page-head">
-            <div class="container">
-                <!-- BEGIN PAGE TITLE -->
-                <div class="page-title" th:fragment="page-title">
-                    <h1>DB Explorer</h1>
-                </div>
-                <!-- END PAGE TITLE -->
-            </div>
-        </div>
-        <!-- END PAGE HEAD-->
-        <!-- BEGIN PAGE CONTENT BODY -->
-        <div class="page-content">
-            <div class="container">
-                <!-- BEGIN PAGE BREADCRUMBS -->
-                <ul class="page-breadcrumb breadcrumb" th:fragment="breadcrumbs">
-                    <li>
-                        <a href="index.html">Home</a>
-                        <i class="fa fa-circle"></i>
-                    </li>
-                    <li>
-                        <span>Layouts</span>
-                    </li>
-                </ul>
-                <!-- END PAGE BREADCRUMBS -->
-                <!-- BEGIN PAGE CONTENT INNER -->
-                <div class="page-content-inner" th:fragment="main-content">
-                    <input type="hidden" th:value="${gpsd_id}" id="current-gpsd-id"/>
-                    <h3>TPC-DS</h3>
+	<!-- BEGIN CONTENT -->
+	<div class="page-content-wrapper">
+		<!-- BEGIN CONTENT BODY -->
+		<!-- BEGIN PAGE HEAD-->
+		<div class="page-head">
+			<div class="container">
+				<!-- BEGIN PAGE TITLE -->
+				<div class="page-title" th:fragment="page-title">
+					<h1>DB Explorer</h1>
+				</div>
+				<!-- END PAGE TITLE -->
+			</div>
+		</div>
+		<!-- END PAGE HEAD-->
+		<!-- BEGIN PAGE CONTENT BODY -->
+		<div class="page-content">
+			<div class="container">
+				<!-- BEGIN PAGE BREADCRUMBS -->
+				<ul class="page-breadcrumb breadcrumb" th:fragment="breadcrumbs">
+					<li>
+						<a href="index.html">Home</a>
+						<i class="fa fa-circle"></i>
+					</li>
+					<li>
+						<span>Layouts</span>
+					</li>
+				</ul>
+				<!-- END PAGE BREADCRUMBS -->
+				<!-- BEGIN PAGE CONTENT INNER -->
+				<div class="page-content-inner" th:fragment="main-content">
+					<input type="hidden" th:value="${gpsd_id}" id="current-gpsd-id"/>
 
-                    <div id="db_tree">
-                        <!--<ul>
-                            <li class="jstree-open"><span style="font-weight: bold">Table: </span> Root node 1
-                                <ul>
-                                    <li>Child node 1</li>
-                                    <li><a href="#">Child node 2</a></li>
-                                </ul>
-                            </li>
-                        </ul>-->
-                    </div>
-                </div>
-                <!-- END PAGE CONTENT INNER -->
-            </div>
-        </div>
-        <!-- END PAGE CONTENT BODY -->
-        <!-- END CONTENT BODY -->
-    </div>
-    <!-- END CONTENT -->
+					<h3>TPC-DS</h3>
+
+					<div id="db_tree">
+						<!--<ul>
+							<li class="jstree-open"><span style="font-weight: bold">Table: </span> Root node 1
+								<ul>
+									<li>Child node 1</li>
+									<li><a href="#">Child node 2</a></li>
+								</ul>
+							</li>
+						</ul>-->
+					</div>
+				</div>
+				<!-- END PAGE CONTENT INNER -->
+			</div>
+		</div>
+		<!-- END PAGE CONTENT BODY -->
+		<!-- END CONTENT BODY -->
+	</div>
+	<!-- END CONTENT -->
 </div>
 <!-- END CONTAINER -->
 <th:block th:fragment="page-level-scripts">
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <!-- Underscore JS -->
-    <script th:src="@{/public/bower_components/underscore/underscore-min.js}"></script>
-    <!-- D3 Core JavaScript -->
-    <script th:src="@{/public/bower_components/d3/d3.js}" charset="utf-8"></script>
-    <script th:src="@{/assets/global/plugins/jstree/dist/jstree.min.js}" type="text/javascript"></script>
-    <script th:src="@{/public/scripts/dataModel.js}" src="/public/scripts/dataModel.js"></script>
-    <script th:src="@{/assets/pages/scripts/db_explorer.js}" type="text/javascript"></script>
-    <!-- END PAGE LEVEL SCRIPTS -->
+	<!-- BEGIN PAGE LEVEL PLUGINS -->
+	<!-- Underscore JS -->
+	<script th:src="@{/public/bower_components/underscore/underscore-min.js}"></script>
+	<!-- D3 Core JavaScript -->
+	<script th:src="@{/public/bower_components/d3/d3.js}" charset="utf-8"></script>
+	<script th:src="@{/assets/global/plugins/jstree/dist/jstree.min.js}" type="text/javascript"></script>
+	<script th:src="@{/public/scripts/dataModel.js}" src="/public/scripts/dataModel.js"></script>
+	<script th:src="@{/assets/pages/scripts/db_explorer.js}" type="text/javascript"></script>
+	<!-- END PAGE LEVEL SCRIPTS -->
 </th:block>
 </body>
 

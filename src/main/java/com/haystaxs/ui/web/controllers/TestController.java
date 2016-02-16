@@ -152,7 +152,7 @@ public class TestController {
     @RequestMapping("/test/caching/{id}")
     @ResponseBody
     public List<Gpsd> testCaching(@PathVariable("id") String id) {
-        return clusterRepository.getAllClusters(2);
+        return clusterRepository.getAllClusters(2, false);
     }
 
     /*@RequestMapping("/visualizer/{wlId}")

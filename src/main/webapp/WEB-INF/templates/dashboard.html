@@ -1,298 +1,277 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- BEGIN GLOBAL MANDATORY STYLES -->
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/font-awesome/css/font-awesome.min.css}"
-          href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/simple-line-icons/simple-line-icons.min.css}"
-          href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
-          rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap/css/bootstrap.min.css}"
-          href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/uniform/css/uniform.default.css}"
-          href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet"
-          type="text/css"/>
-    <link th:href="@{/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css}"
-          href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"
-          rel="stylesheet" type="text/css"/>
-    <!-- END GLOBAL MANDATORY STYLES -->
-    <!-- BEGIN THEME GLOBAL STYLES -->
-    <link th:href="@{/assets/global/css/components-md.min.css}" href="/assets/global/css/components-md.min.css"
-          rel="stylesheet" id="style_components" type="text/css"/>
-    <link th:href="@{/assets/global/css/plugins-md.min.css}" href="/assets/global/css/plugins-md.min.css"
-          rel="stylesheet" type="text/css"/>
-    <!-- END THEME GLOBAL STYLES -->
-    <!-- BEGIN THEME LAYOUT STYLES -->
-    <link th:href="@{/assets/layouts/layout3/css/layout.min.css}" href="/assets/layouts/layout3/css/layout.min.css"
-          rel="stylesheet" type="text/css"/>
-    <link th:href="@{/assets/layouts/layout3/css/themes/default.min.css}"
-          href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet" type="text/css"
-          id="style_color"/>
-    <link th:href="@{/assets/layouts/layout3/css/custom.css}" href="/assets/layouts/layout3/css/custom.css  "
-          rel="stylesheet" type="text/css"/>
-    <!-- END THEME LAYOUT STYLES -->
-    <th:block th:fragment="page-level-styles">
-        <!-- BEGIN PAGE LEVEL PLUGINS -->
-        <!-- END PAGE LEVEL PLUGINS -->
-    </th:block>
+	<!-- BEGIN GLOBAL MANDATORY STYLES -->
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css"/>
+	<!-- END GLOBAL MANDATORY STYLES -->
+	<!-- BEGIN THEME GLOBAL STYLES -->
+	<link href="/assets/global/css/components-rounded.css" rel="stylesheet" id="style_components" type="text/css"/>
+	<link href="/assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
+	<!-- END THEME GLOBAL STYLES -->
+	<!-- BEGIN THEME LAYOUT STYLES -->
+	<link href="/assets/layouts/layout3/css/layout.css" rel="stylesheet" type="text/css"/>
+	<link href="/assets/layouts/layout3/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color"/>
+	<link href="/assets/layouts/layout3/css/custom.css  " rel="stylesheet" type="text/css"/>
+	<!-- END THEME LAYOUT STYLES -->
+	<th:block th:fragment="page-level-styles">
+		<!-- BEGIN PAGE LEVEL PLUGINS -->
+		<!-- END PAGE LEVEL PLUGINS -->
+	</th:block>
 </head>
 
 <body class="page-container-bg-solid page-boxed page-md">
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
-    <!-- BEGIN CONTENT -->
-    <div class="page-content-wrapper">
-        <!-- BEGIN CONTENT BODY -->
-        <!-- BEGIN PAGE HEAD-->
-        <div class="page-head">
-            <div class="container">
-                <!-- BEGIN PAGE TITLE -->
-                <div class="page-title" th:fragment="page-title">
-                    <h1>Dashboard
-                        <small>dashboard &amp; statistics</small>
-                    </h1>
-                </div>
-                <!-- END PAGE TITLE -->
-            </div>
-        </div>
-        <!-- END PAGE HEAD-->
-        <!-- BEGIN PAGE CONTENT BODY -->
-        <div class="page-content">
-            <div class="container">
-                <!-- BEGIN PAGE BREADCRUMBS -->
-                <ul class="page-breadcrumb breadcrumb" th:fragment="breadcrumbs">
-                    <li>
-                        <a href="index.html">Home</a>
-                        <i class="fa fa-circle"></i>
-                    </li>
-                    <li>
-                        <span>Dashboard</span>
-                    </li>
-                </ul>
-                <!-- END PAGE BREADCRUMBS -->
-                <!-- BEGIN PAGE CONTENT INNER -->
-                <div class="page-content-inner" th:fragment="main-content">
-                    <div th:if="${queryLogsProcessed}" class="row">
-                        <div class="col-lg-12" style="padding-bottom: 10px">
-                            <form class="form-inline" role="form">
-                                <Label class="bold">All Graph filters:</Label>
-                                <select class="form-control tooltips" id="timespan"
-                                        data-toggle="tooltip" title="Timespan" data-placement="top">
-                                    <option value="ALL">ALL</option>
-                                    <option value="12hr">Last 12 Hours</option>
-                                    <option value="1w">Last Week</option>
-                                    <option value="2w">Last 2 Weeks</option>
-                                    <option value="1m">Last Month</option>
-                                    <option value="3m">Last Quarter</option>
-                                    <!--<option value="ty">Current Year</option>-->
-                                    <option value="12m">Last 12 Months</option>
-                                </select>
-                                <select class="form-control tooltips" id="db-name-like"
-                                        data-toggle="tooltip" title="Database Name" data-placement="top">
-                                    <option value="---ANY---">---</option>
-                                    <option th:each="dbName : ${dbNames}" th:value="${dbName}"
-                                            th:text="${dbName}"></option>
-                                </select>
-                                <select class="form-control tooltips" id="user-name-like"
-                                        data-toggle="tooltip" title="Username" data-placement="top">
-                                    <option value="---ANY---">---</option>
-                                    <option th:each="userName : ${userNames}" th:value="${userName}"
-                                            th:text="${userName}"></option>
-                                </select>
-                                <button type="submit" class="btn btn-default blue" id="filter-chart-data"
-                                        style="width: 100px; margin-left: 10px">Apply
-                                </button>
-                                <input type="hidden" id="start-date" th:value="${minDate}"/>
-                                <input type="hidden" id="end-date" th:value="${maxDate}"/>
-                                <input type="hidden" id="order-by" value="queryStartTime ASC"/>
-                                <input type="hidden" id="current-page-no" value="1"/>
-                                <input type="hidden" id="query-logs-processed" th:value="${queryLogsProcessed}"/>
-                            </form>
-                        </div>
-                    </div>
-                    <div th:if="not ${queryLogsProcessed}" class="note note-warning">
-                        No query logs have been processed yet. <span th:if="not ${isDeployedOnCluster}"> Please upload query logs to proceed further...</span>
+	<!-- BEGIN CONTENT -->
+	<div class="page-content-wrapper">
+		<!-- BEGIN CONTENT BODY -->
+		<!-- BEGIN PAGE HEAD-->
+		<div class="page-head">
+			<div class="container">
+				<!-- BEGIN PAGE TITLE -->
+				<div class="page-title" th:fragment="page-title">
+					<h1>Dashboard
+						<small>dashboard &amp; statistics</small>
+					</h1>
+				</div>
+				<!-- END PAGE TITLE -->
+			</div>
+		</div>
+		<!-- END PAGE HEAD-->
+		<!-- BEGIN PAGE CONTENT BODY -->
+		<div class="page-content">
+			<div class="container">
+				<!-- BEGIN PAGE BREADCRUMBS -->
+				<ul class="page-breadcrumb breadcrumb" th:fragment="breadcrumbs">
+					<li>
+						<a href="index.html">Home</a>
+						<i class="fa fa-circle"></i>
+					</li>
+					<li>
+						<span>Dashboard</span>
+					</li>
+				</ul>
+				<!-- END PAGE BREADCRUMBS -->
+				<!-- BEGIN PAGE CONTENT INNER -->
+				<div class="page-content-inner" th:fragment="main-content">
+					<div th:if="${queryLogsProcessed}" class="row">
+						<div class="col-lg-12" style="padding-bottom: 10px">
+							<form class="form-inline" role="form">
+								<Label class="bold">All Graph filters:</Label>
+								<select class="form-control tooltips" id="timespan"
+								        data-toggle="tooltip" title="Timespan" data-placement="top">
+									<option value="ALL">ALL</option>
+									<option value="12hr">Last 12 Hours</option>
+									<option value="1w">Last Week</option>
+									<option value="2w">Last 2 Weeks</option>
+									<option value="1m">Last Month</option>
+									<option value="3m">Last Quarter</option>
+									<!--<option value="ty">Current Year</option>-->
+									<option value="12m">Last 12 Months</option>
+								</select>
+								<select class="form-control tooltips" id="db-name-like"
+								        data-toggle="tooltip" title="Database Name" data-placement="top">
+									<option value="---ANY---">---</option>
+									<option th:each="dbName : ${dbNames}" th:value="${dbName}"
+									        th:text="${dbName}"></option>
+								</select>
+								<select class="form-control tooltips" id="user-name-like"
+								        data-toggle="tooltip" title="Username" data-placement="top">
+									<option value="---ANY---">---</option>
+									<option th:each="userName : ${userNames}" th:value="${userName}"
+									        th:text="${userName}"></option>
+								</select>
+								<button type="submit" class="btn btn-default blue" id="filter-chart-data"
+								        style="width: 100px; margin-left: 10px">Apply
+								</button>
+								<input type="hidden" id="start-date" th:value="${minDate}"/>
+								<input type="hidden" id="end-date" th:value="${maxDate}"/>
+								<input type="hidden" id="order-by" value="queryStartTime ASC"/>
+								<input type="hidden" id="current-page-no" value="1"/>
+								<input type="hidden" id="query-logs-processed" th:value="${queryLogsProcessed}"/>
+							</form>
+						</div>
+					</div>
+					<div th:if="not ${queryLogsProcessed}" class="note note-warning">
+						No query logs have been processed yet. <span th:if="not ${isDeployedOnCluster}"> Please upload query logs to proceed further...</span>
                         <span th:if="${isDeployedOnCluster}"> Please wait till the query logs are processed OR press the <b>Refresh</b> button.
                             You will be notified once the processing is completed.</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 col-sm-6">
-                            <div class="portlet light ">
-                                <div class="portlet-title">
-                                    <div class="caption caption-md">
-                                        <i class="icon-bar-chart font-blue"></i>
-                                        <span class="caption-subject font-blue uppercase bold">Query Load (Duration)</span>
-                                        <span class="caption-helper hide">weekly stats...</span>
-                                    </div>
-                                </div>
-                                <div class="portlet-body" id="querylog-duration-chart-holder">
-                                    <div id="querylog-duration-chart" class="CSSAnimationChart"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-6">
-                            <div class="portlet light ">
-                                <div class="portlet-title">
-                                    <div class="caption caption-md">
-                                        <i class="icon-bar-chart font-blue"></i>
-                                        <span class="caption-subject font-blue uppercase bold">Query Load (Counts)</span>
-                                    </div>
-                                </div>
-                                <div class="portlet-body" id="querylog-count-chart-holder">
-                                    <div id="querylog-count-chart" class="CSSAnimationChart"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 col-sm-6">
-                            <div class="portlet light ">
-                                <div class="portlet-title">
-                                    <div class="caption caption-md">
-                                        <i class="icon-bar-chart font-blue"></i>
-                                        <span class="caption-subject font-blue uppercase bold">Queries - Hourly</span>
-                                    </div>
-                                    <div class="inputs" style="float: none; padding-left: 10px;">
-                                        <form class="form-inline">
-                                            <select class="form-control" id="hourly-queries-sqlwindowop">
-                                                <option value="avg">Averages</option>
-                                                <option value="sum">Sum</option>
-                                            </select>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="portlet-body" id="hourly-queries-chart-holder">
-                                    <div id="hourly-queries-chart" class="CSSAnimationChart"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-6">
-                            <div class="portlet light ">
-                                <div class="portlet-title">
-                                    <div class="caption caption-md">
-                                        <i class="icon-bar-chart font-blue"></i>
-                                        <span class="caption-subject font-blue uppercase bold">Queries - Hourly Comparison</span>
-                                    </div>
-                                    <div class="inputs" style="float: none; padding-left: 10px;">
-                                        <form class="form-inline">
-                                            <select class="form-control" id="hourly-queries-comparison-sqlwindowop">
-                                                <option value="avg">Averages</option>
-                                                <option value="sum">Sum</option>
-                                            </select>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="portlet-body" id="hourly-queries-comparison-chart-holder">
-                                    <div id="hourly-queries-comparison-chart" class="CSSAnimationChart"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- END PAGE CONTENT INNER -->
-            </div>
-        </div>
-        <!-- END PAGE CONTENT BODY -->
-        <!-- END CONTENT BODY -->
-    </div>
-    <!-- END CONTENT -->
+					</div>
+					<div class="row">
+						<div class="col-md-6 col-sm-6">
+							<div class="portlet light ">
+								<div class="portlet-title">
+									<div class="caption caption-md">
+										<i class="icon-bar-chart font-blue"></i>
+										<span class="caption-subject font-blue uppercase bold">Query Load (Duration)</span>
+										<span class="caption-helper hide">weekly stats...</span>
+									</div>
+								</div>
+								<div class="portlet-body" id="querylog-duration-chart-holder">
+									<div id="querylog-duration-chart" class="CSSAnimationChart"></div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6">
+							<div class="portlet light ">
+								<div class="portlet-title">
+									<div class="caption caption-md">
+										<i class="icon-bar-chart font-blue"></i>
+										<span class="caption-subject font-blue uppercase bold">Query Load (Counts)</span>
+									</div>
+								</div>
+								<div class="portlet-body" id="querylog-count-chart-holder">
+									<div id="querylog-count-chart" class="CSSAnimationChart"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6 col-sm-6">
+							<div class="portlet light ">
+								<div class="portlet-title">
+									<div class="caption caption-md">
+										<i class="icon-bar-chart font-blue"></i>
+										<span class="caption-subject font-blue uppercase bold">Queries - Hourly</span>
+									</div>
+									<div class="inputs" style="float: none; padding-left: 10px;">
+										<form class="form-inline">
+											<select class="form-control" id="hourly-queries-sqlwindowop">
+												<option value="avg">Averages</option>
+												<option value="sum">Sum</option>
+											</select>
+										</form>
+									</div>
+								</div>
+								<div class="portlet-body" id="hourly-queries-chart-holder">
+									<div id="hourly-queries-chart" class="CSSAnimationChart"></div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6">
+							<div class="portlet light ">
+								<div class="portlet-title">
+									<div class="caption caption-md">
+										<i class="icon-bar-chart font-blue"></i>
+										<span class="caption-subject font-blue uppercase bold">Queries - Hourly Comparison</span>
+									</div>
+									<div class="inputs" style="float: none; padding-left: 10px;">
+										<form class="form-inline">
+											<select class="form-control" id="hourly-queries-comparison-sqlwindowop">
+												<option value="avg">Averages</option>
+												<option value="sum">Sum</option>
+											</select>
+										</form>
+									</div>
+								</div>
+								<div class="portlet-body" id="hourly-queries-comparison-chart-holder">
+									<div id="hourly-queries-comparison-chart" class="CSSAnimationChart"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- END PAGE CONTENT INNER -->
+			</div>
+		</div>
+		<!-- END PAGE CONTENT BODY -->
+		<!-- END CONTENT BODY -->
+	</div>
+	<!-- END CONTENT -->
 </div>
 <!-- END CONTAINER -->
 <!-- BEGIN FOOTER -->
 <!-- BEGIN PRE-FOOTER -->
 <div class="page-prefooter">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3 col-sm-6 col-xs-12 footer-block">
-                <h2>About</h2>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3 col-sm-6 col-xs-12 footer-block">
+				<h2>About</h2>
 
-                <p> Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam dolore. </p>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs12 footer-block">
-                <h2>Subscribe Email</h2>
+				<p> Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam dolore. </p>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs12 footer-block">
+				<h2>Subscribe Email</h2>
 
-                <div class="subscribe-form">
-                    <form action="javascript:;">
-                        <div class="input-group">
-                            <input type="text" placeholder="mail@email.com" class="form-control"/>
+				<div class="subscribe-form">
+					<form action="javascript:;">
+						<div class="input-group">
+							<input type="text" placeholder="mail@email.com" class="form-control"/>
                                     <span class="input-group-btn">
                                         <button class="btn" type="submit">Submit</button>
                                     </span>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12 footer-block">
-                <h2>Follow Us On</h2>
-                <ul class="social-icons">
-                    <li>
-                        <a href="javascript:;" data-original-title="rss" class="rss"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="facebook" class="facebook"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="twitter" class="twitter"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="googleplus" class="googleplus"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="linkedin" class="linkedin"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="youtube" class="youtube"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="vimeo" class="vimeo"></a>
-                    </li>
-                </ul>
-            </div>
-            <div class="col-md-3 col-sm-6 col-xs-12 footer-block">
-                <h2>Contacts</h2>
-                <address class="margin-bottom-40"> Phone: 800 123 3456
-                    <br/> Email:
-                    <a href="mailto:info@metronic.com">info@metronic.com</a>
-                </address>
-            </div>
-        </div>
-    </div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs-12 footer-block">
+				<h2>Follow Us On</h2>
+				<ul class="social-icons">
+					<li>
+						<a href="javascript:;" data-original-title="rss" class="rss"></a>
+					</li>
+					<li>
+						<a href="javascript:;" data-original-title="facebook" class="facebook"></a>
+					</li>
+					<li>
+						<a href="javascript:;" data-original-title="twitter" class="twitter"></a>
+					</li>
+					<li>
+						<a href="javascript:;" data-original-title="googleplus" class="googleplus"></a>
+					</li>
+					<li>
+						<a href="javascript:;" data-original-title="linkedin" class="linkedin"></a>
+					</li>
+					<li>
+						<a href="javascript:;" data-original-title="youtube" class="youtube"></a>
+					</li>
+					<li>
+						<a href="javascript:;" data-original-title="vimeo" class="vimeo"></a>
+					</li>
+				</ul>
+			</div>
+			<div class="col-md-3 col-sm-6 col-xs-12 footer-block">
+				<h2>Contacts</h2>
+				<address class="margin-bottom-40"> Phone: 800 123 3456
+					<br/> Email:
+					<a href="mailto:info@metronic.com">info@metronic.com</a>
+				</address>
+			</div>
+		</div>
+	</div>
 </div>
 <!-- END PRE-FOOTER -->
 <!-- BEGIN INNER FOOTER -->
 <div class="page-footer">
-    <div class="container"> 2014 &amp;copy; Metronic by keenthemes.
-        <a href="http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes"
-           title="Purchase Metronic just for 27$ and get lifetime updates for free" target="_blank">Purchase
-            Metronic!</a>
-    </div>
+	<div class="container"> 2014 &amp;copy; Metronic by keenthemes.
+		<a href="http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes"
+		   title="Purchase Metronic just for 27$ and get lifetime updates for free" target="_blank">Purchase
+			Metronic!</a>
+	</div>
 </div>
 <div class="scroll-to-top">
-    <i class="icon-arrow-up"></i>
+	<i class="icon-arrow-up"></i>
 </div>
 <!-- END INNER FOOTER -->
 <!-- END FOOTER -->
 <th:block th:fragment="page-level-scripts">
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/amcharts.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/serial.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/pie.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/radar.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/light.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/patterns.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/chalk.js}" type="text/javascript"></script>
-    <script th:src="@{/assets/global/plugins/amcharts/amcharts/plugins/dataloader/dataloader.min.js}" type="text/javascript"></script>
-
-    <script th:src="@{/assets/global/plugins/moment.js}" type="text/javascript"></script>
-    <!-- END PAGE LEVEL PLUGINS -->
-    <!-- BEGIN PAGE LEVEL SCRIPTS -->
-    <script th:src="@{/assets/pages/scripts/dashboard.js}" type="text/javascript"></script>
-    <!-- END PAGE LEVEL SCRIPTS -->
+	<!-- BEGIN PAGE LEVEL PLUGINS -->
+	<script th:src="@{/assets/global/plugins/amcharts/amcharts/amcharts.js}" type="text/javascript"></script>
+	<script th:src="@{/assets/global/plugins/amcharts/amcharts/serial.js}" type="text/javascript"></script>
+	<script th:src="@{/assets/global/plugins/amcharts/amcharts/pie.js}" type="text/javascript"></script>
+	<script th:src="@{/assets/global/plugins/amcharts/amcharts/radar.js}" type="text/javascript"></script>
+	<script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/light.js}" type="text/javascript"></script>
+	<script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/patterns.js}" type="text/javascript"></script>
+	<script th:src="@{/assets/global/plugins/amcharts/amcharts/themes/chalk.js}" type="text/javascript"></script>
+	<script th:src="@{/assets/global/plugins/amcharts/amcharts/plugins/dataloader/dataloader.min.js}" type="text/javascript"></script>
+	<!-- END PAGE LEVEL PLUGINS -->
+	<!-- BEGIN PAGE LEVEL SCRIPTS -->
+	<script th:src="@{/assets/pages/scripts/dashboard.js}" type="text/javascript"></script>
+	<!-- END PAGE LEVEL SCRIPTS -->
 </th:block>
 </body>
-
 </html>
