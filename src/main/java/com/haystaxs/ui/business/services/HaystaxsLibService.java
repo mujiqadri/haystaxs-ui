@@ -108,6 +108,7 @@ public class HaystaxsLibService {
             modelJson = cs.processWorkload(workloadId);
 
             if(modelJson != null) {
+                // NOTE: Is this to be done by UI or Backend ?
                 workloadRepository.setCompletedOn(workloadId);
 
                 String jsonFileBaseDir = appConfig.getGpsdSaveDirectory() + File.separator + normalizedUserName + File.separator
@@ -185,7 +186,7 @@ public class HaystaxsLibService {
                 clusterInfo.getPassword(), clusterInfo.getPort(), clusterInfo.getDbType());
     }
 
-    @Async
+    //@Async
     public boolean refeshCluster(int clusterId) {
         if(!appConfig.invokeBackend()) {
             return true;

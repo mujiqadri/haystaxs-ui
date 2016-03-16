@@ -1,6 +1,10 @@
 package com.haystaxs.ui.web.controllers;
 
 import com.haystack.domain.Tables;
+import com.haystack.service.database.Cluster;
+import com.haystack.service.database.Greenplum;
+import com.haystack.util.Credentials;
+import com.haystack.util.DBConnectService;
 import com.haystaxs.ui.business.entities.Gpsd;
 import com.haystaxs.ui.business.entities.HsUser;
 import com.haystaxs.ui.business.entities.repositories.ClusterRepository;
@@ -21,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -117,7 +123,7 @@ public class TestController {
         throw new Exception("Hello errornous");
     }
 
-    @RequestMapping("test/hslib")
+    @RequestMapping("test/hslib/old")
     @ResponseBody
     public String testHaystackLib(Model model) throws IOException {
         /*ConfigProperties configProperties = new ConfigProperties();
@@ -199,4 +205,39 @@ public class TestController {
 
         return "Done.";
     }
-}
+
+    @RequestMapping("/test/awsrs/select")
+    @ResponseBody
+    public String awsRedshiftSelect() throws SQLException, ClassNotFoundException {
+        DBConnectService dbConnectService = new DBConnectService(DBConnectService.DBTYPE.REDSHIFT);
+        Credentials credentials = new Credentials();
+        credentials.setCredentials("cluster-01.cymk7frawzj0.us-west-2.redshift.amazonaws.com", "5439", "haystack", "gpadmin", "Abcd1234");
+        dbConnectService.connect(credentials);
+
+        ResultSet rs = dbConnectService.execQuery("select * from public.employees;");
+
+        String result = "";
+
+        while (rs.next()) {
+            result += rs.getString(2);
+            result += ";;";
+        }
+
+        rs.close();
+
+        return result;
+    }
+
+    @RequestMapping("/test/hslib")
+    @ResponseBody
+    public String testHsLib() {
+        Cluster cluster = new Greenplum();
+        Credentials credentials = new Credentials();
+        credentials.setCredentials("24.150.86.245", "5432", "haystack", "gpadmin", "password");
+        cluster.connect(credentials);
+
+        cluster.loadTables(credentials, false);
+
+        return "success";
+    }
+    }

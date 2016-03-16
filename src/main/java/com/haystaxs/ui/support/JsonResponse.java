@@ -12,6 +12,7 @@ public class JsonResponse {
 
     private String result;
     private String message;
+
     private String additionalInfo;
 
     public JsonResponse(String result) {
@@ -42,5 +43,13 @@ public class JsonResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 }

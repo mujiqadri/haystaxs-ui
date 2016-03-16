@@ -67,11 +67,11 @@ $(function () {
     loadViaAjax('/cluster/exploredb/json', data, 'json', null, null, null, function (result) {
         var jsonForDataModel = {};
 
-        for (var k in result["tableHashMap"]) {
+        /*for (var k in result["tableHashMap"]) {
             jsonForDataModel[k] = result["tableHashMap"][k];
-        }
+        }*/
 
-        var dataModel = new Haystaxs.DataModel(jsonForDataModel);
+        var dataModel = new Haystaxs.DataModel(result);
         dataModel.initialize();
 
         var dbTreeJson = normalizeForTreeView(dataModel.allTables);
@@ -88,5 +88,7 @@ $(function () {
             },
             "plugins": ["wholerow"]
         });
+    }, function(error) {
+        console.log(error);
     });
 });

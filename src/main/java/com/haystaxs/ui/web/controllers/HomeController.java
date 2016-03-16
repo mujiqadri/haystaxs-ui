@@ -13,6 +13,7 @@ import com.haystaxs.ui.support.UploadedFileInfo;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MiscUtil;
+import org.omg.CORBA.portable.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -707,7 +708,7 @@ public class HomeController {
     public String newWorkload(Workload workload, Model model) {
         model.addAttribute("title", "Create Workoad");
 
-        List<String> distinctGpsds = gpsdRepository.getAllDistinct(getUserId());
+        //List<String> distinctGpsds = gpsdRepository.getAllDistinct(getUserId());
 
         QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getUserSchemaName(),
                 getActiveClusterId());
@@ -718,7 +719,7 @@ public class HomeController {
             // TODO: Define this formatter at the class level
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 
-            model.addAttribute("distinctGpsds", distinctGpsds);
+            //model.addAttribute("distinctGpsds", distinctGpsds);
             model.addAttribute("minDate", simpleDateFormat.format(queryLogMinMaxDates.getMinDate()));
             model.addAttribute("maxDate", simpleDateFormat.format(queryLogMinMaxDates.getMaxDate()));
         }
@@ -728,22 +729,22 @@ public class HomeController {
 
     @RequestMapping(value = "/workload/create", method = RequestMethod.POST)
     @ResponseBody
-    public JsonResponse createWorkload(@RequestParam("dbName") String dbName,
+    public JsonResponse createWorkload(//@RequestParam("dbName") String dbName,
                                        @RequestParam("fromDate") String fromDate,
                                        @RequestParam("toDate") String toDate,
                                        Model model) {
-        int maxGpsdId = 0;
+        /*int maxGpsdId = 0;
 
         try {
-            maxGpsdId = gpsdRepository.getMaxGpsdIdByName(getUserId(), dbName);
+            //maxGpsdId = gpsdRepository.getMaxGpsdIdByName(getUserId(), dbName);
         } catch (Exception ex) {
             return new JsonResponse(JsonResponse.FAILURE, "NO GPSD Found with dbName = " + dbName);
-        }
+        }*/
 
         SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("dd-MMM-yyyy");
 
         Workload workload = new Workload();
-        workload.setGpsdId(maxGpsdId);
+        workload.setGpsdId(getActiveClusterId());
         try {
             workload.setStartDate(simpleDateFormatter.parse(fromDate));
             workload.setEndDate(simpleDateFormatter.parse(toDate));
@@ -788,10 +789,10 @@ public class HomeController {
     @RequestMapping("/workload/list")
     public String visualizeWorkloads(Model model) {
         model.addAttribute("title", "Processed Workloads");
-        List<Workload> workloads = workloadRepository.getLastnWorkloads(getUserId(), 10);
+        List<Workload> workloads = workloadRepository.getLastnWorkloads(getActiveClusterId(), 10);
         model.addAttribute("workloads", workloads);
 
-        return "visualize_workloads";
+        return "workload_list";
     }
 
     @RequestMapping("/visualizer/{wlId}")

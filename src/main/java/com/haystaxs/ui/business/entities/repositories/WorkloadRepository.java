@@ -37,14 +37,14 @@ public class WorkloadRepository extends RepositoryBase {
         jdbcTemplate.update(sql, new Object[] {workloadId});
     }
 
-    public List<Workload> getLastnWorkloads(int userId, int lastn) {
-        String sql = String.format("select wl.*, gp.dbname databasename from %1$s.workloads wl\n" +
-                "join %1$s.gpsd gp on wl.gpsd_id = gp.gpsd_id\n" +
-                "where wl.user_id = ?\n" +
+    public List<Workload> getLastnWorkloads(int gpsdId, int lastn) {
+        String sql = String.format("select wl.* databasename from %1$s.workloads wl\n" +
+                //"join %1$s.gpsd gp on wl.gpsd_id = gp.gpsd_id\n" +
+                "where wl.gpsd_id = ?\n" +
                 "order BY workload_id DESC\n" +
                 "limit %2$d;", getHsSchemaName(), lastn);
 
-        List<Workload> resultSet = jdbcTemplate.query(sql, new Object[]{ userId }, new BeanPropertyRowMapper<Workload>(Workload.class));
+        List<Workload> resultSet = jdbcTemplate.query(sql, new Object[]{ gpsdId }, new BeanPropertyRowMapper<Workload>(Workload.class));
 
         return resultSet;
     }

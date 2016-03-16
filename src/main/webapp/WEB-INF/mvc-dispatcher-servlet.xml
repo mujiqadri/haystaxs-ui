@@ -69,7 +69,7 @@
     <!-- **************************************************************** -->
     <!--  SPRING DATA CACHING                                             -->
     <!-- **************************************************************** -->
-    <cache:annotation-driven/>
+    <!--<cache:annotation-driven/>-->
 
     <!--<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
         <property name="caches">

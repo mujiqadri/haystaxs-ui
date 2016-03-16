@@ -57,7 +57,7 @@ public class HsAuthProvider extends AbstractUserDetailsAuthenticationProvider {
             logger.info(String.format("Authentication failed. Registration not yet verified for %s.", emailAddress));
             throw new AccountNotVerifiedException("Please verify yourself first.");
         } else if(appConfig.isDeployedOnCluster() && hsUser.getUserId() != 1 && hsUser.isAdmin()) {
-            throw new InternalAuthenticationServiceException("The application is configured to be deployed on a cluster, this user is cannot be an admin.");
+            throw new InternalAuthenticationServiceException("The application is configured to be deployed on a cluster, this user cannot be an admin.");
         }
 
         // TODO: Update last_login

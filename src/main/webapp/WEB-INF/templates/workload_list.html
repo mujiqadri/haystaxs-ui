@@ -85,7 +85,7 @@
                                             <thead>
                                             <tr>
                                                 <th>Created On</th>
-                                                <th>Database</th>
+                                                <!--<th>Database</th>-->
                                                 <th>Start Dt</th>
                                                 <th>End Dt</th>
                                                 <th>Action</th>
@@ -94,7 +94,7 @@
                                             <tbody>
                                             <tr th:each="wl : ${workloads}">
                                                 <td th:text="${#dates.format(wl.createdOn, 'dd-MMM-yyyy HH:mm')}"></td>
-                                                <td th:text="${wl.databaseName}"></td>
+                                                <!--<td th:text="${wl.databaseName}"></td>-->
                                                 <td th:text="${#dates.format(wl.startDate, 'dd-MMM-yyyy')}"></td>
                                                 <td th:text="${#dates.format(wl.endDate, 'dd-MMM-yyyy')}"></td>
                                                 <td><a th:href="@{/visualizer/} + ${wl.workloadId}">Visualize</a></td>

@@ -16,6 +16,9 @@ var CreateWorkload = function () {
                 $('#workload-progress-bar-text').text(result.message + '% completed...');
                 if(result.message < 100) {
                     setTimeout(fetchProgress(workloadId), 1000);
+                } else {
+                    $('#create-workload-button').addClass('hidden');
+                    $('#goto-workloads').removeClass('hidden');
                 }
             }
         });
@@ -35,24 +38,26 @@ jQuery(document).ready(function () {
 
     $('#create-workload-button').on('click', function () {
         var portletBody = $('#portlet-body-1');
-        var dbName = $('#dbName').val();
+        //var dbName = $('#dbName').val();
         var fromDate = $('#fromDate').val();
         var toDate = $('#toDate').val();
 
         if (!isEmpty(fromDate) && !isEmpty(toDate)) {
             $(this).prop('disabled', true);
 
-            var data = {"dbName": dbName, "fromDate": fromDate, "toDate": toDate};
+            var data = {/*"dbName": dbName, */"fromDate": fromDate, "toDate": toDate};
             loadViaAjax('/workload/create', data, 'json', null, null, null
                 , function (result) {
                     if(result.result === 'success') {
-                        $('#info-area').html('Processing...')
+                        $('#info-area').html('Processing...');
+                        $('#workload-id').val(result.additionalInfo);
+
+                        $('#workload-progress-bar-holder').removeClass('hidden');
+                        CreateWorkload.fetchProgress(result.additionalInfo);
+                    } else {
+                        $('#info-area').html('There was an error processing the workload, please check system logs...');
                     }
-
-                    $('#workload-progress-bar-holder').removeClass('hidden');
-                    CreateWorkload.fetchProgress(result.additionalInfo);
-                }, function () {
-
+                }, function (xhrObject) {
                 }, "POST");
         }
     });
