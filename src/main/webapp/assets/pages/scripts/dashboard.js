@@ -43,7 +43,7 @@ var pivotNormalChartData = function (data, valueField) {
 
     return(pivotedData);
 }
-var getGraphsArray = function(data, topN) {
+var getNormalChartGraphsArray = function(data, topN) {
     var distinctQueryTypes = [];
     var graphs = [];
 
@@ -75,6 +75,46 @@ var getGraphsArray = function(data, topN) {
     return graphs;
 }
 
+var pivotHourlyChartData = function(data) {
+    var distinctQueryTypes = [];
+
+    for(var i=0;i<data.length;i++) {
+        if(data[i].queryType !== "" && distinctQueryTypes.indexOf(data[i].queryType) === -1) {
+            distinctQueryTypes.push(data[i].queryType);
+        }
+    }
+
+    var pivotedData = [];
+
+    for(var i=0;i<24;i++){
+        var totalDuration = 0;
+        var datum = {
+            hour: i
+        };
+
+        for(var j=0;j<distinctQueryTypes.length;j++) {
+            var qtFound = false;
+
+            for(var k=0;k<data.length;k++) {
+                if(data[k].hour === i && data[k].queryType === distinctQueryTypes[j]) {
+                    totalDuration += datum[distinctQueryTypes[j]] = data[k].duration;
+                    qtFound = true;
+                    break;
+                }
+            }
+
+            if(!qtFound) {
+                datum[distinctQueryTypes[j]] = 0;
+            }
+        }
+
+        datum["TOTAL_DURATION"] = totalDuration;
+        pivotedData.push(datum);
+    }
+
+    return(pivotedData);
+}
+
 function initQueryLogDurationChart(data) {
 
     if (typeof(AmCharts) === 'undefined' || $('#querylog-duration-chart').size() === 0) {
@@ -89,7 +129,7 @@ function initQueryLogDurationChart(data) {
         rawChartData = result;
         //var sequencer = rawChartData[rawChartData.length - 1];
         var pd = pivotNormalChartData(result, "duration");
-        makeChart(getGraphsArray(result), pd);
+        makeChart(getNormalChartGraphsArray(result), pd);
         unBlockUI($('#querylog-duration-chart-holder'));
     });
 
@@ -197,7 +237,7 @@ function initQueryLogCountChart(data) {
         rawChartData = result;
         //var sequencer = rawChartData[rawChartData.length - 1];
         var pd = pivotNormalChartData(result, "count");
-        makeChart(getGraphsArray(result), pd);
+        makeChart(getNormalChartGraphsArray(result), pd);
         unBlockUI($('#querylog-count-chart-holder'));
     });
 
@@ -280,8 +320,9 @@ function initHourlyQueriesChart(data) {
 
     loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
-        var sequencer = rawChartData[rawChartData.length - 1];
-        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length - 1));
+        //var sequencer = rawChartData[rawChartData.length - 1];
+        var pd = pivotHourlyChartData(result);
+        makeChart(getGraphsArray2(result), pd);
         unBlockUI($('#hourly-queries-chart-holder'));
     });
 
@@ -343,6 +384,38 @@ function initHourlyQueriesChart(data) {
          });*/
 
         return (graphs);
+    }
+
+    var getGraphsArray2 = function (data, topN) {
+        var distinctQueryTypes = [];
+        var graphs = [];
+
+        for(var i=0;i<data.length;i++) {
+            if(data[i].queryType !== "" && distinctQueryTypes.indexOf(data[i].queryType) === -1) {
+                distinctQueryTypes.push(data[i].queryType);
+            }
+        }
+
+        for(var i=0;i<distinctQueryTypes.length;i++) {
+            // Dividing 360 Color segment by 16 = 22.5
+            var hue = Math.floor(Math.random() * 22.5) + (22.5 * i);
+            var pastel = 'hsl(' + hue + ', 100%, 51%)';
+
+            var g = {
+                valueField: distinctQueryTypes[i],
+                title: distinctQueryTypes[i],
+                type: "column",
+                fillAlphas: 1,
+                valueAxis: "va1",
+                legendValueText: "[[value]]",
+                lineColor: pastel,
+                newStack: true
+            };
+
+            graphs.push(g);
+        }
+
+        return graphs;
     }
 
     var getQueryTypeProperties = function (qryType) {
@@ -428,7 +501,7 @@ function initHourlyQueriesChart(data) {
              "format": "json"
              },*/
 
-            categoryField: "date",
+            categoryField: "hour",
             categoryAxis: {
                 parseDates: true,
                 minPeriod: "hh",
@@ -504,9 +577,12 @@ function initHourlyComparisonQueriesChart(data) {
     loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result_1) {
         rawChartData = result_1;
         //var sequencer = rawChartData_Timeline1[rawChartData_Timeline1.length-1];
+
+        var pd = pivotHourlyChartData(result_1);
+
         var graphs = [];
         graphs.push({
-            valueField: "totalDuration",
+            valueField: "TOTAL_DURATION",
             title: "Selected Timeline",
             type: "line",
             fillAlphas: 0,
@@ -558,12 +634,18 @@ function initHourlyComparisonQueriesChart(data) {
         if (comparisonExists) {
             data = dataForAjax(mdmMin.format("DD-MMM-YYYY"), mdmMax.format("DD-MMM-YYYY"), data);
             loadViaAjax('/dashboard/ql/hourlyavgchartdata', data, 'json', null, null, null, function (result_2) {
-                for (index in rawChartData) {
+                /*for (index in rawChartData) {
                     rawChartData[index]["totalDurationPrev"] = result_2[index]["totalDuration"];
+                }*/
+
+                var pd2 = pivotHourlyChartData(result_2);
+
+                for(var i=0;i<pd.length;i++) {
+                    pd[i]["TOTAL_DURATION_PREV"] = pd2[i]["TOTAL_DURATION"];
                 }
 
                 graphs.push({
-                    valueField: "totalDurationPrev",
+                    valueField: "TOTAL_DURATION_PREV",
                     title: "Previous Timeline",
                     type: "line",
                     fillAlphas: 0,
@@ -572,13 +654,12 @@ function initHourlyComparisonQueriesChart(data) {
                     lineColor: "blue"
                 });
 
-                makeChart(graphs, rawChartData.slice(0, rawChartData.length - 1));
+                makeChart(graphs, pd);
                 unBlockUI($('#hourly-queries-comparison-chart-holder'));
             });
         } else {
-            makeChart(graphs, rawChartData.slice(0, rawChartData.length - 1));
+            makeChart(graphs, pd);
             unBlockUI($('#hourly-queries-comparison-chart-holder'));
-
         }
     });
 
@@ -595,7 +676,7 @@ function initHourlyComparisonQueriesChart(data) {
              "format": "json"
              },*/
 
-            categoryField: "date",
+            categoryField: "hour",
             categoryAxis: {
                 parseDates: true,
                 minPeriod: "hh",

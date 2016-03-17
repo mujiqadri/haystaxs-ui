@@ -1,6 +1,7 @@
 package com.haystaxs.ui.business.entities.repositories;
 
 import com.haystaxs.ui.business.entities.UserQueriesChartData2;
+import com.haystaxs.ui.business.entities.UserQueriesHourlyChartData;
 import com.haystaxs.ui.business.entities.UserQueryChartData;
 import com.haystaxs.ui.business.entities.UserQuery;
 import com.haystaxs.ui.business.entities.repositories.rowmappers.HourlyQueryChartDataMapper;
@@ -284,7 +285,7 @@ public class UserQueriesRepository extends RepositoryBase {
     }
 
     @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
-    public List<UserQueryChartData> getHourlyQueryStatsForChart(String userSchemaName, int clusterId, String fromDate, String toDate,
+    public List<UserQueriesHourlyChartData> getHourlyQueryStatsForChart(String userSchemaName, int clusterId, String fromDate, String toDate,
                                                                 String dbName, String userName, String windowOp) {
         String whereClause = String.format(" AND gpsd_id = %d ", clusterId);
 
@@ -305,7 +306,8 @@ public class UserQueriesRepository extends RepositoryBase {
             whereClause += " AND loguser = '" + userName + "' ";
         }
 
-        String sql = String.format("select \n" +
+        //region Original Query
+        /*String sql = String.format("select \n" +
                 "\tdate,\n" +
                 "\tcoalesce(sum(TOTAL_DURATION), 0) TOTAL_DURATION,\n" +
                 "\tcoalesce(sum(ANALYZE_DURATION), 0) ANALYZE_DURATION,\n" +
@@ -361,9 +363,22 @@ public class UserQueriesRepository extends RepositoryBase {
                 " where date IS NOT NULL\n" +
                 //"group by rollup(date)\n" +
                 "group by date\n" +
-                "order by date", userSchemaName, whereClause, windowOp);
+                "order by date", userSchemaName, whereClause, windowOp);*/
+        //endregion
 
-        List<UserQueryChartData> result = jdbcTemplate.query(sql, new HourlyQueryChartDataMapper());
+        String sql = String.format("select * from (\n" +
+                "select qrytype query_type, extract(hour from logsessiontime) as hour, round(\n" +
+                "%3$s\n" +
+                "(extract(epoch from logduration))) as duration\n" +
+                "from %s.queries\n" +
+                "where extract(epoch from logduration) > 0\n" +
+                " %2$s \n" +
+                "group by\n" +
+                "EXTRACT(hour from logsessiontime), qrytype\n" +
+                "ORDER BY EXTRACT(hour from logsessiontime), qrytype\n" +
+                ") as Y where duration > 0;", userSchemaName, whereClause, windowOp);
+
+        List<UserQueriesHourlyChartData> result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<UserQueriesHourlyChartData>(UserQueriesHourlyChartData.class));
 
         return result;
     }

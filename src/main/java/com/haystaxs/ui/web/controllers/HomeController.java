@@ -212,17 +212,17 @@ public class HomeController {
 
     @RequestMapping("/dashboard/ql/hourlyavgchartdata")
     @ResponseBody
-    public List<UserQueryChartData> hourlyQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
+    public List<UserQueriesHourlyChartData> hourlyQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
                                                             @RequestParam(value = "toDate", required = false) String toDate,
                                                             @RequestParam(value = "dbName", required = false) String dbName,
                                                             @RequestParam(value = "userName", required = false) String userName,
-                                                            @RequestParam("sqlWindowOp") String windowOp,
+                                                            @RequestParam(value = "sqlWindowOp", required = false) String windowOp,
                                                             Model model) {
-        List<UserQueryChartData> result = userDatabaseRepository.getHourlyQueryStatsForChart(getUserSchemaName(),
+        List<UserQueriesHourlyChartData> result = userDatabaseRepository.getHourlyQueryStatsForChart(getUserSchemaName(),
                 getActiveClusterId(), fromDate, toDate, dbName, userName, windowOp);
 
         // The resulting list may contain less or none rows, so the below is a workaround as the chart needs full data
-        if (result.size() < 25) {
+        /*if (result.size() < 25) {
             // Define an array to hold the 24 hour data plus the sequencer (Last row from query summing all the columns)
             UserQueryChartData[] finalResult = new UserQueryChartData[25];
 
@@ -252,7 +252,7 @@ public class HomeController {
             }
 
             return (Arrays.asList(finalResult));
-        }
+        }*/
 
         return (result);
     }
