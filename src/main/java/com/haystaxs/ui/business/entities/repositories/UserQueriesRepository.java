@@ -1,5 +1,6 @@
 package com.haystaxs.ui.business.entities.repositories;
 
+import com.haystaxs.ui.business.entities.UserQueriesChartData2;
 import com.haystaxs.ui.business.entities.UserQueryChartData;
 import com.haystaxs.ui.business.entities.UserQuery;
 import com.haystaxs.ui.business.entities.repositories.rowmappers.HourlyQueryChartDataMapper;
@@ -119,23 +120,23 @@ public class UserQueriesRepository extends RepositoryBase {
     // TODO: Ok this should come from the query_metadata table which should be cluster based ;).
     // NOTE: Muji gonna kill me :)
     public List<String> getAllQueryTypes() {
-        return(Arrays.asList(
-        "UPDATE",
-        "EXCLUSIVE LOCK",
-        "SHOW",
-        "INTERNAL",
-        "DELETE",
-        "INSERT",
-        "OTHERS",
-        "COMMIT",
-        "CREATE EXTERNAL TABLE",
-        "DROP TABLE",
-        "CREATE TABLE",
-        "SELECT",
-        "ANALYZE",
-        "SET CONFIGURATION",
-        "TRUNCATE TABLE",
-        "TRANSACTION-OPERATION"));
+        return (Arrays.asList(
+                "UPDATE",
+                "EXCLUSIVE LOCK",
+                "SHOW",
+                "INTERNAL",
+                "DELETE",
+                "INSERT",
+                "OTHERS",
+                "COMMIT",
+                "CREATE EXTERNAL TABLE",
+                "DROP TABLE",
+                "CREATE TABLE",
+                "SELECT",
+                "ANALYZE",
+                "SET CONFIGURATION",
+                "TRUNCATE TABLE",
+                "TRANSACTION-OPERATION"));
     }
 
     @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
@@ -145,7 +146,7 @@ public class UserQueriesRepository extends RepositoryBase {
                         " where gpsd_id = ? ",
                 userSchemaName);
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, new Object[] {clusterId});
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, new Object[]{clusterId});
         rowSet.next();
 
         QueryLogMinMaxDateTimes result = new QueryLogMinMaxDateTimes();
@@ -158,27 +159,30 @@ public class UserQueriesRepository extends RepositoryBase {
     }
 
     @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
-    public List<UserQueryChartData> getQueryStatsForChart(String userSchemaName, int clusterId, String fromDate, String toDate,
+    public List<UserQueriesChartData2> getQueryStatsForChart(String userSchemaName, int clusterId, String fromDate, String toDate,
                                                           String dbName, String userName) {
         String whereClause = String.format(" WHERE gpsd_id = %d ", clusterId);
         boolean prependAnd = false;
 
-        if(fromDate != null && toDate != null && !fromDate.isEmpty()  && !toDate.isEmpty()) {
+        if (fromDate != null && toDate != null && !fromDate.isEmpty() && !toDate.isEmpty()) {
             whereClause += " AND logsessiontime::date >= '" + fromDate + "' ";
             whereClause += " AND logsessiontime::date <= '" + toDate + "' ";
             prependAnd = true;
         }
 
-        if(dbName != null && !dbName.isEmpty()) {
+        if (dbName != null && !dbName.isEmpty()) {
             whereClause += (prependAnd ? " AND " : " WHERE ") + " logdatabase = '" + dbName + "' ";
             prependAnd = true;
         }
 
-        if(userName != null && !userName.isEmpty()) {
+        if (userName != null && !userName.isEmpty()) {
             whereClause += (prependAnd ? " AND " : " WHERE ") + " loguser = '" + userName + "' ";
         }
 
-        String sql = String.format("SELECT DATE,\n" +
+        //whereClause += " AND extract(epoch from logduration) > 1000 ";
+
+        //region ### Original Query ###
+        /*String sql = String.format("SELECT DATE,\n" +
                 "       coalesce(sum(TOTAL_DURATION), 0) TOTAL_DURATION,\n" +
                 "       coalesce(sum(TOTAL_COUNT), 0) TOTAL_COUNT,\n" +
                 "       coalesce(sum(ANALYZE_DURATION), 0) ANALYZE_DURATION,\n" +
@@ -254,14 +258,27 @@ public class UserQueriesRepository extends RepositoryBase {
                 "              select logsessiontime::date, qrytype, count(0), round(coalesce(sum(extract(epoch from logduration)),0)) as duration\n" +
                 "              from %s.queries\n" +
                 "              %2s\n" +
-                "              group by rollup(logsessiontime::date, qrytype)\n" +
+                "              group by\n" +
+                //"               rollup(\n" +
+                "                   logsessiontime::date, qrytype\n" +
+                //"               )\n" +
                 "            ) AS Y\n" +
                 "     ) AS X\n" +
                 "where DATE IS NOT NULL\n" +
-                "group by rollup(date)\n" +
-                "order by date;\n", userSchemaName, whereClause);
+                //"group by rollup(date)\n" +
+                "group by date\n" +
+                "order by date;\n", userSchemaName, whereClause);*/
+        //endregion
 
-        List<UserQueryChartData> result = jdbcTemplate.query(sql, new TimelineQueryChartDataMapper());
+        String sql = String.format("select * from(select logsessiontime::date date, qryType query_type, count(0) count,\n" +
+                "round(coalesce(sum(extract(epoch from logduration)),0)) as duration\n" +
+                "from %s.queries\n" +
+                "%2s\n" +
+                "group by logsessiontime::date, qrytype\n" +
+                "ORDER BY logsessiontime::date) as Y where duration > 0", userSchemaName, whereClause);
+
+        //List<UserQueriesChartData2> result = jdbcTemplate.query(sql, new TimelineQueryChartDataMapper());
+        List<UserQueriesChartData2> result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<UserQueriesChartData2>(UserQueriesChartData2.class));
 
         return result;
     }
@@ -271,20 +288,20 @@ public class UserQueriesRepository extends RepositoryBase {
                                                                 String dbName, String userName, String windowOp) {
         String whereClause = String.format(" AND gpsd_id = %d ", clusterId);
 
-        if(windowOp == null || windowOp.isEmpty()) {
+        if (windowOp == null || windowOp.isEmpty()) {
             windowOp = "avg";
         }
 
-        if(fromDate != null && toDate != null && !fromDate.isEmpty()  && !toDate.isEmpty()) {
+        if (fromDate != null && toDate != null && !fromDate.isEmpty() && !toDate.isEmpty()) {
             whereClause += " AND logsessiontime::date >= '" + fromDate + "' ";
             whereClause += " AND logsessiontime::date <= '" + toDate + "' ";
         }
 
-        if(dbName != null && !dbName.isEmpty()) {
+        if (dbName != null && !dbName.isEmpty()) {
             whereClause += " AND logdatabase = '" + dbName + "' ";
         }
 
-        if(userName != null && !userName.isEmpty()) {
+        if (userName != null && !userName.isEmpty()) {
             whereClause += " AND loguser = '" + userName + "' ";
         }
 
@@ -328,18 +345,22 @@ public class UserQueriesRepository extends RepositoryBase {
                 "\t\tCASE WHEN qrytype = 'TRUNCATE TABLE' THEN duration END as TRUNCATE_TABLE_DURATION,\n" +
                 "\t\tCASE WHEN qrytype = 'UPDATE' THEN duration END as UPDATE_DURATION\n" +
                 "\tFROM (\n" +
-                "\t\tselect qrytype, extract(hour from logsessiontime) as date, round("+
+                "\t\tselect qrytype, extract(hour from logsessiontime) as date, round(" +
                 "%3$s" +
                 "(extract(epoch from logduration))) as duration\n" +
                 "\t\tfrom %s.queries\n" +
                 "\t\twhere extract(epoch from logduration) > 0\n" +
                 " %2$s " +
-                "\t\tgroup by ROLLUP(EXTRACT(hour from logsessiontime),qrytype)\n" +
+                "\t\tgroup by\n" +
+                //"ROLLUP(" +
+                "EXTRACT(hour from logsessiontime), qrytype\n" +
+                //")\n" +
                 "\t\tORDER BY EXTRACT(hour from logsessiontime) ,qrytype\n" +
                 "\t) AS A\n" +
                 ") AS B\n" +
                 " where date IS NOT NULL\n" +
-                "group by rollup(date)\n" +
+                //"group by rollup(date)\n" +
+                "group by date\n" +
                 "order by date", userSchemaName, whereClause, windowOp);
 
         List<UserQueryChartData> result = jdbcTemplate.query(sql, new HourlyQueryChartDataMapper());

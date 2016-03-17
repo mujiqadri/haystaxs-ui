@@ -236,7 +236,7 @@ public class TestController {
         credentials.setCredentials("24.150.86.245", "5432", "haystack", "gpadmin", "password");
         cluster.connect(credentials);
 
-        cluster.loadTables(credentials, false);
+        //cluster.loadTables(credentials, false);
 
         return "success";
     }

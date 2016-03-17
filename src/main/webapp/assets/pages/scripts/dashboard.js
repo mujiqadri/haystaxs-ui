@@ -1,3 +1,80 @@
+var pivotNormalChartData = function (data, valueField) {
+    var distinctQueryTypes = [];
+    var distinctDates = [];
+
+    for(var i=0;i<data.length;i++) {
+        if(data[i].queryType !== "" && distinctQueryTypes.indexOf(data[i].queryType) === -1) {
+            distinctQueryTypes.push(data[i].queryType);
+        }
+        if(distinctDates.indexOf(data[i].date) === -1) {
+            distinctDates.push(data[i].date);
+        }
+    }
+
+    var pivotedData = [];
+
+    for(var i=0;i<distinctDates.length;i++){
+        var datum = {
+            date: distinctDates[i]
+        };
+
+        for(var j=0;j<distinctQueryTypes.length;j++) {
+            var qtFound = false;
+
+            for(var k=0;k<data.length;k++) {
+                if(data[k].date === distinctDates[i] && data[k].queryType === distinctQueryTypes[j]) {
+                    if(valueField === "count")
+                        datum[distinctQueryTypes[j]] = data[k].count;
+                    else
+                        datum[distinctQueryTypes[j]] = data[k].duration;
+
+                    qtFound = true;
+                    break;
+                }
+            }
+
+            if(!qtFound) {
+                datum[distinctQueryTypes[j]] = 0;
+            }
+        }
+
+        pivotedData.push(datum);
+    }
+
+    return(pivotedData);
+}
+var getGraphsArray = function(data, topN) {
+    var distinctQueryTypes = [];
+    var graphs = [];
+
+    for(var i=0;i<data.length;i++) {
+        if(data[i].queryType !== "" && distinctQueryTypes.indexOf(data[i].queryType) === -1) {
+            distinctQueryTypes.push(data[i].queryType);
+        }
+    }
+
+    for(var i=0;i<distinctQueryTypes.length;i++) {
+        // Dividing 360 Color segment by 16 = 22.5
+        var hue = Math.floor(Math.random() * 22.5) + (22.5 * i);
+        var pastel = 'hsl(' + hue + ', 100%, 51%)';
+
+        var g = {
+            valueField: distinctQueryTypes[i],
+            title: distinctQueryTypes[i],
+            type: "line",
+            fillAlphas: 0.50,
+            valueAxis: "va1",
+            legendValueText: "[[value]]",
+            lineColor: pastel,
+            lineThickness: 1.5
+        };
+
+        graphs.push(g);
+    }
+
+    return graphs;
+}
+
 function initQueryLogDurationChart(data) {
 
     if (typeof(AmCharts) === 'undefined' || $('#querylog-duration-chart').size() === 0) {
@@ -10,103 +87,18 @@ function initQueryLogDurationChart(data) {
 
     loadViaAjax('/dashboard/ql/chartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
-        var sequencer = rawChartData[rawChartData.length - 1];
-        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length - 1));
+        //var sequencer = rawChartData[rawChartData.length - 1];
+        var pd = pivotNormalChartData(result, "duration");
+        makeChart(getGraphsArray(result), pd);
         unBlockUI($('#querylog-duration-chart-holder'));
     });
-
-    var getGraphsArray = function (sequencer, topN) {
-        var graphs = [];
-        var durations = [];
-
-        for (var type in sequencer) {
-            if (type.endsWith('Duration') && type !== 'totalDuration') {
-                var o = {};
-                o[type] = sequencer[type];
-                durations.push(o)
-            }
-        }
-
-        var durationsSorted = durations.sort(function (a, b) {
-            return (b[Object.keys(b)[0]] - a[Object.keys(a)[0]]);
-        });
-
-        for (var index in durationsSorted) {
-            var qryTypeCount = durationsSorted[index][Object.keys(durationsSorted[index])[0]];
-            if (qryTypeCount === 0) {
-                continue;
-            }
-            if (topN && topN == index) {
-                break;
-            }
-
-            var qryType = Object.keys(durationsSorted[index])[0];
-            var qryTypeProperties = getQueryTypeProperties(qryType);
-
-            // Dividing 360 Color segment by 16 = 22.5
-            var hue = Math.floor(Math.random() * 22.5) + (22.5 * index);
-            var pastel = 'hsl(' + hue + ', 100%, 51%)';
-
-            var g = {
-                valueField: qryType,
-                title: qryTypeProperties["title"],
-                type: "line",
-                fillAlphas: 0.2,
-                valueAxis: "va1",
-                legendValueText: "[[value]]",
-                lineColor: pastel,
-                lineThickness: 1.5
-            };
-
-            graphs.push(g);
-        }
-
-        return (graphs);
-    }
-
-    var getQueryTypeProperties = function (qryType) {
-        switch (qryType) {
-            case "selectDuration":
-                return ({title: "Select"});
-            case "analyzeDuration":
-                return ({title: "Analyze"});
-            case "commitDuration":
-                return ({title: "Commit"});
-            case "createExternalTableDuration":
-                return ({title: "Create Ext Tbl"});
-            case "createTableDuration":
-                return ({title: "Create Tbl"});
-            case "deleteDuration":
-                return ({title: "Delete"});
-            case "dropTableDuration":
-                return ({title: "Drop Tbl"});
-            case "exclusiveLockDuration":
-                return ({title: "Ex Lock"});
-            case "insertDuration":
-                return ({title: "Insert"});
-            case "internalDuration":
-                return ({title: "Internal"});
-            case "othersDuration":
-                return ({title: "Other"});
-            case "showConfigurationDuration":
-                return ({title: "Show Config"});
-            case "showDuration":
-                return ({title: "Show"});
-            case "transactionOperationDuration":
-                return ({title: "Tx Op"});
-            case "truncateTableDuration":
-                return ({title: "Truncate Tbl"});
-            case "updateDuration":
-                return ({title: "Update"});
-        }
-    }
 
     var makeChart = function (graphs, chartData) {
         var chart = AmCharts.makeChart("querylog-duration-chart", {
             type: "serial",
             fontSize: 12,
             fontFamily: "Open Sans",
-            dataDateFormat: "DD-MM-YYYY",
+            dataDateFormat: "YYYY-MM-DD",
             dataProvider: chartData,
             /*dataLoader: {
              "url": App.webAppPath + "/dashboard/ql/chartdata",
@@ -203,103 +195,18 @@ function initQueryLogCountChart(data) {
 
     loadViaAjax('/dashboard/ql/chartdata', data, 'json', null, null, null, function (result) {
         rawChartData = result;
-        var sequencer = rawChartData[rawChartData.length - 1];
-        makeChart(getGraphsArray(sequencer), rawChartData.slice(0, rawChartData.length - 1));
+        //var sequencer = rawChartData[rawChartData.length - 1];
+        var pd = pivotNormalChartData(result, "count");
+        makeChart(getGraphsArray(result), pd);
         unBlockUI($('#querylog-count-chart-holder'));
     });
-
-    var getGraphsArray = function (sequencer, topN) {
-        var graphs = [];
-        var counts = [];
-
-        for (var type in sequencer) {
-            if (type.endsWith('Count') && type !== 'totalCount') {
-                var o = {};
-                o[type] = sequencer[type];
-                counts.push(o)
-            }
-        }
-
-        var countsSorted = counts.sort(function (a, b) {
-            return (b[Object.keys(b)[0]] - a[Object.keys(a)[0]]);
-        });
-
-        for (var index in countsSorted) {
-            var qryTypeCount = countsSorted[index][Object.keys(countsSorted[index])[0]];
-            if (qryTypeCount === 0) {
-                continue;
-            }
-            if (topN && topN == index) {
-                break;
-            }
-
-            var qryType = Object.keys(countsSorted[index])[0];
-            var qryTypeProperties = getQueryTypeProperties(qryType);
-
-            // Dividing 360 Color segment by 16 = 22.5
-            var hue = Math.floor(Math.random() * 22.5) + (22.5 * index);
-            var pastel = 'hsl(' + hue + ', 100%, 51%)';
-
-            var g = {
-                valueField: qryType,
-                title: qryTypeProperties["title"],
-                type: "line",
-                fillAlphas: 0.2,
-                valueAxis: "va1",
-                legendValueText: "[[value]]",
-                lineColor: pastel,
-                lineThickness: 1.5
-            };
-
-            graphs.push(g);
-        }
-
-        return (graphs);
-    }
-
-    var getQueryTypeProperties = function (qryType) {
-        switch (qryType) {
-            case "selectCount":
-                return ({title: "Select"});
-            case "analyzeCount":
-                return ({title: "Analyze"});
-            case "commitCount":
-                return ({title: "Commit"});
-            case "createExternalTableCount":
-                return ({title: "Create Ext Tbl"});
-            case "createTableCount":
-                return ({title: "Create Tbl"});
-            case "deleteCount":
-                return ({title: "Delete"});
-            case "dropTableCount":
-                return ({title: "Drop Tbl"});
-            case "exclusiveLockCount":
-                return ({title: "Ex Lock"});
-            case "insertCount":
-                return ({title: "Insert"});
-            case "internalCount":
-                return ({title: "Internal"});
-            case "othersCount":
-                return ({title: "Other"});
-            case "showConfigurationCount":
-                return ({title: "Show Config"});
-            case "showCount":
-                return ({title: "Show"});
-            case "transactionOperationCount":
-                return ({title: "Tx Op"});
-            case "truncateTableCount":
-                return ({title: "Truncate Tbl"});
-            case "updateCount":
-                return ({title: "Update"});
-        }
-    }
 
     var makeChart = function (graphs, chartData) {
         var chart = AmCharts.makeChart("querylog-count-chart", {
             type: "serial",
             fontSize: 12,
             fontFamily: "Open Sans",
-            dataDateFormat: "DD-MM-YYYY",
+            dataDateFormat: "YYYY-MM-DD",
             dataProvider: chartData,
             /*dataLoader: {
              "url": App.webAppPath + "/dashboard/ql/chartdata",
@@ -379,7 +286,6 @@ function initHourlyQueriesChart(data) {
     });
 
     var getGraphsArray = function (sequencer, topN) {
-        debugger;
         var graphs = [];
         var durations = [];
 

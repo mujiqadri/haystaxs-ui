@@ -11,7 +11,7 @@ var App = function() {
 
     var resizeHandlers = [];
 
-    var webAppPath = '/haystaxsui';
+    var webAppPath = '/haystaxsui-cluster';
 
     var assetsPath = webAppPath + '/assets/';
 

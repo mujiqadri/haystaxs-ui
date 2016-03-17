@@ -197,13 +197,13 @@ public class HomeController {
 
     @RequestMapping("/dashboard/ql/chartdata")
     @ResponseBody
-    public List<UserQueryChartData> dashboardQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
+    public List<UserQueriesChartData2> dashboardQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
                                                                @RequestParam(value = "toDate", required = false) String toDate,
                                                                @RequestParam(value = "dbName", required = false) String dbName,
                                                                @RequestParam(value = "userName", required = false) String userName,
                                                                Model model) {
 
-        List<UserQueryChartData> result = userDatabaseRepository.getQueryStatsForChart(getUserSchemaName(),
+        List<UserQueriesChartData2> result = userDatabaseRepository.getQueryStatsForChart(getUserSchemaName(),
                 getActiveClusterId(), fromDate, toDate,
                 dbName, userName);
 
