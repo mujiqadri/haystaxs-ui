@@ -105,7 +105,7 @@ public class HomeController {
     private List<Gpsd> getAllUserClusters() {
         List<Gpsd> result = clusterRepository.getAllClusters(getUserId(), isDeployedOnCluster());
 
-        if(result.size() == 0) {
+        if (result.size() == 0) {
             httpSession.removeAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID);
         }
 
@@ -141,7 +141,7 @@ public class HomeController {
     }
 
     private String getUserSchemaName() {
-        if(!isDeployedOnCluster()) {
+        if (!isDeployedOnCluster()) {
             return miscUtil.getNormalizedUserName(getPrincipal().getEmailAddress());
         } else {
             return miscUtil.getNormalizedUserName(appConfig.getClusterAdminEmailAddress());
@@ -155,8 +155,8 @@ public class HomeController {
 */
 
     private String getClusterName(int clusterId) throws Exception {
-        for(Gpsd cluster : getAllUserClusters()) {
-            if(cluster.getGpsdId() == clusterId) {
+        for (Gpsd cluster : getAllUserClusters()) {
+            if (cluster.getGpsdId() == clusterId) {
                 return cluster.getFriendlyName();
             }
         }
@@ -198,10 +198,10 @@ public class HomeController {
     @RequestMapping("/dashboard/ql/chartdata")
     @ResponseBody
     public List<UserQueriesChartData2> dashboardQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
-                                                               @RequestParam(value = "toDate", required = false) String toDate,
-                                                               @RequestParam(value = "dbName", required = false) String dbName,
-                                                               @RequestParam(value = "userName", required = false) String userName,
-                                                               Model model) {
+                                                                  @RequestParam(value = "toDate", required = false) String toDate,
+                                                                  @RequestParam(value = "dbName", required = false) String dbName,
+                                                                  @RequestParam(value = "userName", required = false) String userName,
+                                                                  Model model) {
 
         List<UserQueriesChartData2> result = userDatabaseRepository.getQueryStatsForChart(getUserSchemaName(),
                 getActiveClusterId(), fromDate, toDate,
@@ -213,11 +213,11 @@ public class HomeController {
     @RequestMapping("/dashboard/ql/hourlyavgchartdata")
     @ResponseBody
     public List<UserQueriesHourlyChartData> hourlyQueryLogChartData(@RequestParam(value = "fromDate", required = false) String fromDate,
-                                                            @RequestParam(value = "toDate", required = false) String toDate,
-                                                            @RequestParam(value = "dbName", required = false) String dbName,
-                                                            @RequestParam(value = "userName", required = false) String userName,
-                                                            @RequestParam(value = "sqlWindowOp", required = false) String windowOp,
-                                                            Model model) {
+                                                                    @RequestParam(value = "toDate", required = false) String toDate,
+                                                                    @RequestParam(value = "dbName", required = false) String dbName,
+                                                                    @RequestParam(value = "userName", required = false) String userName,
+                                                                    @RequestParam(value = "sqlWindowOp", required = false) String windowOp,
+                                                                    Model model) {
         List<UserQueriesHourlyChartData> result = userDatabaseRepository.getHourlyQueryStatsForChart(getUserSchemaName(),
                 getActiveClusterId(), fromDate, toDate, dbName, userName, windowOp);
 
@@ -274,14 +274,14 @@ public class HomeController {
         model.addAttribute("cluster", cluster);
 
         try {
-            if(haystaxsLibServiceWrapper.tryConnectToCluster(cluster)) {
+            if (haystaxsLibServiceWrapper.tryConnectToCluster(cluster)) {
                 int newClusterId = gpsdRepository.addCluster(cluster, true);
                 session.setAttribute(HsSessionAttributes.ACTIVE_CLUSTER_ID, newClusterId);
             } else {
                 model.addAttribute("error", "Error connecting to cluster");
                 return "add_cluster";
             }
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
             model.addAttribute("error", ex.getMessage());
             return "add_cluster";
@@ -324,7 +324,7 @@ public class HomeController {
     public String deleteGpsd(@PathVariable("id") int gpsdId, Model model) {
         gpsdRepository.delete(gpsdId, getUserId(), getUserSchemaName());
 
-        if(!isDeployedOnCluster()) {
+        if (!isDeployedOnCluster()) {
             fileUtil.deleteRecursively(String.format("%s/%s/gpsd/%d", appConfig.getGpsdSaveDirectory(), getUserSchemaName(),
                     gpsdId));
         }
@@ -640,7 +640,7 @@ public class HomeController {
         QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getUserSchemaName(),
                 getActiveClusterId());
 
-        if(queryLogMinMaxDates.getMinDate() != null && queryLogMinMaxDates.getMaxDate() != null) {
+        if (queryLogMinMaxDates.getMinDate() != null && queryLogMinMaxDates.getMaxDate() != null) {
             model.addAttribute("queryLogsProcessed", true);
 
             if (forDate != null && !forDate.isEmpty()) {
@@ -701,6 +701,65 @@ public class HomeController {
 
         return "fragments/query_analysis_list";
     }
+
+    @RequestMapping("/querylog/ast/analyze")
+    public String analyzeASTs(@RequestParam(value = "date", required = false) String forDate,
+                              Model model) {
+        model.addAttribute("title", "Analyze ASTs");
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
+
+        // Need a repo method for this
+        model.addAttribute("queryLogsProcessed", true);
+
+        List<Ast> asts = new ArrayList<Ast>();
+
+        if (forDate != null && !forDate.isEmpty()) {
+            asts = userDatabaseRepository.getASTs(getUserSchemaName(), getActiveClusterId(), forDate, null, null, 25, 1, " sum_duration DESC ");
+            if (!asts.isEmpty()) {
+                int totalRows = asts.get(0).getTotalRows();
+                PaginationInfo paginationInfo = new PaginationInfo(totalRows, 25, 1);
+
+                model.addAttribute("pi", paginationInfo);
+                model.addAttribute("orderBy", "sum_duration");
+                model.addAttribute("orderByDir", "DESC");
+            }
+
+            model.addAttribute("forDate", forDate);
+            model.addAttribute("asts", asts);
+        }
+
+        return "ast_analysis";
+    }
+
+    @Layout(value = "", enabled = false)
+    @RequestMapping("/querylog/ast/analyze/search")
+    public String astAnalyzeSearch(@RequestParam("forDate") String forDate,
+                                   @RequestParam("astLike") String astLike,
+                                   @RequestParam("duration") String duration,
+                                   @RequestParam(value = "pgSize", defaultValue = "25") int pageSize,
+                                   @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
+                                   @RequestParam(value = "orderBy", defaultValue = "sum_duration DESC") String orderBy,
+                                   Model model) {
+        List<Ast> asts = userDatabaseRepository.getASTs(getUserSchemaName(), getActiveClusterId(),
+                forDate, duration, astLike, pageSize, pageNo, orderBy);
+        // TODO: Check if list is empty
+
+        model.addAttribute("forDate", forDate);
+        model.addAttribute("asts", asts);
+
+        if (!asts.isEmpty()) {
+            int totalRows = asts.get(0).getTotalRows();
+            PaginationInfo paginationInfo = new PaginationInfo(totalRows, pageSize, pageNo);
+
+            model.addAttribute("pi", paginationInfo);
+            model.addAttribute("orderBy", orderBy.split(" ")[0]);
+            model.addAttribute("orderByDir", orderBy.split(" ")[1].equals("ASC") ? "DESC" : "ASC");
+        }
+
+        return "fragments/ast_analysis_list";
+    }
     //endregion
 
     //region ### Workload Actions ###
@@ -713,7 +772,7 @@ public class HomeController {
         QueryLogMinMaxDateTimes queryLogMinMaxDates = userDatabaseRepository.getQueryLogMinMaxDates(getUserSchemaName(),
                 getActiveClusterId());
 
-        if(queryLogMinMaxDates.getMinDate() != null && queryLogMinMaxDates.getMaxDate() != null) {
+        if (queryLogMinMaxDates.getMinDate() != null && queryLogMinMaxDates.getMaxDate() != null) {
             model.addAttribute("queryLogsProcessed", true);
 
             // TODO: Define this formatter at the class level

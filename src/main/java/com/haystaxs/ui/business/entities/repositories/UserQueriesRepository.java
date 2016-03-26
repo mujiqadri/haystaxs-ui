@@ -1,11 +1,9 @@
 package com.haystaxs.ui.business.entities.repositories;
 
+import com.haystaxs.ui.business.entities.Ast;
 import com.haystaxs.ui.business.entities.UserQueriesChartData2;
 import com.haystaxs.ui.business.entities.UserQueriesHourlyChartData;
-import com.haystaxs.ui.business.entities.UserQueryChartData;
 import com.haystaxs.ui.business.entities.UserQuery;
-import com.haystaxs.ui.business.entities.repositories.rowmappers.HourlyQueryChartDataMapper;
-import com.haystaxs.ui.business.entities.repositories.rowmappers.TimelineQueryChartDataMapper;
 import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDateTimes;
 import com.haystaxs.ui.business.entities.selection.QueryType;
 import org.slf4j.Logger;
@@ -105,6 +103,41 @@ public class UserQueriesRepository extends RepositoryBase {
                 String.format(" limit %d OFFSET %d ", pageSize, (pageNo - 1) * pageSize);
 
         List<UserQuery> resultSet = jdbcTemplate.query(sql, params.toArray(), new BeanPropertyRowMapper<UserQuery>(UserQuery.class));
+
+        return resultSet;
+    }
+
+    public List<Ast> getASTs(String userSchemaName, int clusterId, String forDate,
+                                      String durationGreaterThan, String astLike,
+                                      int pageSize, int pageNo,
+                                      String orderBy) {
+        ArrayList<Object> params = new ArrayList<Object>();
+
+        String whereClause = String.format(" where q.gpsd_id = %d\n", clusterId);
+
+        whereClause += String.format(" AND q.logsessiontime::date = '%s'\n", forDate);
+
+        if (durationGreaterThan != null && !durationGreaterThan.isEmpty()) {
+            whereClause += " AND extract(epoch from logduration) > ?\n";
+            params.add(Double.parseDouble(durationGreaterThan));
+        }
+        if (astLike != null && !astLike.isEmpty()) {
+            whereClause += String.format(" AND a.ast_json LIKE '%%%s%%'\n", astLike);
+            //params.add(userNameLike);
+        }
+
+        String sql = String.format("select * from (" +
+                "select distinct a.ast_id, a.ast_json, a.is_json, count(q.*) count, sum(extract (epoch from q.logduration)) sum_duration\n" +
+                ", count(0) OVER () as total_rows \n" +
+                "from %s.ast a\n" +
+                "\tINNER JOIN %1$s.ast_queries aq on a.ast_id = aq.ast_id\n" +
+                "\tINNER JOIN %1$s.queries q on aq.queries_id = q.id\n" +
+                "%2$s\n" +
+                "\tgroup by a.ast_id, a.ast_json, a.is_json) as Y\n" +
+                "\torder by %3$s\n", userSchemaName, whereClause, orderBy) +
+                String.format(" limit %d OFFSET %d ", pageSize, (pageNo - 1) * pageSize);
+
+        List<Ast> resultSet = jdbcTemplate.query(sql, params.toArray(), new BeanPropertyRowMapper<Ast>(Ast.class));
 
         return resultSet;
     }

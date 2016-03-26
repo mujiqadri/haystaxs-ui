@@ -436,3 +436,15 @@ body {
 .form-inline .form-control.input-width-large {
     width: 320px;
 }
+
+.nav-tabs>li>a {
+    font-size: 12px;
+}
+
+.table thead tr th {
+    font-size: 12px;
+}
+
+.table tbody tr td {
+    font-size: 12px;
+}

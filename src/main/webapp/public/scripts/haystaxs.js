@@ -136,7 +136,7 @@ function initializeFullScreenOptions() {
         if(dataModel) {
             Visualizer.width = clusterVisualPortlet.width() - 10;
             if($(this).hasClass('on')) {
-                Visualizer.height = clusterVisualPortlet.height() - 55;
+                Visualizer.height = clusterVisualPortlet.height() - 25;
             } else {
                 Visualizer.height = visualizerOriginalHeight;
             }
@@ -148,4 +148,4 @@ function initializeFullScreenOptions() {
 /// GLOBAL VARIABLES ///
 var dataModel = undefined;
 
-var visualizerOriginalHeight = 545;
+var visualizerOriginalHeight = 575;

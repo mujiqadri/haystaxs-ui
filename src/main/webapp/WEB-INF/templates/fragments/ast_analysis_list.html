@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="col-lg-12">
+        <h4 class="bold" th:text="'Total queries: ' + (${pi} ? ${#numbers.formatInteger(pi.totalNoOfItems, 1, 'COMMA')} : 0)"></h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="table-scrollable">
+            <table class="table table-bordered table-hover" xmlns:th="http://www.thymeleaf.org">
+                <thead>
+                <tr>
+                    <!--<th>#</th>-->
+                    <th>AST Text</th>
+                    <th>
+                        <a href="javascript:;" th:attr="data-orderby='count ' + (${orderBy} == 'count' ? ${orderByDir} : 'ASC')">Count
+                            <span th:if="${orderBy} == 'count' and ${orderByDir} == 'ASC'" class="fa fa-caret-down"></span>
+                            <span th:if="${orderBy} == 'count' and ${orderByDir} == 'DESC'" class="fa fa-caret-up"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="javascript:;" th:attr="data-orderby='sum_duration ' + (${orderBy} == 'sum_duration' ? ${orderByDir} : 'DESC')">Sum Duration
+                            <span th:if="${orderBy} == 'sum_duration' and ${orderByDir} == 'ASC'" class="fa fa-caret-down"></span>
+                            <span th:if="${orderBy} == 'sum_duration' and ${orderByDir} == 'DESC'" class="fa fa-caret-up"></span>
+                        </a>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a,iterStatus : ${asts}">
+                    <td style="word-break: break-all"><pre><code th:text="${a.astJson}"></code></pre></td>
+                    <td th:text="${a.count}"></td>
+                    <td th:text="${a.sumDuration}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:if="${pi}" th:include="fragments/paginator::paginator(false)"></div>
