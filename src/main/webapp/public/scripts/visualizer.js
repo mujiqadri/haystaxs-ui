@@ -1,11 +1,13 @@
 /**
  * Created by Adnan on 8/24/2015.
  */
+var visualizerOriginalHeight = 575;
+
 var Visualizer = {
     /// GLOBALS ///
     //height = 755, width = 1360;
     width: 948,
-    height: 575,
+    height: visualizerOriginalHeight,
     nodeMinRadius: 20,
     nodeMaxRadius: 75,
     nodePadding: 5,
@@ -205,7 +207,8 @@ var Visualizer = {
                 "cursor": "default",
                 "font-size": "10px",
                 y: function (d) {
-                    return (radiusScale(d.hs_weight) <= 21 ? 0 : -10);
+                    return(d.baseTable.recommendations.length > 0 ? -10 : 0);
+                    //return (radiusScale(d.hs_weight) <= 21 ? 0 : -10);
                 }
             })
             .text(function (d) {
@@ -216,7 +219,8 @@ var Visualizer = {
         /// Node Icons ///
         visInfoIcon = svg.selectAll(".node")
             .filter(function (d) {
-                return (radiusScale(d.hs_weight) > 21);
+                //return (radiusScale(d.hs_weight) > 21);
+                return(d.baseTable.recommendations.length > 0);
             })
             .append('text')
             .classed("nodeIcon", true)
@@ -231,13 +235,29 @@ var Visualizer = {
             })
             .style("cursor", "hand")
             .on("mouseover", function (d) {
+                var popoverDesc = $(this).attr("aria-describedby");
+                if (popoverDesc && popoverDesc.startsWith("popover")){
+                    // popover is visible
+                    return;
+                }
+
+                var htmlTable = "<table width='100%'><thead><tr><th>Type</th><th>Desc</th></tr></thead><tbody>";
+                for(var index=0; index<d.baseTable.recommendations.length; index++) {
+                    var r = d.baseTable.recommendations[index];
+                    htmlTable += "<tr><td style='padding: 5px;vertical-align: text-top'>" + r.type + "</td><td style='padding: 5px'>" + r.desc + "</td></tr>"
+                }
+                htmlTable += "</tbody></table>";
+
                 $(this).popover({
-                    title: "Recommendations or Whatever",
-                    content: "One night, an 87-year-old woman came home from Bingo to find her 92-year-old husband in bed with another woman. She became violent and ended up pushing him off the balcony of their 20th floor apartment, killing him instantly. Brought before the court on the charge of murder, she was asked if she had anything to say in her own defense. 'Your Honour', she began coolly, I figured that at 92, if he could screw, he could fly.",
+                    //title: "Recommendations",
+                    title : '<span><strong>Recommendations</strong></span>'+
+                    '<button type="button" id="close" class="pull-right" onclick="Visualizer.closeRecommendationPopover(this);">&times;</button>',
+                    content: htmlTable,
+                    html: true,
                     container: "body"
                 }).popover("show");
-            }).on("mouseout", function (d) {
-                $(this).popover("hide");
+            }).on("click", function (d) {
+                //$(this).popover("hide");
             });
 
         var tickCount = 0;
@@ -485,5 +505,9 @@ var Visualizer = {
             fLayout.stop();
     },*/
 
-    lastClickedNodeData: null // Contextual Variable, changes on each node click
+    lastClickedNodeData: null, // Contextual Variable, changes on each node click
+
+    closeRecommendationPopover: function (closeButton) {
+        $("text[aria-describedby='" + $(closeButton).closest("div[id^='popover']").attr("id") + "'").popover('hide');
+    }
 };

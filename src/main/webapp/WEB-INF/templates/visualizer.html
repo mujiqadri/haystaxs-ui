@@ -73,6 +73,11 @@
 			.select2-dropdown {
 				z-index: 16000;
 			}
+
+			.popover {
+				z-index: 15000;
+				max-width: none;
+			}
 		</style>
 	</th:block>
 </head>
@@ -475,6 +480,8 @@
 	<script th:src="@{/public/bower_components/underscore/underscore-min.js}" src="/public/bower_components/underscore/underscore-min.js"></script>
 	<!-- D3 Core JavaScript -->
 	<script th:src="@{/public/bower_components/d3/d3.js}" src="/public/bower_components/d3/d3.js" charset="utf-8"></script>
+	<!-- D3 Core JavaScript -->
+	<script th:src="@{/public/bower_components/string/dist/string.js}" src="/public/bower_components/string/dist/string.js" charset="utf-8"></script>
 	<!--BootGrid -->
 	<script th:src="@{/public/vendor/jquery.bootgrid.js}" src="/public/vendor/jquery.bootgrid.js"></script>
 

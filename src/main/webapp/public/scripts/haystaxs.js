@@ -100,6 +100,9 @@ function applyFilters() {
 
 /// CODE TO RUN ON DOCUMENT LOAD ///
 $(function () {
+
+    //console.log("Adnan".startsWith("A"));
+
     UIElements.initialize();
 
     initializeFullScreenOptions();
@@ -147,5 +150,3 @@ function initializeFullScreenOptions() {
 
 /// GLOBAL VARIABLES ///
 var dataModel = undefined;
-
-var visualizerOriginalHeight = 575;
