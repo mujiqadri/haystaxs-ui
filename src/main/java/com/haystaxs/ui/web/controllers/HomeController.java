@@ -166,7 +166,7 @@ public class HomeController {
     //endregion
 
     //region ### Dashboard Action ###
-    @RequestMapping("/dashboard")
+    @RequestMapping({"/", "/dashboard"})
     public String dashBoard(Model model, HttpServletRequest request) {
         model.addAttribute("title", "Dashboard");
 

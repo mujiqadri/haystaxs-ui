@@ -605,6 +605,11 @@ function initHourlyComparisonQueriesChart(data) {
                 mdmMin = mdmMax.clone();
                 mdmMin.subtract(12, 'h');
                 break;
+            case "24hr":
+                mdmMax.subtract(24, 'h');
+                mdmMin = mdmMax.clone();
+                mdmMin.subtract(24, 'h');
+                break;
             case "1w":
                 mdmMax.subtract(1, 'w');
                 mdmMin = mdmMax.clone();
@@ -788,7 +793,8 @@ function generateSampleChartData() {
 $(function () {
     if ($('#query-logs-processed').val() === 'true') {
         minDateWithTimeZone = new Date($('#start-date').val() + " 00:00");
-        maxDateWithTimeZone = new Date($('#end-date').val() + " 23:59");
+        //maxDateWithTimeZone = new Date($('#end-date').val() + " 23:59");
+        maxDateWithTimeZone = new Date();
 
         $('#filter-chart-data').on('click', function (e) {
             e.preventDefault();
@@ -809,11 +815,14 @@ $(function () {
 
             if (selectedValue === "ALL") {
                 startDate.val(moment(minDateWithTimeZone).format("DD-MMM-YYYY"));
-                endDate.val(moment(maxDateWithTimeZone).format("DD-MMM-YYYY"));
+                //endDate.val(moment(maxDateWithTimeZone).format("DD-MMM-YYYY"));
             } else {
                 switch (selectedValue) {
                     case "12hr":
                         mdm.subtract(12, 'h');
+                        break;
+                    case "24hr":
+                        mdm.subtract(24, 'h');
                         break;
                     case "1w":
                         mdm.subtract(1, "w");
@@ -833,6 +842,7 @@ $(function () {
                 }
 
                 startDate.val(mdm.format('DD-MMM-YYYY'));
+                endDate.val(moment(maxDateWithTimeZone).format("DD-MMM-YYYY"));
             }
         });
         $('#hourly-queries-sqlwindowop').on('change', hourlyQueriesSqlWindowOp_Change);
