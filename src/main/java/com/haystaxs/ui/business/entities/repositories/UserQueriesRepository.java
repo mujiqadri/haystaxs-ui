@@ -118,7 +118,7 @@ public class UserQueriesRepository extends RepositoryBase {
         whereClause += String.format(" AND q.logsessiontime::date = '%s'\n", forDate);
 
         if (durationGreaterThan != null && !durationGreaterThan.isEmpty()) {
-            whereClause += " AND extract(epoch from logduration) > ?\n";
+            whereClause += " AND total_duration > ?\n";
             params.add(Double.parseDouble(durationGreaterThan));
         }
         if (astLike != null && !astLike.isEmpty()) {
@@ -126,15 +126,12 @@ public class UserQueriesRepository extends RepositoryBase {
             //params.add(userNameLike);
         }
 
-        String sql = String.format("select * from (" +
-                "select distinct a.ast_id, a.ast_json, a.is_json, count(q.*) count, sum(extract (epoch from q.logduration)) sum_duration\n" +
-                ", count(0) OVER () as total_rows \n" +
-                "from %s.ast a\n" +
-                "\tINNER JOIN %1$s.ast_queries aq on a.ast_id = aq.ast_id\n" +
-                "\tINNER JOIN %1$s.queries q on aq.queries_id = q.id\n" +
+        String sql = String.format("select a.*, count(0) OVER () as total_rows \n" +
+                "from %1$s.ast a\n" +
+                "inner join %1$s.ast_queries aq ON a.ast_id = aq.ast_id\n" +
+                "inner join %1$s.queries q ON q.id = aq.queries_id\n" +
                 "%2$s\n" +
-                "\tgroup by a.ast_id, a.ast_json, a.is_json) as Y\n" +
-                "\torder by %3$s\n", userSchemaName, whereClause, orderBy) +
+                "order by %3$s \n", userSchemaName, whereClause, orderBy) +
                 String.format(" limit %d OFFSET %d ", pageSize, (pageNo - 1) * pageSize);
 
         List<Ast> resultSet = jdbcTemplate.query(sql, params.toArray(), new BeanPropertyRowMapper<Ast>(Ast.class));

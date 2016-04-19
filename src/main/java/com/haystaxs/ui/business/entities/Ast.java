@@ -8,7 +8,7 @@ public class Ast {
     private String astJson;
     private boolean isJson;
     private int count;
-    private int sumDuration;
+    private int totalDuration;
     private int totalRows;
 
     public int getAstId() {
@@ -43,12 +43,12 @@ public class Ast {
         this.count = count;
     }
 
-    public int getSumDuration() {
-        return sumDuration;
+    public int getTotalDuration() {
+        return totalDuration;
     }
 
-    public void setSumDuration(int sumDuration) {
-        this.sumDuration = sumDuration;
+    public void setTotalDuration(int totalDuration) {
+        this.totalDuration = totalDuration;
     }
 
     public int getTotalRows() {

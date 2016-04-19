@@ -716,13 +716,13 @@ public class HomeController {
         List<Ast> asts = new ArrayList<Ast>();
 
         if (forDate != null && !forDate.isEmpty()) {
-            asts = userDatabaseRepository.getASTs(getUserSchemaName(), getActiveClusterId(), forDate, null, null, 25, 1, " sum_duration DESC ");
+            asts = userDatabaseRepository.getASTs(getUserSchemaName(), getActiveClusterId(), forDate, null, null, 25, 1, " total_duration DESC ");
             if (!asts.isEmpty()) {
                 int totalRows = asts.get(0).getTotalRows();
                 PaginationInfo paginationInfo = new PaginationInfo(totalRows, 25, 1);
 
                 model.addAttribute("pi", paginationInfo);
-                model.addAttribute("orderBy", "sum_duration");
+                model.addAttribute("orderBy", "total_duration");
                 model.addAttribute("orderByDir", "DESC");
             }
 
@@ -740,7 +740,7 @@ public class HomeController {
                                    @RequestParam("duration") String duration,
                                    @RequestParam(value = "pgSize", defaultValue = "25") int pageSize,
                                    @RequestParam(value = "pgNo", defaultValue = "1") int pageNo,
-                                   @RequestParam(value = "orderBy", defaultValue = "sum_duration DESC") String orderBy,
+                                   @RequestParam(value = "orderBy", defaultValue = "total_duration DESC") String orderBy,
                                    Model model) {
         List<Ast> asts = userDatabaseRepository.getASTs(getUserSchemaName(), getActiveClusterId(),
                 forDate, duration, astLike, pageSize, pageNo, orderBy);

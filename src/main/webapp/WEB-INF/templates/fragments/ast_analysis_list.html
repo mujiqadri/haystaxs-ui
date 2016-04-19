@@ -18,9 +18,10 @@
                         </a>
                     </th>
                     <th>
-                        <a href="javascript:;" th:attr="data-orderby='sum_duration ' + (${orderBy} == 'sum_duration' ? ${orderByDir} : 'DESC')">Sum Duration
-                            <span th:if="${orderBy} == 'sum_duration' and ${orderByDir} == 'ASC'" class="fa fa-caret-down"></span>
-                            <span th:if="${orderBy} == 'sum_duration' and ${orderByDir} == 'DESC'" class="fa fa-caret-up"></span>
+                        <a href="javascript:;" th:attr="data-orderby='total_duration ' + (${orderBy} == 'total_duration' ? ${orderByDir} : 'DESC')">Total
+                            Duration
+                            <span th:if="${orderBy} == 'total_duration' and ${orderByDir} == 'ASC'" class="fa fa-caret-down"></span>
+                            <span th:if="${orderBy} == 'total_duration' and ${orderByDir} == 'DESC'" class="fa fa-caret-up"></span>
                         </a>
                     </th>
                 </tr>
@@ -29,7 +30,7 @@
                 <tr th:each="a,iterStatus : ${asts}">
                     <td style="word-break: break-all"><pre><code th:text="${a.astJson}"></code></pre></td>
                     <td th:text="${a.count}"></td>
-                    <td th:text="${a.sumDuration}"></td>
+                    <td th:text="${a.totalDuration}"></td>
                 </tr>
                 </tbody>
             </table>

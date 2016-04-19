@@ -18,9 +18,9 @@
           p:url="jdbc:postgresql://24.150.86.245:5432/haystack"
           p:username="gpadmin"
           p:password="S3cr3t!"/>
-       <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-             p:driverClassName="org.postgresql.Driver"
-             p:url="jdbc:postgresql://192.168.1.240:5432/haystack"
-             p:username="gpadmin"
-             p:password="pwd"/>-->
+       <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"-->
+             <!--p:driverClassName="org.postgresql.Driver"-->
+             <!--p:url="jdbc:postgresql://192.168.1.240:5432/haystack"-->
+             <!--p:username="gpadmin"-->
+             <!--p:password="S3cr3t!"/>-->
 </beans>
