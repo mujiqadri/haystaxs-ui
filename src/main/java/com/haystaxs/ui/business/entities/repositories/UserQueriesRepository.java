@@ -127,11 +127,13 @@ public class UserQueriesRepository extends RepositoryBase {
         }
 
         String sql = String.format("select a.*, count(0) OVER () as total_rows \n" +
-                "from %1$s.ast a\n" +
-                "inner join %1$s.ast_queries aq ON a.ast_id = aq.ast_id\n" +
-                "inner join %1$s.queries q ON q.id = aq.queries_id\n" +
+                "from %1$s.ast a \n" +
+                "where a.ast_id in ( select ast_id\n" +
+                "\t\tfrom %1$s.ast_queries aq \n" +
+                "\t\tinner join %1$s.queries q ON q.id = aq.queries_id \n" +
                 "%2$s\n" +
-                "order by %3$s \n", userSchemaName, whereClause, orderBy) +
+                "\t\t)\n" +
+                "ORDER BY %3$s", userSchemaName, whereClause, orderBy) +
                 String.format(" limit %d OFFSET %d ", pageSize, (pageNo - 1) * pageSize);
 
         List<Ast> resultSet = jdbcTemplate.query(sql, params.toArray(), new BeanPropertyRowMapper<Ast>(Ast.class));
@@ -304,7 +306,7 @@ public class UserQueriesRepository extends RepositoryBase {
         String sql = String.format("select * from(select logsessiontime::date date, qryType query_type, count(0) count,\n" +
                 "round(coalesce(sum(extract(epoch from logduration)),0)) as duration\n" +
                 "from %s.queries\n" +
-                "%2s\n" +
+                "%2$s\n" +
                 "group by logsessiontime::date, qrytype\n" +
                 "ORDER BY logsessiontime::date) as Y where duration > 0", userSchemaName, whereClause);
 

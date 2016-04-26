@@ -15,7 +15,8 @@ var pivotNormalChartData = function (data, valueField) {
 
     for(var i=0;i<distinctDates.length;i++){
         var datum = {
-            date: distinctDates[i]
+            date: distinctDates[i],
+            url: "querylog/ast/analyze?date=" + distinctDates[i]
         };
 
         for(var j=0;j<distinctQueryTypes.length;j++) {
@@ -66,7 +67,13 @@ var getNormalChartGraphsArray = function(data, topN) {
             valueAxis: "va1",
             legendValueText: "[[value]]",
             lineColor: pastel,
-            lineThickness: 1.5
+            lineThickness: 1.5,
+            bullet: "round",
+            /*bulletAlpha: 0.25,
+            bulletBorderAlpha: 1,*/
+            bulletSize: 10,
+            urlField: "url",
+            urlTarget: "_blank"
         };
 
         graphs.push(g);
@@ -135,6 +142,7 @@ function initQueryLogDurationChart(data) {
 
     var makeChart = function (graphs, chartData) {
         var chart = AmCharts.makeChart("querylog-duration-chart", {
+            creditsPosition: "top-right",
             type: "serial",
             fontSize: 12,
             fontFamily: "Open Sans",

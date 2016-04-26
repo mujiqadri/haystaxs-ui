@@ -13,6 +13,7 @@ import com.haystaxs.ui.support.UploadedFileInfo;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MiscUtil;
+import org.joda.time.DateTimeUtils;
 import org.omg.CORBA.portable.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContext;
 import org.thymeleaf.spring.support.Layout;
+import org.thymeleaf.util.DateUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.mail.Session;
@@ -704,10 +706,11 @@ public class HomeController {
 
     @RequestMapping("/querylog/ast/analyze")
     public String analyzeASTs(@RequestParam(value = "date", required = false) String forDate,
-                              Model model) {
+                              Model model) throws ParseException {
         model.addAttribute("title", "Analyze ASTs");
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat uiDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("HH:mm");
 
         // Need a repo method for this
@@ -726,7 +729,7 @@ public class HomeController {
                 model.addAttribute("orderByDir", "DESC");
             }
 
-            model.addAttribute("forDate", forDate);
+            model.addAttribute("forDate", uiDateFormat.format(simpleDateFormat.parse(forDate)));
             model.addAttribute("asts", asts);
         }
 

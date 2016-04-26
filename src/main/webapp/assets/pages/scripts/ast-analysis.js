@@ -24,6 +24,11 @@ jQuery(document).ready(function () {
     $('#search-asts').on('click', function(e) {
         e.preventDefault();
 
+        if($("#for-date").val() === "") {
+            $("#for-date").focus();
+            return;
+        }
+
         // TODO: remember last order by
         var data = QueryLogAnalysis.dataForAjax(1, $('#order-by').val());
 
