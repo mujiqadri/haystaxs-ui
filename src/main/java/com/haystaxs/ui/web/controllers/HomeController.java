@@ -1,6 +1,8 @@
 package com.haystaxs.ui.web.controllers;
 
 import com.haystack.domain.Tables;
+import com.haystack.service.CatalogService;
+import com.haystack.util.ConfigProperties;
 import com.haystaxs.ui.business.entities.*;
 import com.haystaxs.ui.business.entities.repositories.*;
 import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDateTimes;
@@ -842,7 +844,14 @@ public class HomeController {
         try {
             result = new String(Files.readAllBytes(Paths.get(fullPath)));
         } catch (java.io.IOException e) {
-            result = "Workload File Not Found !";
+            logger.warn("Workload File Not Found !");
+
+            // Get workload json from DB
+            try {
+                result = haystaxsLibServiceWrapper.getWorkloadJson(workloadId);
+            } catch (IOException e1) {
+                result = e1.getMessage();
+            }
         }
 
         return result;

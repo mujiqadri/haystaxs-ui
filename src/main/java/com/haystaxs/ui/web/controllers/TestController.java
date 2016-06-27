@@ -1,8 +1,10 @@
 package com.haystaxs.ui.web.controllers;
 
 import com.haystack.domain.Tables;
+import com.haystack.service.CatalogService;
 import com.haystack.service.database.Cluster;
 import com.haystack.service.database.Greenplum;
+import com.haystack.util.ConfigProperties;
 import com.haystack.util.Credentials;
 import com.haystack.util.DBConnectService;
 import com.haystaxs.ui.business.entities.Gpsd;
@@ -36,7 +38,7 @@ import java.util.List;
 public class TestController {
     final static Logger logger = LoggerFactory.getLogger(TestController.class);
 
-//    @Value("#{appProps.sfp}")
+    //    @Value("#{appProps.sfp}")
 //    private String sfp;
     @Autowired
     private Environment env;
@@ -66,13 +68,13 @@ public class TestController {
     @RequestMapping("/test/test1")
     @ResponseBody
     public String test1() {
-        return("chal gia bhan ka lora");
+        return ("chal gia bhan ka lora");
     }
 
     @RequestMapping("/test/randomcontent")
     @ResponseBody
     public String randomContent() {
-        return("Lorum ipsum bahin ka dipsum");
+        return ("Lorum ipsum bahin ka dipsum");
     }
 
     @RequestMapping("/test/sendmail")
@@ -80,7 +82,7 @@ public class TestController {
     public String testMail() throws Exception {
         mailUtil.sendEmail("GPSD submitted successfully",
                 "Hi, Thanks for submitting the efffing GPSD file, go have some coffee and take a shit, we will get back to you once it's processed.",
-                new String[] {"mujtaba.qadri@gmail.com", "adnan.hussain@danatev.com"});
+                new String[]{"mujtaba.qadri@gmail.com", "adnan.hussain@danatev.com"});
 
         return "Email sent";
     }
@@ -228,16 +230,24 @@ public class TestController {
         return result;
     }
 
-    @RequestMapping("/test/hslib")
+    @RequestMapping("/test/hslib/{wlid}")
     @ResponseBody
-    public String testHsLib() {
-        Cluster cluster = new Greenplum();
+    public String testHsLib(@PathVariable("wlid") int wlid) throws IOException {
+        /*Cluster cluster = new Greenplum();
         Credentials credentials = new Credentials();
         credentials.setCredentials("24.150.86.245", "5432", "haystack", "gpadmin", "password");
-        cluster.connect(credentials);
+        cluster.connect(credentials);*/
 
-        //cluster.loadTables(credentials, false);
+        ConfigProperties configProperties = new ConfigProperties();
+        configProperties.loadProperties();
+        CatalogService cs = new CatalogService(configProperties);
 
-        return "success";
+        //cs.processWorkload(wlid);
+
+        String result = cs.getWorkloadJSON(wlid);
+
+        return result;
+
+        //return "SUCCESS";
     }
-    }
+}

@@ -199,11 +199,21 @@ public class HaystaxsLibService {
             configProperties.loadProperties();
 
             ClusterService cs = new ClusterService(configProperties);
-            result = cs.refresh(clusterId);
+            result = cs.refreshSchemaAndQueryLogs(clusterId);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }
 
         return result;
+    }
+
+    public String getWorkloadJson(int workloadId) throws IOException {
+        ConfigProperties configProperties = new ConfigProperties();
+        configProperties.loadProperties();
+        CatalogService cs = new CatalogService(configProperties);
+
+        String result = cs.getWorkloadJSON(workloadId);
+
+        return(result);
     }
 }
