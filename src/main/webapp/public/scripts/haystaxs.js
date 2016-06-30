@@ -59,6 +59,8 @@ function dataLoadSuccessful() {
     try {
         dataModel.initialize();
 
+        UIElements.populateRecommendationsGrid(dataModel);
+
         // Update UI based on filters
         $('#schema-select')
             .find('option')

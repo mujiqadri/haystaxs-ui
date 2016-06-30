@@ -228,13 +228,15 @@ var Visualizer = {
                 "font-family": "FontAwesome",
                 "font-size": "1.3em",
                 "text-anchor": "middle",
-                y: 10
+                y: 10,
+                //"data-powertip": "Maa ka laadla"
             })
             .text(function (d) {
                 return ("\uf05a");
             })
             .style("cursor", "hand")
             .on("mouseover", function (d) {
+                /*
                 var popoverDesc = $(this).attr("aria-describedby");
                 if (popoverDesc && popoverDesc.startsWith("popover")){
                     // popover is visible
@@ -256,6 +258,19 @@ var Visualizer = {
                     html: true,
                     container: "body"
                 }).popover("show");
+                */
+
+                var htmlTable = "<table width='100%'><thead><tr><th>Type</th><th>Desc</th></tr></thead><tbody>";
+                for(var index=0; index<d.baseTable.recommendations.length; index++) {
+                    var r = d.baseTable.recommendations[index];
+                    htmlTable += "<tr><td style='padding: 5px;vertical-align: text-top'>" + r.type + "</td><td style='padding: 5px'>" + r.desc + "</td></tr>"
+                }
+                htmlTable += "</tbody></table>";
+
+                $(this).data('powertip', htmlTable);
+                $(this).powerTip({
+                    mouseOnToPopup: true
+                });
             }).on("click", function (d) {
                 //$(this).popover("hide");
             });

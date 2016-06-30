@@ -27,6 +27,7 @@ var UIElements = {
     joinAdditionalInfoGrid: null,
     partitionsGrid: null,
     partitionAddtionalInfoGrid: null,
+    recommendationsGrid: null,
 
     showAllColumns: true,
 
@@ -150,6 +151,36 @@ var UIElements = {
         });
 
         UIElements.partitionsGrid.bootgrid("append", partitions);
+    },
+    // This method is called separately for now and populates the Grid with all possible recommendations
+    populateRecommendationsGrid: function (dm) {
+        var recommendations = [];
+
+        dm.allTables.forEach(function(t) {
+            t.recommendations.forEach(function(r) {
+                recommendations.push({
+                    "table-name": t["Table Name"],
+                    "r-type": r["type"],
+                    "r-desc": r["desc"]
+                });
+            });
+        });
+
+        UIElements.recommendationsGrid.bootgrid("append", recommendations);
+
+/*
+        d.baseTable.partitions.forEach(function (partition) {
+            partitions.push({
+                "partition-name": partition["Partition Name"],
+                "range-start": partition["Range Start"],
+                "range-end": partition["Range End"],
+                "list-values": partition["List Values"],
+                "originalObject": partition
+            });
+        });
+
+        UIElements.partitionsGrid.bootgrid("append", partitions);
+*/
     },
 
     /// UI Hooks ///
@@ -305,7 +336,7 @@ var UIElements = {
         }
         else if ($(e.target).attr("data-hs-name") === "joins"){
             UIElements.joinAdditionalInfoPanel.show();
-        } else {
+        } else if ($(e.target).attr("data-hs-name") === "partitions"){
             UIElements.partitionAdditionalInfoPanel.show();
         }
     },
@@ -469,6 +500,8 @@ var UIElements = {
         UIElements.partitionsGrid.on("loaded.rs.jquery.bootgrid", UIElements.gridDataLoaded);
         UIElements.partitionAddtionalInfoGrid = $("#partition-additional-info-grid").bootgrid(bootgridCommonConfig);
         UIElements.partitionAddtionalInfoGrid.on("loaded.rs.jquery.bootgrid", UIElements.gridDataLoaded);
+
+        UIElements.recommendationsGrid = $("#recommendations-grid").bootgrid(partitionsBootGridConfig);
 
         UIElements.tableInfoTabs.on('show.bs.tab', UIElements.onTableInfoTabChanged);
 
