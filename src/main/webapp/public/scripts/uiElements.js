@@ -27,7 +27,7 @@ var UIElements = {
     joinAdditionalInfoGrid: null,
     partitionsGrid: null,
     partitionAddtionalInfoGrid: null,
-    recommendationsGrid: null,
+    //recommendationsGrid: null,
 
     showAllColumns: true,
 
@@ -156,31 +156,22 @@ var UIElements = {
     populateRecommendationsGrid: function (dm) {
         var recommendations = [];
 
+        rtb = $('#recommendation-table-body');
+        html = "";
+
         dm.allTables.forEach(function(t) {
             t.recommendations.forEach(function(r) {
-                recommendations.push({
-                    "table-name": t["Table Name"],
-                    "r-type": r["type"],
-                    "r-desc": r["desc"]
-                });
+                html += "<tr>"
+                    + "<td>" + t["Table Name"] + "</td>"
+                    + "<td>" + r["type"] + "</td>"
+                    + "<td>" + r["desc"] + "</td>"
+                    + "<td>" + r["anomaly"] + "</td>"
+                    + "/<tr>";
             });
         });
 
-        UIElements.recommendationsGrid.bootgrid("append", recommendations);
-
-/*
-        d.baseTable.partitions.forEach(function (partition) {
-            partitions.push({
-                "partition-name": partition["Partition Name"],
-                "range-start": partition["Range Start"],
-                "range-end": partition["Range End"],
-                "list-values": partition["List Values"],
-                "originalObject": partition
-            });
-        });
-
-        UIElements.partitionsGrid.bootgrid("append", partitions);
-*/
+        rtb.html(html);
+        //UIElements.recommendationsGrid.bootgrid("append", recommendations);
     },
 
     /// UI Hooks ///
@@ -501,7 +492,7 @@ var UIElements = {
         UIElements.partitionAddtionalInfoGrid = $("#partition-additional-info-grid").bootgrid(bootgridCommonConfig);
         UIElements.partitionAddtionalInfoGrid.on("loaded.rs.jquery.bootgrid", UIElements.gridDataLoaded);
 
-        UIElements.recommendationsGrid = $("#recommendations-grid").bootgrid(partitionsBootGridConfig);
+        //UIElements.recommendationsGrid = $("#recommendations-grid").bootgrid(partitionsBootGridConfig);
 
         UIElements.tableInfoTabs.on('show.bs.tab', UIElements.onTableInfoTabChanged);
 
