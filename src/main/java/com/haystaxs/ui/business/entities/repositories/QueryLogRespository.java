@@ -52,7 +52,7 @@ public class QueryLogRespository extends RepositoryBase{
         String sql = String.format("select nextval('%s.seq_query_log')", getHsSchemaName());
         int newQueryLogId = jdbcTemplate.queryForObject(sql, Integer.class);
 
-        sql = String.format("INSERT INTO %s.query_logs(query_log_id, user_id, submitted_on, status, original_file_name, file_checksum, gpsd_id) " +
+        sql = String.format("INSERT INTO %s.query_logs(query_log_id, user_id, submitted_on, status, original_file_name, file_checksum, cluster_id) " +
                 " VALUES (?, ?, localtimestamp, 'UPLOADED', ?, ?, ?)", getHsSchemaName());
         jdbcTemplate.update(sql, new Object[] { newQueryLogId, userId, originalFileName, checksum,  clusterId});
 
@@ -63,7 +63,7 @@ public class QueryLogRespository extends RepositoryBase{
         String sql = String.format("select qld.*, ql.submitted_on, ql.original_file_name, count(0) OVER () as totalRows " +
                 " from %s.query_log_dates qld INNER JOIN %s.query_logs ql " +
                 " ON ql.query_log_id = qld.query_log_id where " +
-                " ql.gpsd_id = ? " +
+                " ql.cluster_id = ? " +
                 " AND qld.log_date BETWEEN ? AND ? " +
                 " ORDER BY qld.log_date DESC " +
                 " LIMIT %d OFFSET %d ", getHsSchemaName(), getHsSchemaName(), pageSize, (pageNo-1) * pageSize);

@@ -24,11 +24,11 @@ public class ClusterRepository extends RepositoryBase {
     //@Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
     public List<Gpsd> getAllClusters(int userId, boolean isDeployedOnCluster) {
 
-        String sql = "select g.* from %s.gpsd g join %1$s.gpsd_users gu  on g.gpsd_id = gu.gpsd_id where ";
+        String sql = "select c.* from %s.cluster c join %1$s.cluster_users cu  on c.cluster_id = cu.cluster_id where ";
         if(isDeployedOnCluster) {
-                sql += " gu.user_id = 1 or ";
+                sql += " cu.user_id = 1 or ";
         }
-        sql += " gu.user_id = ? ORDER BY g.friendly_name;";
+        sql += " cu.cluster_id = ? ORDER BY c.friendly_name;";
 
         sql = String.format(sql, getHsSchemaName());
 
@@ -38,7 +38,7 @@ public class ClusterRepository extends RepositoryBase {
     }
 
     public int getDefaultClusterId(int userId) {
-        String sql = String.format("SELECT gpsd_id FROM %s.gpsd_users where user_id = ? AND is_default = TRUE",
+        String sql = String.format("SELECT cluster_id FROM %s.cluster_users where user_id = ? AND is_default = TRUE",
                 getHsSchemaName());
 
         int result = jdbcTemplate.queryForObject(sql, new Object[] {userId}, Integer.class);

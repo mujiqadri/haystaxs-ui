@@ -26,7 +26,7 @@ public class WorkloadRepository extends RepositoryBase {
         String sql = String.format("select nextval('%s.seq_workload')", getHsSchemaName());
         int newWorkloadId = jdbcTemplate.queryForObject(sql, Integer.class);
 
-        sql = String.format("INSERT INTO %s.workloads (workload_id, gpsd_id, user_id, start_date, end_date, created_on) VALUES (?, ?, ?, ?, ?, localtimestamp)", getHsSchemaName());
+        sql = String.format("INSERT INTO %s.workloads (workload_id, cluster_id, user_id, start_date, end_date, created_on) VALUES (?, ?, ?, ?, ?, localtimestamp)", getHsSchemaName());
         jdbcTemplate.update(sql, new Object[] {newWorkloadId, workload.getGpsdId(), userId, workload.getStartDate(), workload.getEndDate()});
 
         return newWorkloadId;
@@ -40,7 +40,7 @@ public class WorkloadRepository extends RepositoryBase {
     public List<Workload> getLastnWorkloads(int gpsdId, int lastn) {
         String sql = String.format("select wl.* databasename from %1$s.workloads wl\n" +
                 //"join %1$s.gpsd gp on wl.gpsd_id = gp.gpsd_id\n" +
-                "where wl.gpsd_id = ?\n" +
+                "where wl.cluster_id = ?\n" +
                 "order BY workload_id DESC\n" +
                 "limit %2$d;", getHsSchemaName(), lastn);
 

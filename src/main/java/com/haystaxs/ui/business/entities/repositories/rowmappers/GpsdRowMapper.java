@@ -15,13 +15,13 @@ public class GpsdRowMapper implements RowMapper {
     public Object mapRow(ResultSet rs, int i) throws SQLException {
         Gpsd gpsd = new Gpsd();
 
-        gpsd.setGpsdId(rs.getInt("gpsd_id"));
+        gpsd.setGpsdId(rs.getInt("cluster_id"));
         gpsd.setDbName(rs.getString("dbname"));
-        gpsd.setGpsdVersion(rs.getString("gpsd_version"));
+        gpsd.setGpsdVersion(rs.getString("cluster_version"));
         gpsd.setNoOfLines(rs.getInt("nooflines"));
         gpsd.setFileSubmittedOn(rs.getTimestamp("file_submitted_on"));
         gpsd.setStatus(rs.getString("status"));
-        gpsd.setGpsdDate(rs.getTimestamp("gpsd_date"));
+        gpsd.setGpsdDate(rs.getTimestamp("cluster_date"));
 
         return (gpsd);
     }
