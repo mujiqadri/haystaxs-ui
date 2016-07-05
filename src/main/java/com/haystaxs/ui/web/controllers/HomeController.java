@@ -1,8 +1,6 @@
 package com.haystaxs.ui.web.controllers;
 
 import com.haystack.domain.Tables;
-import com.haystack.service.CatalogService;
-import com.haystack.util.ConfigProperties;
 import com.haystaxs.ui.business.entities.*;
 import com.haystaxs.ui.business.entities.repositories.*;
 import com.haystaxs.ui.business.entities.selection.QueryLogMinMaxDateTimes;
@@ -15,8 +13,6 @@ import com.haystaxs.ui.support.UploadedFileInfo;
 import com.haystaxs.ui.util.AppConfig;
 import com.haystaxs.ui.util.FileUtil;
 import com.haystaxs.ui.util.MiscUtil;
-import org.joda.time.DateTimeUtils;
-import org.omg.CORBA.portable.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,18 +21,12 @@ import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.support.RequestContext;
 import org.thymeleaf.spring.support.Layout;
-import org.thymeleaf.util.DateUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import javax.mail.Session;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -160,7 +150,7 @@ public class HomeController {
 
     private String getClusterName(int clusterId) throws Exception {
         for (Gpsd cluster : getAllUserClusters()) {
-            if (cluster.getGpsdId() == clusterId) {
+            if (cluster.getClusterId() == clusterId) {
                 return cluster.getFriendlyName();
             }
         }

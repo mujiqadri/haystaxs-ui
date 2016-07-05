@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 /**
  * Created by Adnan on 10/21/2015.
@@ -15,7 +14,7 @@ public class GpsdRowMapper implements RowMapper {
     public Object mapRow(ResultSet rs, int i) throws SQLException {
         Gpsd gpsd = new Gpsd();
 
-        gpsd.setGpsdId(rs.getInt("cluster_id"));
+        gpsd.setClusterId(rs.getInt("cluster_id"));
         gpsd.setDbName(rs.getString("dbname"));
         gpsd.setGpsdVersion(rs.getString("cluster_version"));
         gpsd.setNoOfLines(rs.getInt("nooflines"));

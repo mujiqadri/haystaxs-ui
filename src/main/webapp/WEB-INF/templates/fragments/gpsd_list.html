@@ -25,9 +25,9 @@
             <td th:if="${gpsd.createdOn}" th:text="${#dates.format(gpsd.createdOn, 'dd-MMM-yyyy hh:mm a')}"></td>
             <td th:text="${gpsd.status}"></td>
             <td style="text-align: center"><span th:class="${gpsd.isDefault} ? 'fa fa-check' : 'fa fa-times'"></span></td>
-            <td><a th:href="@{/cluster/exploredb/} + ${gpsd.gpsdId}">Explore DB</a></td>
-            <td><button class="btn btn-primary make-default-gpsd" th:attr="data-id=${gpsd.gpsdId}">Make Default</button></td>
-            <td><button class="btn btn-danger delete-gpsd" th:attr="data-id=${gpsd.gpsdId}">Delete</button></td>
+            <td><a th:href="@{/cluster/exploredb/} + ${gpsd.clusterId}">Explore DB</a></td>
+            <td><button class="btn btn-primary make-default-gpsd" th:attr="data-id=${gpsd.clusterId}">Make Default</button></td>
+            <td><button class="btn btn-danger delete-gpsd" th:attr="data-id=${gpsd.clusterId}">Delete</button></td>
         </tr>
         </tbody>
     </table>

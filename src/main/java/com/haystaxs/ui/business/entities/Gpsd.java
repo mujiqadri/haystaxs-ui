@@ -1,14 +1,13 @@
 package com.haystaxs.ui.business.entities;
 
 import java.io.Serializable;
-import java.sql.Time;
 import java.sql.Timestamp;
 
 /**
  * Created by Adnan on 10/21/2015.
  */
 public class Gpsd implements Serializable {
-    private int gpsdId;
+    private int clusterId;
     private String dbName;
     private String filename;
     private String gpsdDb;
@@ -32,12 +31,12 @@ public class Gpsd implements Serializable {
 
     public Gpsd(){}
 
-    public int getGpsdId() {
-        return gpsdId;
+    public int getClusterId() {
+        return clusterId;
     }
 
-    public void setGpsdId(int gpsdId) {
-        this.gpsdId = gpsdId;
+    public void setClusterId(int clusterId) {
+        this.clusterId = clusterId;
     }
 
     public String getDbName() {

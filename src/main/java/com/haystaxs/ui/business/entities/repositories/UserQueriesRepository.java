@@ -63,7 +63,7 @@ public class UserQueriesRepository extends RepositoryBase {
                                       String orderBy) {
         ArrayList<Object> params = new ArrayList<Object>();
 
-        String whereClause = String.format(" where gpsd_id = %d ", clusterId);
+        String whereClause = String.format(" where cluster_id = %d ", clusterId);
 
         if (startTime == null || startTime.isEmpty()) {
             startTime = "00:00:00";
@@ -113,7 +113,7 @@ public class UserQueriesRepository extends RepositoryBase {
                                       String orderBy) {
         ArrayList<Object> params = new ArrayList<Object>();
 
-        String whereClause = String.format(" where q.gpsd_id = %d\n", clusterId);
+        String whereClause = String.format(" where q.cluster_id = %d\n", clusterId);
 
         whereClause += String.format(" AND q.logsessiontime::date = '%s'\n", forDate);
 
@@ -176,7 +176,7 @@ public class UserQueriesRepository extends RepositoryBase {
     public QueryLogMinMaxDateTimes getQueryLogMinMaxDates(String userSchemaName, int clusterId) {
         String sql = String.format("select min(logsessiontime)::date, max(logsessiontime)::date, " +
                         "min(logsessiontime)::time, max(logsessiontime)::time  from %s.queries " +
-                        " where gpsd_id = ? ",
+                        " where cluster_id = ? ",
                 userSchemaName);
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, new Object[]{clusterId});
@@ -194,7 +194,7 @@ public class UserQueriesRepository extends RepositoryBase {
     @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
     public List<UserQueriesChartData2> getQueryStatsForChart(String userSchemaName, int clusterId, String fromDate, String toDate,
                                                           String dbName, String userName) {
-        String whereClause = String.format(" WHERE gpsd_id = %d ", clusterId);
+        String whereClause = String.format(" WHERE cluster_id = %d ", clusterId);
         boolean prependAnd = false;
 
         if (fromDate != null && toDate != null && !fromDate.isEmpty() && !toDate.isEmpty()) {
@@ -319,7 +319,7 @@ public class UserQueriesRepository extends RepositoryBase {
     @Cacheable(value = RepositoryBase.CACHE_NAME, key = RepositoryBase.CACHE_KEY_GENERATOR_STRING)
     public List<UserQueriesHourlyChartData> getHourlyQueryStatsForChart(String userSchemaName, int clusterId, String fromDate, String toDate,
                                                                 String dbName, String userName, String windowOp) {
-        String whereClause = String.format(" AND gpsd_id = %d ", clusterId);
+        String whereClause = String.format(" AND cluster_id = %d ", clusterId);
 
         if (windowOp == null || windowOp.isEmpty()) {
             windowOp = "avg";

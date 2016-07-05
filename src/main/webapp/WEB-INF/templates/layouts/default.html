@@ -214,8 +214,8 @@
 			<form class="search-form form-inline" method="GET">
 				<label class="control-label" style="color: #ffffff; margin-left: 5px; margin-right: 5px">Default Cluster:</label>
 				<select class="form-control" id="active-cluster">
-					<option th:each="cluster : ${allUserClusters}" th:value="${cluster.gpsdId}" th:text="${cluster.friendlyName}"
-					        th:selected="${cluster.gpsdId == activeClusterId}"></option>
+					<option th:each="cluster : ${allUserClusters}" th:value="${cluster.clusterId}" th:text="${cluster.friendlyName}"
+					        th:selected="${cluster.clusterId == activeClusterId}"></option>
 				</select>
 				<a class="btn btn-primary fa fa-plus tooltips" data-toggle="tooltip" data-placement="top" title="Add Cluster"
 				   th:href="@{/cluster/add}" th:if="${isDeployedOnCluster} and ${isClusterAdmin}"></a>
