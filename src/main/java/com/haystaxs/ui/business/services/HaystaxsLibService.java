@@ -105,8 +105,9 @@ public class HaystaxsLibService {
             configProperties.loadProperties();
 
             CatalogService cs = new CatalogService(configProperties);
-            modelJson = cs.processWorkload(workloadId);
+            cs.processWorkload(workloadId);
 
+            modelJson = null;
             if(modelJson != null) {
                 // NOTE: Is this to be done by UI or Backend ?
                 workloadRepository.setCompletedOn(workloadId);
@@ -136,7 +137,7 @@ public class HaystaxsLibService {
             configProperties.loadProperties();
 
             CatalogService cs = new CatalogService(configProperties);
-            result = cs.getGPSDJson(gpsdId);
+            //result = cs.getGPSDJson(gpsdId);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }
@@ -186,10 +187,11 @@ public class HaystaxsLibService {
                 clusterInfo.getPassword(), clusterInfo.getPort(), clusterInfo.getDbType());
     }
 
-    //@Async
-    public boolean refeshCluster(int clusterId) {
+    @Async
+    public void refeshCluster(int clusterId) {
         if(!appConfig.invokeBackend()) {
-            return true;
+            logger.debug("RefreshCluster invoked for clusterID: " + clusterId);
+            return;
         }
 
         boolean result = true;
@@ -200,11 +202,12 @@ public class HaystaxsLibService {
 
             ClusterService cs = new ClusterService(configProperties);
             result = cs.refreshSchemaAndQueryLogs(clusterId);
+            logger.debug("Cluster data refreshed for clusterID: " + clusterId);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }
 
-        return result;
+        return;
     }
 
     public String getWorkloadJson(int workloadId) throws IOException {

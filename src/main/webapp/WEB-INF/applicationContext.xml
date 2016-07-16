@@ -11,19 +11,19 @@
                             http://www.springframework.org/schema/util
                             http://www.springframework.org/schema/util/spring-util-3.0.xsd
                             http://www.springframework.org/schema/task
-                            http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+                            http://www.springframework.org/schema/task/spring-task-3.2.xsd">
 
     <util:properties id="appProps" location="classpath:application.properties"/>
 
     <context:annotation-config />
     <context:component-scan base-package="com.haystaxs.ui" />
 
-    <!--<bean id="HsScheduledTasks" class="com.haystaxs.ui.util.HsScheduledTasks"/>
+    <bean id="HsScheduledTasks" class="com.haystaxs.ui.util.HsScheduledTasks"/>
 
     <task:scheduler id="scheduler1" pool-size="5"/>
     <task:scheduled-tasks scheduler="scheduler1">
-        <task:scheduled ref="HsScheduledTasks" method="refreshSchemaStats" fixed-delay="5000"/>
-    </task:scheduled-tasks>-->
+        <task:scheduled ref="HsScheduledTasks" method="refreshSchemaAndQueryStats" fixed-delay="3600000" initial-delay="60000"/>
+    </task:scheduled-tasks>
 
     <!-- Database Connectivity -->
     <import resource="applicationContext-database.xml" />
