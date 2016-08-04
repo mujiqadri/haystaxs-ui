@@ -9,7 +9,7 @@ public class UserQueriesChartData2 {
     private String date;
     private String queryType;
     private int count;
-    private int duration;
+    private double duration;
 
     public String getDate() {
         return date;
@@ -35,11 +35,11 @@ public class UserQueriesChartData2 {
         this.count = count;
     }
 
-    public int getDuration() {
+    public double getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(double duration) {
         this.duration = duration;
     }
 }

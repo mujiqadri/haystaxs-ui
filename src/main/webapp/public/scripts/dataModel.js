@@ -146,7 +146,7 @@ Haystaxs.DataModel = (function () {
                 return (jt);
             })(),
             "Level": baseJoin.level,
-            "Join Usage Score": baseJoin.joinUsageScore,
+            "Join Usage Score": baseJoin.supportCount,
             // Note: This circular reference makes it NON-Stringifyable by JSON.stringify()
             parentTable: parentTable
         };

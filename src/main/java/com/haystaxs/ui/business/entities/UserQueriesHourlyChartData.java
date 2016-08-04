@@ -6,7 +6,7 @@ package com.haystaxs.ui.business.entities;
 public class UserQueriesHourlyChartData {
     private String queryType;
     private int hour;
-    private int duration;
+    private double duration;
 
     public String getQueryType() {
         return queryType;
@@ -24,11 +24,11 @@ public class UserQueriesHourlyChartData {
         this.hour = hour;
     }
 
-    public int getDuration() {
+    public double getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(double duration) {
         this.duration = duration;
     }
 }

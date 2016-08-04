@@ -152,8 +152,8 @@ var Visualizer = {
                 },
                 stroke: dimmedLinkStroke,
                 "stroke-width": function (d) {
-                    //return(linkStrokeWidthScale(d.baseJoin["Join Usage Score"]));
-                    return (2);
+                    return(linkStrokeWidthScale(d.baseJoin["Join Usage Score"]));
+                    //return (2);
                 },
                 "stroke-opacity": dimmedLinkStrokeOpacity
             })
