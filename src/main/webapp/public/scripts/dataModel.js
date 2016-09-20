@@ -28,7 +28,8 @@ Haystaxs.DataModel = (function () {
             // TODO: This could be a multi select (csv)
             schemaToDisplay: DataModel.SHOW_ALL_SCHEMAS,
             numberOfTablesToDisplay: 0,
-            greaterThan: -1
+            greaterThan: -1,
+            greaterThanJoin : -1
         };
         /// FILTER THE TABLES THAT WILL BE REPRESENTED AS NODES IN THE GRAPH
         this.display = {
@@ -80,6 +81,7 @@ Haystaxs.DataModel = (function () {
     }
 
     function normalizeColumn(baseColumn, parentTable) {
+
         return ({
             "Column Name": baseColumn.column_name,
             "Ordinal Position": baseColumn.ordinal_position,
@@ -350,7 +352,6 @@ Haystaxs.DataModel = (function () {
             if (node.hs_weight <= parseFloat(this.filters.greaterThan)) {
                 return;
             }
-
             if (this.filters.schemaToDisplay === DataModel.SHOW_ALL_SCHEMAS || this.filters.schemaToDisplay === node.baseTable["Schema Name"]) {
                 this.nodes.push(node);
             }
@@ -396,6 +397,10 @@ Haystaxs.DataModel = (function () {
                 link.baseJoin = join;
                 link.source = leftTableNode;
                 link.target = rightTableNode;
+
+                if (join["Join Usage Score"] <= parseFloat(this.filters.greaterThanJoin)) {
+                    return;
+                }
 
                 this.links.push(link);
             } else if (leftTableNode && rightTableNode) {

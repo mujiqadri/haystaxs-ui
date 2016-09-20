@@ -90,6 +90,7 @@ function setFiltersAndDisplayOptions() {
     dataModel.filters.schemaToDisplay = UIElements.schemaSelectDropdown.val();
     dataModel.filters.numberOfTablesToDisplay = parseInt(UIElements.numberOfTablesToDisplayTextbox.val());
     dataModel.filters.greaterThan = parseFloat(UIElements.displayBasedOnFilterTextbox.val());
+    dataModel.filters.greaterThanJoin = parseFloat(UIElements.displayBasedOnJoinFilterTextbox.val());
     //dataModel.display.accordingTo = UIElements.displayAccordingToRadioButton.val();
     dataModel.display.accordingTo = $("input[name='display-according-to']:checked").val();
 }
@@ -134,6 +135,7 @@ function initializeToolWindow() {
 }
 
 function initializeFullScreenOptions() {
+
     var clusterVisualPortlet = $('#cluster-visual-portlet-body');
     Visualizer.width = clusterVisualPortlet.width() - 10;
 

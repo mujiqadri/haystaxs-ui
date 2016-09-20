@@ -5,6 +5,7 @@ var UIElements = {
     schemaSelectDropdown: null,
     numberOfTablesToDisplayTextbox: null,
     displayBasedOnFilterTextbox: null,
+    displayBasedOnJoinFilterTextbox: null,
     displayAccordingToRadioButton: null,
     displayAccordingToRadioButton_Checked: null,
 
@@ -373,6 +374,9 @@ var UIElements = {
         UIElements.initTableSelectDropdown();
 
         UIElements.displayBasedOnFilterTextbox.attr("data-original-title", sprintf("%s is greater than", $("input[name='display-according-to']:checked").val()));
+
+        UIElements.displayBasedOnJoinFilterTextbox.attr("data-original-title", sprintf("%s is greater than", $("input[name='display-according-to']:checked").val()));
+
         $("#showing-table-count").html(sprintf("<strong>(</strong>Showing %i of %i tables<strong>)</strong>", dataModel.nodes.length, dataModel.totalNodeCountBeforeFilter));
     },
     onMouseOverColumnIcon: function (e) {
@@ -415,6 +419,7 @@ var UIElements = {
         UIElements.schemaSelectDropdown = $("#schema-select");
         UIElements.numberOfTablesToDisplayTextbox = $("#tables-to-display");
         UIElements.displayBasedOnFilterTextbox = $("#display-based-on-filter");
+        UIElements.displayBasedOnJoinFilterTextbox = $("#display-based-on-join-filter");
         UIElements.displayAccordingToRadioButton = $("input[name='display-according-to']").on("change", UIElements.onDisplayAccordingToChanged);
 
         UIElements.tableInfoTabs = $("#table-info-tabs a");
