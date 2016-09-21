@@ -398,7 +398,18 @@ Haystaxs.DataModel = (function () {
                 link.source = leftTableNode;
                 link.target = rightTableNode;
 
+
                 if (join["Join Usage Score"] <= parseFloat(this.filters.greaterThanJoin)) {
+                    for(var i=0; i<this.nodes.length; i++) {
+                        for(var j=0; j<this.nodes[i].baseTable.joins.length; j++) {
+                            var jo = this.nodes[i].baseTable.joins[j];
+                            if(jo["Join Usage Score"] <= parseFloat(this.filters.greaterThanJoin)){
+                                this.nodes[i].baseTable.joins[j].length = 0;
+
+                            }
+                           // alert(this.nodes[i].baseTable.joins[j]);
+                        }
+                    }
                     return;
                 }
 

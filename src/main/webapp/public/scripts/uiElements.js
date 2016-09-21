@@ -375,7 +375,7 @@ var UIElements = {
 
         UIElements.displayBasedOnFilterTextbox.attr("data-original-title", sprintf("%s is greater than", $("input[name='display-according-to']:checked").val()));
 
-        UIElements.displayBasedOnJoinFilterTextbox.attr("data-original-title", sprintf("%s is greater than", $("input[name='display-according-to']:checked").val()));
+        UIElements.displayBasedOnJoinFilterTextbox.attr("data-original-title","Joins more than");
 
         $("#showing-table-count").html(sprintf("<strong>(</strong>Showing %i of %i tables<strong>)</strong>", dataModel.nodes.length, dataModel.totalNodeCountBeforeFilter));
     },

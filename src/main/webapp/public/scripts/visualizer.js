@@ -313,7 +313,7 @@ var Visualizer = {
         }
 
         /// The tick function ///
-        function tick() {
+        function tick(e) {
             tickCount++;
 
             try {
@@ -337,6 +337,16 @@ var Visualizer = {
                         var str = "translate(" + d.x + "," + d.y + ")";
                         return (str);
                     });
+
+                var k = .1 * e.alpha;
+                var foci = [{x: 0, y: 150}, {x: 200, y: 150}];
+                // Push nodes toward their designated focus.
+                dataModel.nodes.forEach(function(o, i) {
+                    if( o.baseTable.joins.length === 0) {
+                        o.y += (foci[o.baseTable.joins.length].y - o.y) * k;
+                        o.x += (foci[o.baseTable.joins.length].x - o.x) * k;
+                    }
+                });
 
                 if (visLinks) {
                     visLinks.attr(
@@ -445,7 +455,7 @@ var Visualizer = {
 
             var visLinkLabel =  d3.selectAll(".link-label")
 
-            visLinkLabel.style("stroke","black").style("stroke-width",2);
+            visLinkLabel.style("stroke","black").style("stroke-width",0);
 
             visLinkLabel.transition().duration(100)
                 .style("opacity", function(o) {
@@ -547,7 +557,7 @@ var Visualizer = {
                 .attr("stroke", dimmedLinkStroke)
                 .attr("stroke-opacity", dimmedLinkStrokeOpacity);
 
-            d3.selectAll(".link-label").style("stroke","grey").style("stroke-width",1);
+            d3.selectAll(".link-label").style("stroke","grey").style("stroke-width",0);
             d3.selectAll(".link-label").transition().duration(500)
                 .style("opacity", 1);
 
